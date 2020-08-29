@@ -14,6 +14,16 @@ WBTToolChain class >> unixGCC [
 	^ WBTUnixStyleCommandLineToolChain new setForGCC
 ]
 
+{ #category : #'as yet unclassified' }
+WBTToolChain >> formatDynamicLibraryFileName: libraryName [
+	^ libraryName
+]
+
+{ #category : #'as yet unclassified' }
+WBTToolChain >> formatDynamicLibraryImportFileName: libraryName [
+	^ libraryName
+]
+
 { #category : #testing }
 WBTToolChain >> isCommandLineToolChain [
 	^ false

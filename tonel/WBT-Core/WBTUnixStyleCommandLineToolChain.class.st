@@ -41,6 +41,26 @@ WBTUnixStyleCommandLineToolChain >> cxx: anObject [
 	cxx := anObject
 ]
 
+{ #category : #initialization }
+WBTUnixStyleCommandLineToolChain >> initialize [
+	super initialize.
+	importLibraryFolderArgumentPrefix := '-L'.
+	importLibraryArgumentPrefix := '-l'.
+	objectFilePrefix := ''.
+	objectFileSuffix := '.o'.
+	executablePrefix := ''.
+	executableSuffix := ''.
+	staticLibraryPrefix := 'lib'.
+	staticLibrarySuffix := '.a'.	
+	dynamicLibraryPrefix := 'lib'.
+	dynamicLibrarySuffix := '.so'.
+	dynamicLibraryImportPrefix := 'lib'.
+	dynamicLibraryImportSuffix := '.so'.
+	dynamicLibraryPrefix := 'lib'.
+	dynamicLibrarySuffix := '.so'.
+
+]
+
 { #category : #testing }
 WBTUnixStyleCommandLineToolChain >> isUnixStyle [
 	^ true
