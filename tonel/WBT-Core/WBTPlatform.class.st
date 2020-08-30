@@ -18,7 +18,7 @@ WBTPlatform class >> linux [
 WBTPlatform class >> linuxClang [
 	^ self new
 		name: #linux;
-		toolchain: WBTToolChain unixClang;
+		toolchain: WBTToolChain linuxClang;
 		yourself
 ]
 
@@ -26,7 +26,7 @@ WBTPlatform class >> linuxClang [
 WBTPlatform class >> linuxGCC [
 	^ self new
 		name: #linux;
-		toolchain: WBTToolChain unixGCC;
+		toolchain: WBTToolChain linuxGCC;
 		yourself
 ]
 
@@ -34,7 +34,7 @@ WBTPlatform class >> linuxGCC [
 WBTPlatform class >> osx [
 	^ self new
 		name: #osx;
-		toolchain: WBTToolChain unixClang;
+		toolchain: WBTToolChain osxClang;
 		yourself
 ]
 

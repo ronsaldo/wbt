@@ -6,7 +6,8 @@ Class {
 		'cxx',
 		'ld',
 		'ar',
-		'objcopy'
+		'objcopy',
+		'rpathLocalLinkerArgument'
 	],
 	#category : #'WBT-Core'
 }
@@ -84,6 +85,16 @@ WBTUnixStyleCommandLineToolChain >> objcopy [
 { #category : #accessing }
 WBTUnixStyleCommandLineToolChain >> objcopy: anObject [
 	objcopy := anObject
+]
+
+{ #category : #accessing }
+WBTUnixStyleCommandLineToolChain >> rpathLocalLinkerArgument [
+	^ rpathLocalLinkerArgument
+]
+
+{ #category : #accessing }
+WBTUnixStyleCommandLineToolChain >> rpathLocalLinkerArgument: anObject [
+	rpathLocalLinkerArgument := anObject
 ]
 
 { #category : #initialization }

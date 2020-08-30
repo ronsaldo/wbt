@@ -106,13 +106,13 @@ WBTCommandLineToolChain >> formatLinkerArgumentsForImportingLibraries: libraries
 { #category : #formatting }
 WBTCommandLineToolChain >> formatLinkerArgumentsForImportingLibrary: library into: out [
 	library importLibFolder ifNotNil: [:folder |
-		out add: self importLibraryFolderArgumentPrefix , folder
+		out add: self importLibraryFolderArgumentPrefix , folder.
+		self rpathLocalLinkerArgument ifNotNil: [ :arg | out add: arg ].
 	].
 
 	library importLibName ifNotNil: [ :lib |
 		out add: self importLibraryArgumentPrefix , lib
 	].
-
 ]
 
 { #category : #accessing }
@@ -172,6 +172,11 @@ WBTCommandLineToolChain >> objectFileSuffix [
 { #category : #accessing }
 WBTCommandLineToolChain >> objectFileSuffix: anObject [
 	objectFileSuffix := anObject
+]
+
+{ #category : #'as yet unclassified' }
+WBTCommandLineToolChain >> rpathLocalLinkerArgument [
+	^ nil
 ]
 
 { #category : #accessing }

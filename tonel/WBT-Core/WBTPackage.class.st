@@ -11,9 +11,9 @@ Class {
 }
 
 { #category : #adding }
-WBTPackage >> addElement: element [
-	elements add: element.
-	
+WBTPackage >> addElement: anElement [
+	elements add: anElement.
+	^ anElement
 ]
 
 { #category : #accessing }
@@ -58,6 +58,7 @@ WBTPackage >> exportedLibrariesLinkerArguments [
 { #category : #adding }
 WBTPackage >> importLibrary: libraryName [
 	self addElement: (WBTLibrary new
+		package: self;
 		importLibName: libraryName;
 		yourself
 	).
@@ -72,6 +73,7 @@ WBTPackage >> importLibrary: libraryName fromDebianPackage: debianPackageName [
 { #category : #adding }
 WBTPackage >> importLibrary: libraryName fromLibFolder: libraryFolderName [
 	self addElement: (WBTLibrary new
+		package: self;
 		importLibName: libraryName;
 		importLibFolder: libraryFolderName;
 		yourself
@@ -81,8 +83,10 @@ WBTPackage >> importLibrary: libraryName fromLibFolder: libraryFolderName [
 { #category : #adding }
 WBTPackage >> importLibrary: libraryName fromLibFolder: libraryFolderName binFolder: libraryBinaryFolder [
 	self addElement: (WBTLibrary new
+		package: self;
 		importLibName: libraryName;
 		importLibFolder: libraryFolderName;
+		binaryLibFolder: libraryBinaryFolder;
 		yourself
 	).
 ]
@@ -117,6 +121,16 @@ WBTPackage >> initialize [
 	super initialize.
 	dependencies := OrderedCollection new.
 	elements := OrderedCollection new.
+]
+
+{ #category : #actions }
+WBTPackage >> installExportedLibrariesInto: outputDirectory [
+	self exportedLibraries do: [ :each | each installInto: outputDirectory ]
+]
+
+{ #category : #actions }
+WBTPackage >> makeExportedLibraries [
+	self flag: 'TODO: Implement myself'
 ]
 
 { #category : #accessing }

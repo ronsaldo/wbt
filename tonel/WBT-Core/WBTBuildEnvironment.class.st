@@ -81,6 +81,17 @@ WBTBuildEnvironment >> initialize [
 	packageSpecLocations := OrderedCollection new.
 ]
 
+{ #category : #'as yet unclassified' }
+WBTBuildEnvironment >> installFile: sourceFile in: destFile [
+	| sourceFileReference destFileReference |
+	sourceFileReference := sourceFile asFileReference.
+	destFileReference := destFile asFileReference.
+	sourceFileReference exists ifFalse: [ ^ self ].
+	destFileReference parent ensureCreateDirectory.
+	destFileReference exists ifTrue: [ destFileReference delete ].
+	sourceFile copyTo: destFileReference
+]
+
 { #category : #bootstrapping }
 WBTBuildEnvironment >> loadPackageNamed: packageName [
 	| package |
