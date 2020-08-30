@@ -7,6 +7,7 @@ fi
 
 DIST=artifacts/dist/$PLATFORM_NAME
 
+mkdir -p "$DIST"
 cp -R pharo-vm pharo pharo-ui $DIST
 cp -R Pharo*.sources sysmel.* wbt wbt-ui $DIST
 cp -R LICENSE README.md $DIST

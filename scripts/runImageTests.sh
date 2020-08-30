@@ -5,7 +5,7 @@ if test "$PLATFORM_NAME" = ""; then
     PLATFORM_NAME=`$(uname -s)`
 fi
 
-./pharo wbt.image test --junit-xml-output --stage-name="WBT" "WBT*"
+./pharo wbt.image test --junit-xml-output --stage-name="WBT" "WBT.*"
 
 mkdir -p artifacts/test-results/$PLATFORM_NAME
 cp *.xml artifacts/test-results/$PLATFORM_NAME
