@@ -10,6 +10,11 @@ Class {
 }
 
 { #category : #accessing }
+WBTScriptEnvironment >> architecture [
+	^ buildEnvironment architecture
+]
+
+{ #category : #accessing }
 WBTScriptEnvironment >> buildEnvironment [
 	^ buildEnvironment
 ]
@@ -25,6 +30,20 @@ WBTScriptEnvironment >> evaluateScript: scriptSource [
 ]
 
 { #category : #adding }
+WBTScriptEnvironment >> importLibraries: names fromLibFolder: libraryFolderName [
+	names do: [ :each |
+		self importLibrary: each fromLibFolder: libraryFolderName
+	]
+]
+
+{ #category : #adding }
+WBTScriptEnvironment >> importLibraries: names fromLibFolder: libraryFolderName binFolder: binaryFolder [
+	names do: [ :each |
+		self importLibrary: each fromLibFolder: libraryFolderName binFolder: binaryFolder
+	]
+]
+
+{ #category : #adding }
 WBTScriptEnvironment >> importLibrary: libraryName [
 	package importLibrary: libraryName
 ]
@@ -36,12 +55,12 @@ WBTScriptEnvironment >> importLibrary: libraryName fromDebianPackage: debianPack
 
 { #category : #adding }
 WBTScriptEnvironment >> importLibrary: libraryName fromLibFolder: libraryFolderName [
-	package importLibrary: libraryName fromLibFolder: libraryFolderName
+	package importLibrary: libraryName fromLibFolder: (self solveRelativePath: libraryFolderName)
 ]
 
 { #category : #adding }
 WBTScriptEnvironment >> importLibrary: libraryName fromLibFolder: libFolder binFolder: binaryFolder [
-	package importLibrary: libraryName fromLibFolder: libFolder binFolder: binaryFolder
+	package importLibrary: libraryName fromLibFolder: (self solveRelativePath: libFolder) binFolder: (self solveRelativePath: binaryFolder)
 ]
 
 { #category : #adding }
@@ -52,8 +71,8 @@ WBTScriptEnvironment >> importPackage: packageName [
 { #category : #adding }
 WBTScriptEnvironment >> importPhanapiBintrayLibrary: libraryName fromUser: bintrayUser repository: repositoryName package: packageName [
 	| dynlib importLib |
-	dynlib := self platform toolchain formatDynamicLibraryFileName: libraryName.
-	importLib := self platform toolchain formatDynamicLibraryImportFileName: libraryName.
+	dynlib := self platform formatDynamicLibraryFileName: libraryName.
+	importLib := self platform formatDynamicLibraryImportFileName: libraryName.
 	
 	{
 		workingDirectory .
@@ -80,6 +99,11 @@ WBTScriptEnvironment >> package: anObject [
 { #category : #accessing }
 WBTScriptEnvironment >> platform [
 	^ buildEnvironment platform
+]
+
+{ #category : #adding }
+WBTScriptEnvironment >> solveRelativePath: path [
+	^ (workingDirectory resolve: path asFileReference) fullName
 ]
 
 { #category : #accessing }

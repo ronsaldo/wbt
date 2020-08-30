@@ -33,3 +33,36 @@ WBTCommandLineToolChainTest >> testUnixGCC [
 	self assert: toolchain ar equals: 'ar'.
 	self assert: toolchain objcopy equals: 'objcopy'.
 ]
+
+{ #category : #tests }
+WBTCommandLineToolChainTest >> testWindowsClang [
+	| toolchain |
+	toolchain := WBTToolChain windowsClang.
+	self assert: toolchain isUnixStyle.
+	self assert: toolchain isCommandLineToolChain.
+	self assert: toolchain cc equals: 'clang.exe'.
+	self assert: toolchain cxx equals: 'clang++.exe'.
+
+]
+
+{ #category : #tests }
+WBTCommandLineToolChainTest >> testWindowsClangCL [
+	| toolchain |
+	toolchain := WBTToolChain windowsClangCL.
+	self assert: toolchain isMSVCStyle.
+	self assert: toolchain isCommandLineToolChain.
+	self assert: toolchain cl equals: 'clang-cl.exe'.
+	self assert: toolchain link equals: 'link.exe'.
+
+]
+
+{ #category : #tests }
+WBTCommandLineToolChainTest >> testWindowsMSVC [
+	| toolchain |
+	toolchain := WBTToolChain windowsMSVC.
+	self assert: toolchain isMSVCStyle.
+	self assert: toolchain isCommandLineToolChain.
+	self assert: toolchain cl equals: 'cl.exe'.
+	self assert: toolchain link equals: 'link.exe'.
+
+]

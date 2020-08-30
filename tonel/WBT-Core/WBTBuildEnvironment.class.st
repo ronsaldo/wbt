@@ -41,9 +41,44 @@ WBTBuildEnvironment class >> forPlatform: platform [
 	^ self new platform: platform; yourself
 ]
 
+{ #category : #'as yet unclassified' }
+WBTBuildEnvironment class >> forWindowsClangCLX64 [
+	^ self forPlatform: WBTPlatform windowsClangCLX64
+]
+
+{ #category : #'as yet unclassified' }
+WBTBuildEnvironment class >> forWindowsClangCLX86 [
+	^ self forPlatform: WBTPlatform windowsClangCLX86
+]
+
+{ #category : #'as yet unclassified' }
+WBTBuildEnvironment class >> forWindowsClangX64 [
+	^ self forPlatform: WBTPlatform windowsClangX64
+]
+
+{ #category : #'as yet unclassified' }
+WBTBuildEnvironment class >> forWindowsClangX86 [
+	^ self forPlatform: WBTPlatform windowsClangX86
+]
+
+{ #category : #'as yet unclassified' }
+WBTBuildEnvironment class >> forWindowsX64 [
+	^ self forPlatform: WBTPlatform windowsX64
+]
+
+{ #category : #'as yet unclassified' }
+WBTBuildEnvironment class >> forWindowsX86 [
+	^ self forPlatform: WBTPlatform windowsX86
+]
+
 { #category : #adding }
 WBTBuildEnvironment >> addPackageSpecLocations: locations [
 	packageSpecLocations addAll: locations
+]
+
+{ #category : #accessing }
+WBTBuildEnvironment >> architecture [
+	^ self platform architecture
 ]
 
 { #category : #accessing }

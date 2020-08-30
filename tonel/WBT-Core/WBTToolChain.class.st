@@ -33,23 +33,28 @@ WBTToolChain class >> unixGCC [
 	^ WBTUnixStyleCommandLineToolChain new setForGCC
 ]
 
-{ #category : #accessing }
-WBTToolChain >> dynamicLibrarySuffix [
-	^ ''
+{ #category : #'as yet unclassified' }
+WBTToolChain class >> windowsClang [
+	^ WBTUnixStyleCommandLineToolChain new setForWindowsClang
 ]
 
 { #category : #'as yet unclassified' }
-WBTToolChain >> formatDynamicLibraryFileName: libraryName [
-	^ libraryName
+WBTToolChain class >> windowsClangCL [
+	^ WBTMSVCStyleCommandLineToolChain new setForClangCL
 ]
 
 { #category : #'as yet unclassified' }
-WBTToolChain >> formatDynamicLibraryImportFileName: libraryName [
-	^ libraryName
+WBTToolChain class >> windowsMSVC [
+	^ WBTMSVCStyleCommandLineToolChain new setForMSVC
 ]
 
 { #category : #testing }
 WBTToolChain >> isCommandLineToolChain [
+	^ false
+]
+
+{ #category : #testing }
+WBTToolChain >> isMSVCStyle [
 	^ false
 ]
 

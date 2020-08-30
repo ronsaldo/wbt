@@ -46,13 +46,81 @@ WBTBuildEnvironmentTest >> testForOSX [
 ]
 
 { #category : #tests }
+WBTBuildEnvironmentTest >> testForWindowsClangCLX64 [
+	| buildEnvironment |
+	buildEnvironment := WBTBuildEnvironment forWindowsClangCLX64.
+	self assert: buildEnvironment platform name equals: #windows.
+	self assert: buildEnvironment platform architecture name equals: #x64.
+	self assert: buildEnvironment platform toolchain isMSVCStyle.
+	self assert: (buildEnvironment platform toolchain cl includesSubstring: 'clang-cl').
+]
+
+{ #category : #tests }
+WBTBuildEnvironmentTest >> testForWindowsClangCLX86 [
+	| buildEnvironment |
+	buildEnvironment := WBTBuildEnvironment forWindowsClangCLX86.
+	self assert: buildEnvironment platform name equals: #windows.
+	self assert: buildEnvironment platform architecture name equals: #x86.
+	self assert: buildEnvironment platform toolchain isMSVCStyle.
+	self assert: (buildEnvironment platform toolchain cl includesSubstring: 'clang-cl').
+]
+
+{ #category : #tests }
+WBTBuildEnvironmentTest >> testForWindowsClangX64 [
+	| buildEnvironment |
+	buildEnvironment := WBTBuildEnvironment forWindowsClangX64.
+	self assert: buildEnvironment platform name equals: #windows.
+	self assert: buildEnvironment platform architecture name equals: #x64.
+	self assert: buildEnvironment platform toolchain isUnixStyle.
+	self assert: (buildEnvironment platform toolchain cc includesSubstring: 'clang').
+	self assert: (buildEnvironment platform toolchain cxx includesSubstring: 'clang++').
+]
+
+{ #category : #tests }
+WBTBuildEnvironmentTest >> testForWindowsClangX86 [
+	| buildEnvironment |
+	buildEnvironment := WBTBuildEnvironment forWindowsClangX86.
+	self assert: buildEnvironment platform name equals: #windows.
+	self assert: buildEnvironment platform architecture name equals: #x86.
+	self assert: buildEnvironment platform toolchain isUnixStyle.
+	self assert: (buildEnvironment platform toolchain cc includesSubstring: 'clang').
+	self assert: (buildEnvironment platform toolchain cxx includesSubstring: 'clang++').
+]
+
+{ #category : #tests }
+WBTBuildEnvironmentTest >> testForWindowsX64 [
+	| buildEnvironment |
+	buildEnvironment := WBTBuildEnvironment forWindowsX64.
+	self assert: buildEnvironment platform name equals: #windows.
+	self assert: buildEnvironment platform architecture name equals: #x64.
+	self assert: buildEnvironment platform toolchain isMSVCStyle.
+	self assert: (buildEnvironment platform toolchain cl includesSubstring: 'cl').
+]
+
+{ #category : #tests }
+WBTBuildEnvironmentTest >> testForWindowsX86 [
+	| buildEnvironment |
+	buildEnvironment := WBTBuildEnvironment forWindowsX86.
+	self assert: buildEnvironment platform name equals: #windows.
+	self assert: buildEnvironment platform architecture name equals: #x86.
+	self assert: buildEnvironment platform toolchain isMSVCStyle.
+	self assert: (buildEnvironment platform toolchain cl includesSubstring: 'cl').
+]
+
+{ #category : #tests }
 WBTBuildEnvironmentTest >> testNewLibraryPackage [
 	| buildEnvironment package |
 	buildEnvironment := WBTBuildEnvironment forLinux.
 	package := buildEnvironment getOrCreatePackageNamed: #testLibrary.
 	self assert: package name equals: #testLibrary.
-	package inFolder: FileSystem workingDirectory evaluateScript: 'self importLibrary: #test fromLibFolder: #TestLib'.
-	
-	self assert: package exportedLibraries first importLibName equals: #test.
-	self assert: package exportedLibrariesLinkerArguments asArray equals: #('-LTestLib' '-ltest').
+	package
+		inFolder: FileSystem workingDirectory
+		evaluateScript: 'self importLibrary: #test fromLibFolder: #TestLib'.
+	self
+		assert: package exportedLibraries first importLibName
+		equals: #test.
+	self
+		assert:
+			(package exportedLibrariesLinkerArguments asArray
+				includesAll: #('-LTestLib' '-ltest'))
 ]

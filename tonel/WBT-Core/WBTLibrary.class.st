@@ -23,7 +23,7 @@ WBTLibrary >> binaryLibFolder: anObject [
 WBTLibrary >> exportedDynamicLibraries [
 	| dynamicLibrarySuffix binaryLibFolderFileReference |
 	binaryLibFolder ifNil: [ ^ #() ].
-	dynamicLibrarySuffix := self toolchain dynamicLibrarySuffix.
+	dynamicLibrarySuffix := self platform dynamicLibrarySuffix.
 	dynamicLibrarySuffix ifEmpty: [ ^ #() ].
 	
 	binaryLibFolderFileReference := binaryLibFolder asFileReference.

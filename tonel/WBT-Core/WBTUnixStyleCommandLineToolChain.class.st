@@ -47,18 +47,6 @@ WBTUnixStyleCommandLineToolChain >> initialize [
 	super initialize.
 	importLibraryFolderArgumentPrefix := '-L'.
 	importLibraryArgumentPrefix := '-l'.
-	objectFilePrefix := ''.
-	objectFileSuffix := '.o'.
-	executablePrefix := ''.
-	executableSuffix := ''.
-	staticLibraryPrefix := 'lib'.
-	staticLibrarySuffix := '.a'.	
-	dynamicLibraryPrefix := 'lib'.
-	dynamicLibrarySuffix := '.so'.
-	dynamicLibraryImportPrefix := 'lib'.
-	dynamicLibraryImportSuffix := '.so'.
-	dynamicLibraryPrefix := 'lib'.
-	dynamicLibrarySuffix := '.so'.
 
 ]
 
@@ -116,4 +104,10 @@ WBTUnixStyleCommandLineToolChain >> setForUnixCommon [
 	ld := 'ld'.
 	ar := 'ar'.
 	objcopy := 'objcopy'.
+]
+
+{ #category : #initialization }
+WBTUnixStyleCommandLineToolChain >> setForWindowsClang [
+	cc := 'clang.exe'.
+	cxx := 'clang++.exe'.
 ]
