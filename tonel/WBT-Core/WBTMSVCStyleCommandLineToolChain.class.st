@@ -5,7 +5,7 @@ Class {
 		'cl',
 		'link'
 	],
-	#category : #'WBT-Core'
+	#category : #'WBT-Core-Environment'
 }
 
 { #category : #accessing }

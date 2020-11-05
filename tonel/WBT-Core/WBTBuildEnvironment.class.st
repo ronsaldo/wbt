@@ -6,9 +6,11 @@ Class {
 		'targetPlatform',
 		'hostPlatform',
 		'buildPlatform',
-		'packages'
+		'packages',
+		'buildObjectDirectory',
+		'buildOutputDirectory'
 	],
-	#category : #'WBT-Core'
+	#category : #'WBT-Core-Environment'
 }
 
 { #category : #'as yet unclassified' }
@@ -79,6 +81,26 @@ WBTBuildEnvironment >> addPackageSpecLocations: locations [
 { #category : #accessing }
 WBTBuildEnvironment >> architecture [
 	^ self platform architecture
+]
+
+{ #category : #accessing }
+WBTBuildEnvironment >> buildObjectDirectory: aDirectory [
+	buildObjectDirectory := aDirectory asFileReference
+]
+
+{ #category : #accessing }
+WBTBuildEnvironment >> buildOutputDirectory: aDirectory [
+	buildOutputDirectory := aDirectory asFileReference
+]
+
+{ #category : #bootstrapping }
+WBTBuildEnvironment >> buildPackageNamed: packageName inFolder: folder withBlock: aBlock [
+	^ (self getOrCreatePackageNamed: packageName) inFolder: folder evaluateBlock: aBlock
+]
+
+{ #category : #bootstrapping }
+WBTBuildEnvironment >> buildPackageNamed: packageName scriptEnvironmentInFolder: folder [
+	^ (self getOrCreatePackageNamed: packageName) makeScriptEnvironmentInFolder: folder
 ]
 
 { #category : #accessing }
@@ -164,4 +186,14 @@ WBTBuildEnvironment >> targetPlatform [
 { #category : #accessing }
 WBTBuildEnvironment >> targetPlatform: anObject [
 	targetPlatform := anObject
+]
+
+{ #category : #'as yet unclassified' }
+WBTBuildEnvironment >> validBuildObjectDirectory [
+	^ buildObjectDirectory ifNil: [ FileSystem workingDirectory / 'obj' ]
+]
+
+{ #category : #'as yet unclassified' }
+WBTBuildEnvironment >> validBuildOutputDirectory [
+	^ buildOutputDirectory ifNil: [ FileSystem workingDirectory / 'out' ]
 ]

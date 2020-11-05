@@ -1,11 +1,13 @@
 Class {
 	#name : #WBTPackage,
-	#superclass : #Object,
+	#superclass : #WBTBuildElement,
 	#instVars : [
 		'name',
 		'buildEnvironment',
 		'elements',
-		'dependencies'
+		'dependencies',
+		'buildObjectDirectory',
+		'buildOutputDirectory'
 	],
 	#category : #'WBT-Core'
 }
@@ -31,6 +33,16 @@ WBTPackage >> buildEnvironment [
 { #category : #accessing }
 WBTPackage >> buildEnvironment: anObject [
 	buildEnvironment := anObject
+]
+
+{ #category : #'as yet unclassified' }
+WBTPackage >> buildObjectDirectory: aDirectory [
+	buildObjectDirectory := aDirectory asFileReference.
+]
+
+{ #category : #'as yet unclassified' }
+WBTPackage >> buildOutputDirectory: aDirectory [
+	buildOutputDirectory := aDirectory asFileReference.
 ]
 
 { #category : #accessing }
@@ -108,11 +120,13 @@ WBTPackage >> importPhanapiBintrayLibrary: libraryName fromUser: bintrayUser rep
 ]
 
 { #category : #'as yet unclassified' }
+WBTPackage >> inFolder: folder evaluateBlock: block [
+	^ block value: (self makeScriptEnvironmentInFolder: folder)
+]
+
+{ #category : #'as yet unclassified' }
 WBTPackage >> inFolder: folder evaluateScript: scriptSource [
-	WBTScriptEnvironment new
-		buildEnvironment: buildEnvironment;
-		package: self;
-		workingDirectory: folder;
+	^ (self makeScriptEnvironmentInFolder: folder)
 		evaluateScript: scriptSource
 ]
 
@@ -133,6 +147,15 @@ WBTPackage >> makeExportedLibraries [
 	self flag: 'TODO: Implement myself'
 ]
 
+{ #category : #'as yet unclassified' }
+WBTPackage >> makeScriptEnvironmentInFolder: folder [
+	^ WBTScriptEnvironment new
+		buildEnvironment: buildEnvironment;
+		package: self;
+		workingDirectory: folder asFileReference asAbsolute canonicalize;
+		yourself
+]
+
 { #category : #accessing }
 WBTPackage >> name [
 	^ name
@@ -141,4 +164,14 @@ WBTPackage >> name [
 { #category : #accessing }
 WBTPackage >> name: anObject [
 	name := anObject
+]
+
+{ #category : #'as yet unclassified' }
+WBTPackage >> validBuildObjectDirectory [
+	^ buildObjectDirectory ifNil: [ buildObjectDirectory := buildEnvironment validBuildObjectDirectory / name ]
+]
+
+{ #category : #'as yet unclassified' }
+WBTPackage >> validBuildOutputDirectory [
+	^ buildOutputDirectory ifNil: [ buildOutputDirectory := buildEnvironment validBuildOutputDirectory ]
 ]

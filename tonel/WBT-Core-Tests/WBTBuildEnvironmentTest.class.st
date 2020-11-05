@@ -122,5 +122,5 @@ WBTBuildEnvironmentTest >> testNewLibraryPackage [
 	self
 		assert:
 			(package exportedLibrariesLinkerArguments asArray
-				includesAll: #('-LTestLib' '-ltest'))
+				includesAll: #('-ltest'))
 ]

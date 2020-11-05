@@ -1,6 +1,6 @@
 Class {
 	#name : #WBTPackageElement,
-	#superclass : #Object,
+	#superclass : #WBTBuildElement,
 	#instVars : [
 		'package'
 	],
@@ -10,6 +10,11 @@ Class {
 { #category : #accessing }
 WBTPackageElement >> buildEnvironment [
 	^ package buildEnvironment
+]
+
+{ #category : #testing }
+WBTPackageElement >> isExecutableProgram [
+	^ false
 ]
 
 { #category : #testing }

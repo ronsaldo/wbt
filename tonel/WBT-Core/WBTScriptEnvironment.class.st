@@ -6,7 +6,7 @@ Class {
 		'workingDirectory',
 		'package'
 	],
-	#category : #'WBT-Core'
+	#category : #'WBT-Core-Environment'
 }
 
 { #category : #accessing }
@@ -99,6 +99,11 @@ WBTScriptEnvironment >> package: anObject [
 { #category : #accessing }
 WBTScriptEnvironment >> platform [
 	^ buildEnvironment platform
+]
+
+{ #category : #adding }
+WBTScriptEnvironment >> program: programName with: aBlock [
+	self halt
 ]
 
 { #category : #adding }

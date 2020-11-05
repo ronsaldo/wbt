@@ -19,7 +19,7 @@ Class {
 		'pluginPrefix',
 		'pluginSuffix'
 	],
-	#category : #'WBT-Core'
+	#category : #'WBT-Core-Environment'
 }
 
 { #category : #'as yet unclassified' }

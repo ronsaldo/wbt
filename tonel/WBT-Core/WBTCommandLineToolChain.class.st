@@ -5,7 +5,7 @@ Class {
 		'importLibraryFolderArgumentPrefix',
 		'importLibraryArgumentPrefix'
 	],
-	#category : #'WBT-Core'
+	#category : #'WBT-Core-Environment'
 }
 
 { #category : #formatting }

@@ -5,7 +5,7 @@ Class {
 		'canonicalName',
 		'name'
 	],
-	#category : #'WBT-Core'
+	#category : #'WBT-Core-Environment'
 }
 
 { #category : #construction }
