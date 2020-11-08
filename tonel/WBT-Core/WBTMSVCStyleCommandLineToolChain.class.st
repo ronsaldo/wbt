@@ -2,6 +2,7 @@ Class {
 	#name : #WBTMSVCStyleCommandLineToolChain,
 	#superclass : #WBTCommandLineToolChain,
 	#instVars : [
+		'vcvarsallPath',
 		'cl',
 		'link'
 	],
@@ -16,6 +17,14 @@ WBTMSVCStyleCommandLineToolChain >> cl [
 { #category : #accessing }
 WBTMSVCStyleCommandLineToolChain >> cl: anObject [
 	cl := anObject
+]
+
+{ #category : #initialization }
+WBTMSVCStyleCommandLineToolChain >> initialize [
+	super initialize.
+	importLibraryFolderArgumentPrefix := '/LIBPATH:'.
+	importLibraryArgumentPrefix := ''.
+	importLibraryArgumentSuffix := '.lib'.
 ]
 
 { #category : #testing }
@@ -66,4 +75,9 @@ WBTMSVCStyleCommandLineToolChain >> substitutionVariables [
 		#WBT_CXX_LINKER . [self link].
 		#WBT_CXX_LINK_EXECUTABLE . '$(WBT_CXX_COMPILER) /Fe$(WBT_OUTPUT_FILE) $(WBT_INPUT_FILES) /link $(WBT_EXECUTABLE_LINKER_FLAGS)'.
 	 }
+]
+
+{ #category : #accessing }
+WBTMSVCStyleCommandLineToolChain >> vcvarsallPath [
+	^ vcvarsallPath ifNil: [ vcvarsallPath := LibC resultOfCommand: '"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe"' ]
 ]

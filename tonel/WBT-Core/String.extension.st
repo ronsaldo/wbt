@@ -28,6 +28,11 @@ String >> asWBTVarSubstitution [
 ]
 
 { #category : #'*WBT-Core' }
+String >> wbtSolveLinkLibraryInPackage: targetPackage [
+	^ targetPackage getMainTargetNamed: self ifAbsent: [ WBTImportedLibraryTarget new name: self ]
+]
+
+{ #category : #'*WBT-Core' }
 String >> wbtSubstituteVariablesWith: aSubstitutionBlock [
 	| regex shouldContinue result |
 	regex := '\$\(\w*\)' asRegex.

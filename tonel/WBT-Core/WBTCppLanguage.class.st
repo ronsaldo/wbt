@@ -15,18 +15,26 @@ WBTCppLanguage >> buildActionCommand [
 ]
 
 { #category : #'as yet unclassified' }
-WBTCppLanguage >> createBuildActionForExecutableProgram: executableProgram [
-	^ executableProgram
-		addCommandLineCommandBuildAction: '$(WBT_CXX_LINK_EXECUTABLE)'
-			inputFiles: executableProgram allObjectFiles outputFile: executableProgram outputFileReference
-]
-
-{ #category : #'as yet unclassified' }
 WBTCppLanguage >> handlesFileExtension: extension [
 	^ #(cc cpp c++) includes: extension
 ]
 
 { #category : #'as yet unclassified' }
+WBTCppLanguage >> linkDynamicLibraryCommand [
+	^ '$(WBT_CXX_LINK_DYNAMIC_LIBRARY)'
+]
+
+{ #category : #'as yet unclassified' }
+WBTCppLanguage >> linkExecutableCommand [
+	^ '$(WBT_CXX_LINK_EXECUTABLE)'
+]
+
+{ #category : #'as yet unclassified' }
 WBTCppLanguage >> linkPriority [
 	^ 3
+]
+
+{ #category : #'as yet unclassified' }
+WBTCppLanguage >> linkStaticLibraryCommand [
+	^ '$(WBT_CXX_LINK_STATIC_LIBRARY)'
 ]

@@ -5,6 +5,8 @@ Class {
 		'name',
 		'sources',
 		'intermediateObjectFiles',
+		'linkLibrariesFolders',
+		'linkLibraries',
 		'linkerLanguage',
 		'outputFileReference',
 		'buildTargetDependencies'
@@ -25,6 +27,16 @@ WBTModuleTarget >> addIntermediateObjectFiles: aCollectionOfIntermediateObjectFi
 ]
 
 { #category : #adding }
+WBTModuleTarget >> addLinkLibrary: importLibraryName [
+	linkLibraries add: (importLibraryName wbtSolveLinkLibraryInPackage: package)
+]
+
+{ #category : #adding }
+WBTModuleTarget >> addLinkLibraryFolder: importLibraryFolder [
+	linkLibrariesFolders add: importLibraryFolder
+]
+
+{ #category : #adding }
 WBTModuleTarget >> addSource: aSourceFile [
 	self package addElement: aSourceFile.
 	sources add: aSourceFile.
@@ -34,6 +46,16 @@ WBTModuleTarget >> addSource: aSourceFile [
 { #category : #adding }
 WBTModuleTarget >> addSources: aCollectionOfSources [
 	aCollectionOfSources do: [ :each | self addSource: each ].
+]
+
+{ #category : #'as yet unclassified' }
+WBTModuleTarget >> allLinkLibraries [
+	^ linkLibraries
+]
+
+{ #category : #'as yet unclassified' }
+WBTModuleTarget >> allLinkLibrariesDirectories [
+	^ linkLibrariesFolders
 ]
 
 { #category : #'as yet unclassified' }
@@ -54,7 +76,7 @@ WBTModuleTarget >> asWBTVarSubstitution [
 
 { #category : #'as yet unclassified' }
 WBTModuleTarget >> buildTargetDependencies [
-	^ buildTargetDependencies ifNil: [ buildTargetDependencies := sources , intermediateObjectFiles ]
+	^ buildTargetDependencies ifNil: [ buildTargetDependencies := sources , intermediateObjectFiles , (self allLinkLibraries reject: [:each | each isImportedLibrary])]
 ]
 
 { #category : #initialization }
@@ -62,6 +84,8 @@ WBTModuleTarget >> initialize [
 	super initialize.
 	sources := OrderedCollection new.
 	intermediateObjectFiles := OrderedCollection new.
+	linkLibrariesFolders := OrderedCollection new.
+	linkLibraries := OrderedCollection new.
 ]
 
 { #category : #accessing }

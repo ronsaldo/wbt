@@ -4,6 +4,7 @@ Class {
 	#instVars : [
 		'importLibraryFolderArgumentPrefix',
 		'importLibraryArgumentPrefix',
+		'importLibraryArgumentSuffix',
 		'includeDirectoryArgumentPrefix'
 	],
 	#category : #'WBT-Core-Environment'
@@ -15,29 +16,38 @@ WBTCommandLineToolChain >> formatIncludeDirectoryArgument: includeDirectory [
 ]
 
 { #category : #formatting }
-WBTCommandLineToolChain >> formatLinkerArgumentsForImportingLibraries: libraries [
+WBTCommandLineToolChain >> formatLinkerArgumentsForLibrariesDirectories: librariesDirectories libraries: libraries [
 	| result |
 	result := OrderedCollection new.
-	self formatLinkerArgumentsForImportingLibraries: libraries into: result.
+	librariesDirectories do: [ :each | result add: each asFileReference fullPath fullName ].
+	self formatLinkerArgumentsForLinkingLibraries: libraries into: result.
 	^ result
 ]
 
 { #category : #formatting }
-WBTCommandLineToolChain >> formatLinkerArgumentsForImportingLibraries: libraries into: out [
+WBTCommandLineToolChain >> formatLinkerArgumentsForLinkingLibraries: libraries [
+	^ self formatLinkerArgumentsForLibrariesDirectories: #() libraries: libraries
+]
+
+{ #category : #formatting }
+WBTCommandLineToolChain >> formatLinkerArgumentsForLinkingLibraries: libraries into: out [
 	libraries do: [ :each |
-		self formatLinkerArgumentsForImportingLibrary: each into: out
+		self formatLinkerArgumentsForLinkingLibrary: each into: out
 	].
 ]
 
 { #category : #formatting }
-WBTCommandLineToolChain >> formatLinkerArgumentsForImportingLibrary: library into: out [
+WBTCommandLineToolChain >> formatLinkerArgumentsForLinkingLibrary: library into: out [
 	library importLibFolder ifNotNil: [:folder |
-		out add: self importLibraryFolderArgumentPrefix , folder.
-		self rpathLocalLinkerArgument ifNotNil: [ :arg | out add: arg ].
+		out add: self importLibraryFolderArgumentPrefix , (folder asFileReference asAbsolute canonicalize fullName).
+		library isStaticLibrary ifFalse: [ 
+			self rpathLocalLinkerArgument ifNotNil: [ :arg | out add: arg ].
+		].
 	].
 
 	library importLibName ifNotNil: [ :lib |
-		out add: self importLibraryArgumentPrefix , lib
+		out add: self importLibraryArgumentPrefix , ((lib endsWith: importLibraryArgumentSuffix)
+			ifTrue: [ lib ] ifFalse: [ lib , importLibraryArgumentSuffix ])
 	].
 ]
 
@@ -49,6 +59,16 @@ WBTCommandLineToolChain >> importLibraryArgumentPrefix [
 { #category : #accessing }
 WBTCommandLineToolChain >> importLibraryArgumentPrefix: anObject [
 	importLibraryArgumentPrefix := anObject
+]
+
+{ #category : #accessing }
+WBTCommandLineToolChain >> importLibraryArgumentSuffix [
+	^ importLibraryArgumentSuffix
+]
+
+{ #category : #accessing }
+WBTCommandLineToolChain >> importLibraryArgumentSuffix: anObject [
+	importLibraryArgumentSuffix := anObject
 ]
 
 { #category : #accessing }

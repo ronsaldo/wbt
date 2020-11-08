@@ -108,7 +108,7 @@ WBTBuildEnvironmentTest >> testForWindowsX86 [
 ]
 
 { #category : #tests }
-WBTBuildEnvironmentTest >> testNewLibraryPackage [
+WBTBuildEnvironmentTest >> testNewLibraryPackageForLinux [
 	| buildEnvironment package |
 	buildEnvironment := WBTBuildEnvironment forLinux.
 	package := buildEnvironment getOrCreatePackageNamed: #testLibrary.
@@ -117,10 +117,28 @@ WBTBuildEnvironmentTest >> testNewLibraryPackage [
 		inFolder: FileSystem workingDirectory
 		evaluateScript: 'self importLibrary: #test fromLibFolder: #TestLib'.
 	self
-		assert: package exportedLibraries first importLibName
+		assert: package exportedLibraries first name
 		equals: #test.
 	self
 		assert:
 			(package exportedLibrariesLinkerArguments asArray
 				includesAll: #('-ltest'))
+]
+
+{ #category : #tests }
+WBTBuildEnvironmentTest >> testNewLibraryPackageForWindowsX86 [
+	| buildEnvironment package |
+	buildEnvironment := WBTBuildEnvironment forWindowsX86.
+	package := buildEnvironment getOrCreatePackageNamed: #testLibrary.
+	self assert: package name equals: #testLibrary.
+	package
+		inFolder: FileSystem workingDirectory
+		evaluateScript: 'self importLibrary: #test fromLibFolder: #TestLib'.
+	self
+		assert: package exportedLibraries first name
+		equals: 'test'.
+	self
+		assert:
+			(package exportedLibrariesLinkerArguments asArray
+				includesAll: #('test.lib'))
 ]

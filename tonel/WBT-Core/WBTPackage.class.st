@@ -85,7 +85,12 @@ WBTPackage >> exportedLibraries [
 
 { #category : #accessing }
 WBTPackage >> exportedLibrariesLinkerArguments [
-	^ buildEnvironment platform toolchain formatLinkerArgumentsForImportingLibraries: self exportedLibraries
+	^ buildEnvironment platform toolchain formatLinkerArgumentsForLinkingLibraries: self exportedLibraries
+]
+
+{ #category : #'as yet unclassified' }
+WBTPackage >> getMainTargetNamed: expectedName ifAbsent: absentBlock [
+	^ mainElements detect: [ :each | each name = expectedName ] ifNone: absentBlock
 ]
 
 { #category : #'as yet unclassified' }
@@ -97,9 +102,8 @@ WBTPackage >> hostPlatformVariableEnvironment [
 
 { #category : #adding }
 WBTPackage >> importLibrary: libraryName [
-	self addElement: (WBTLibraryTarget new
-		name: name;
-		importLibName: libraryName;
+	self addElement: (WBTImportedLibraryTarget new
+		name: libraryName;
 		yourself
 	).
 
@@ -112,9 +116,8 @@ WBTPackage >> importLibrary: libraryName fromDebianPackage: debianPackageName [
 
 { #category : #adding }
 WBTPackage >> importLibrary: libraryName fromLibFolder: libraryFolderName [
-	self addElement: (WBTLibraryTarget new
-		name: name;
-		importLibName: libraryName;
+	self addElement: (WBTImportedLibraryTarget new
+		name: libraryName;
 		importLibFolder: libraryFolderName;
 		yourself
 	).
@@ -122,9 +125,8 @@ WBTPackage >> importLibrary: libraryName fromLibFolder: libraryFolderName [
 
 { #category : #adding }
 WBTPackage >> importLibrary: libraryName fromLibFolder: libraryFolderName binFolder: libraryBinaryFolder [
-	self addElement: (WBTLibraryTarget new
-		name: name;
-		importLibName: libraryName;
+	self addElement: (WBTImportedLibraryTarget new
+		name: libraryName;
 		importLibFolder: libraryFolderName;
 		binaryLibFolder: libraryBinaryFolder;
 		yourself
@@ -224,9 +226,14 @@ WBTPackage >> name: anObject [
 
 { #category : #'instance creation' }
 WBTPackage >> newCommandLineCommandBuildAction: command inputFiles: inputFiles outputFile: outputFile [
+	^ self newCommandLineCommandBuildAction: command inputFiles: inputFiles outputFile: outputFile variables: #()
+]
+
+{ #category : #'instance creation' }
+WBTPackage >> newCommandLineCommandBuildAction: command inputFiles: inputFiles outputFile: outputFile variables: variables [
 	^ WBTCommandLineCommandBuildAction new
 		command: command;
-		variableEnvironment: (WBTVariableSubstitutionEnvironment parent: self hostPlatformVariableEnvironment withVariables: {
+		variableEnvironment: (WBTVariableSubstitutionEnvironment parent: self hostPlatformVariableEnvironment withVariables: variables , {
 			'WBT_INPUT_FILES' . inputFiles .
 			'WBT_OUTPUT_FILE' . outputFile .
 		});

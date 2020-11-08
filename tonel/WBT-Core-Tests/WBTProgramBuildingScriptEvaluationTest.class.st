@@ -44,6 +44,75 @@ int main(int argc, const char *argv[])
 ]
 
 { #category : #tests }
+WBTProgramBuildingScriptEvaluationTest >> testHelloWorldCDynamicLib [
+	| libraryModule programModule rootPackage sortedDependencies |
+	self
+		writeIncludeFileNamed: 'hello.h' text: '
+#include <stdio.h>
+
+void doHello(void);
+
+';
+	writeSourceFileNamed: 'helloLib.c' text: '
+#include "hello.h"
+
+void doHello(void)
+{
+	printf("Hello World\n");
+}
+'; writeSourceFileNamed: 'hello.c' text: '
+#include "hello.h"
+
+int main(int argc, const char *argv[])
+{
+	doHello();
+	return 0;
+}
+'.
+	rootPackage := self wbtScriptWith: [:script |
+		script includeDirectory: self wbtIncludeDirectory.
+		libraryModule := script dynamicLibrary: 'helloLib' with: [ :lib |
+			lib
+				source: 'helloLib.c'
+		].
+
+		self assert: libraryModule sources size equals: 1.
+		self assert: libraryModule sources first relativeFileReference equals: 'helloLib.c' asFileReference.
+
+		self assert: libraryModule intermediateObjectFiles size equals: 1.
+		self assert: libraryModule intermediateObjectFiles first fileReference basename equals: (buildEnvironment platform formatObjectFileName: 'helloLib.c').
+
+		programModule := script program: 'hello' with: [ :prog |
+			prog
+				source: 'hello.c';
+				linkLibrary: #helloLib.
+		].
+			
+		self assert: programModule sources size equals: 1.
+		self assert: programModule sources first relativeFileReference equals: 'hello.c' asFileReference.
+
+		self assert: programModule intermediateObjectFiles size equals: 1.
+		self assert: programModule intermediateObjectFiles first fileReference basename equals: (buildEnvironment platform formatObjectFileName: 'hello.c')
+	].
+
+	self assert: rootPackage mainElements size equals: 2.
+	sortedDependencies := rootPackage withTopologicalSortedDependencies.
+	self assert: (sortedDependencies collect: [ :each | each name ] as: Array) equals:
+	{ 
+		'helloLib.c' .
+		(buildEnvironment platform formatObjectFileName: 'helloLib.c') .
+		'helloLib' .
+		'hello.c' .
+		(buildEnvironment platform formatObjectFileName: 'hello.c') .
+		'hello' .
+		#Root
+	}.
+	self assert: rootPackage runBuildActions.
+	self assert: programModule executeAndReadStdout equals: ('Hello World' , String lf).
+	
+]
+
+{ #category : #tests }
 WBTProgramBuildingScriptEvaluationTest >> testHelloWorldCPP [
 	| programModule rootPackage sortedDependencies |
 	self
@@ -79,6 +148,75 @@ int main(int argc, const char *argv[])
 	}.
 	self assert: rootPackage runBuildActions.
 	self assert: programModule executeAndReadStdout equals: ('Hello World' , String lf).
+]
+
+{ #category : #tests }
+WBTProgramBuildingScriptEvaluationTest >> testHelloWorldCStaticLib [
+	| libraryModule programModule rootPackage sortedDependencies |
+	self
+		writeIncludeFileNamed: 'hello.h' text: '
+#include <stdio.h>
+
+void doHello(void);
+
+';
+	writeSourceFileNamed: 'helloLib.c' text: '
+#include "hello.h"
+
+void doHello(void)
+{
+	printf("Hello World\n");
+}
+'; writeSourceFileNamed: 'hello.c' text: '
+#include "hello.h"
+
+int main(int argc, const char *argv[])
+{
+	doHello();
+	return 0;
+}
+'.
+	rootPackage := self wbtScriptWith: [:script |
+		script includeDirectory: self wbtIncludeDirectory.
+		libraryModule := script staticLibrary: 'helloLib' with: [ :lib |
+			lib
+				source: 'helloLib.c'
+		].
+
+		self assert: libraryModule sources size equals: 1.
+		self assert: libraryModule sources first relativeFileReference equals: 'helloLib.c' asFileReference.
+
+		self assert: libraryModule intermediateObjectFiles size equals: 1.
+		self assert: libraryModule intermediateObjectFiles first fileReference basename equals: (buildEnvironment platform formatObjectFileName: 'helloLib.c').
+
+		programModule := script program: 'hello' with: [ :prog |
+			prog
+				source: 'hello.c';
+				linkLibrary: #helloLib.
+		].
+			
+		self assert: programModule sources size equals: 1.
+		self assert: programModule sources first relativeFileReference equals: 'hello.c' asFileReference.
+
+		self assert: programModule intermediateObjectFiles size equals: 1.
+		self assert: programModule intermediateObjectFiles first fileReference basename equals: (buildEnvironment platform formatObjectFileName: 'hello.c')
+	].
+
+	self assert: rootPackage mainElements size equals: 2.
+	sortedDependencies := rootPackage withTopologicalSortedDependencies.
+	self assert: (sortedDependencies collect: [ :each | each name ] as: Array) equals:
+	{ 
+		'helloLib.c' .
+		(buildEnvironment platform formatObjectFileName: 'helloLib.c') .
+		'helloLib' .
+		'hello.c' .
+		(buildEnvironment platform formatObjectFileName: 'hello.c') .
+		'hello' .
+		#Root
+	}.
+	self assert: rootPackage runBuildActions.
+	self assert: programModule executeAndReadStdout equals: ('Hello World' , String lf).
+	
 ]
 
 { #category : #tests }

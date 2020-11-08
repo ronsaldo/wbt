@@ -24,6 +24,14 @@ WBTScriptEnvironment >> buildEnvironment: anObject [
 	buildEnvironment := anObject
 ]
 
+{ #category : #adding }
+WBTScriptEnvironment >> dynamicLibrary: programName with: aBlock [
+	| builder |
+	builder := WBTDynamicLibraryBuilder for: self named: programName.
+	aBlock value: builder.
+	^ builder finish
+]
+
 { #category : #'as yet unclassified' }
 WBTScriptEnvironment >> ensureSourceFileExists: sourceFile [
 	(workingDirectory resolve: sourceFile asFileReference) exists ifFalse: [
@@ -170,6 +178,14 @@ WBTScriptEnvironment >> solveSourceFileOrGlobPattern: fileNameOrGlobPattern [
 { #category : #'as yet unclassified' }
 WBTScriptEnvironment >> solveSourceGlobPattern: globPattern [
 	self halt
+]
+
+{ #category : #adding }
+WBTScriptEnvironment >> staticLibrary: programName with: aBlock [
+	| builder |
+	builder := WBTStaticLibraryBuilder for: self named: programName.
+	aBlock value: builder.
+	^ builder finish
 ]
 
 { #category : #accessing }

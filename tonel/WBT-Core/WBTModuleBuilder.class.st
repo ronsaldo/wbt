@@ -31,6 +31,16 @@ WBTModuleBuilder >> initializeForScript: theScript withModuleName: theModuleName
 	script package addElement: module.
 ]
 
+{ #category : #'as yet unclassified' }
+WBTModuleBuilder >> linkLibraries: aCollection [
+	aCollection do: [ :each | self linkLibrary: each ].
+]
+
+{ #category : #'as yet unclassified' }
+WBTModuleBuilder >> linkLibrary: libraryModuleOrName [
+	module addLinkLibrary: libraryModuleOrName
+]
+
 { #category : #accessing }
 WBTModuleBuilder >> module [
 	^ module

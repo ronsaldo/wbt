@@ -30,7 +30,17 @@ WBTLanguage class >> uniqueInstance [
 ]
 
 { #category : #'as yet unclassified' }
+WBTLanguage >> createBuildActionForDynamicLibrary: dynamicLibrary [
+	self subclassResponsibility
+]
+
+{ #category : #'as yet unclassified' }
 WBTLanguage >> createBuildActionForExecutableProgram: executableProgram [
+	self subclassResponsibility
+]
+
+{ #category : #'as yet unclassified' }
+WBTLanguage >> createBuildActionForStaticLibrary: staticLibrary [
 	self subclassResponsibility
 ]
 

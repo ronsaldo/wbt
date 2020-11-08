@@ -16,7 +16,12 @@ WBTBuildTarget >> addBuildAction: anAction [
 
 { #category : #adding }
 WBTBuildTarget >> addCommandLineCommandBuildAction: command inputFiles: inputFile outputFile: outputFile [
-	self addBuildAction: (self package newCommandLineCommandBuildAction: command inputFiles: inputFile outputFile: outputFile)
+	self addCommandLineCommandBuildAction: command inputFiles: inputFile outputFile: outputFile variables: #()
+]
+
+{ #category : #adding }
+WBTBuildTarget >> addCommandLineCommandBuildAction: command inputFiles: inputFile outputFile: outputFile variables: variables [
+	self addBuildAction: (self package newCommandLineCommandBuildAction: command inputFiles: inputFile outputFile: outputFile variables: variables)
 ]
 
 { #category : #converting }
@@ -32,6 +37,41 @@ WBTBuildTarget >> buildActions [
 { #category : #'as yet unclassified' }
 WBTBuildTarget >> buildTargetDependencies [
 	^ #()
+]
+
+{ #category : #testing }
+WBTBuildTarget >> isExecutableProgram [
+	^ false
+]
+
+{ #category : #testing }
+WBTBuildTarget >> isExportedLibrary [
+	^ false
+]
+
+{ #category : #testing }
+WBTBuildTarget >> isImportedLibrary [
+	^ false
+]
+
+{ #category : #testing }
+WBTBuildTarget >> isLibrary [
+	^ false
+]
+
+{ #category : #testing }
+WBTBuildTarget >> isModuleTarget [
+	^ false
+]
+
+{ #category : #testing }
+WBTBuildTarget >> isObjectFile [
+	^ false
+]
+
+{ #category : #testing }
+WBTBuildTarget >> isStaticLibrary [
+	^ false
 ]
 
 { #category : #accessing }

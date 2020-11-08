@@ -12,26 +12,6 @@ WBTPackageElementTarget >> buildEnvironment [
 	^ package buildEnvironment
 ]
 
-{ #category : #testing }
-WBTPackageElementTarget >> isExecutableProgram [
-	^ false
-]
-
-{ #category : #testing }
-WBTPackageElementTarget >> isExportedLibrary [
-	^ false
-]
-
-{ #category : #testing }
-WBTPackageElementTarget >> isLibrary [
-	^ false
-]
-
-{ #category : #testing }
-WBTPackageElementTarget >> isModuleTarget [
-	^ false
-]
-
 { #category : #accessing }
 WBTPackageElementTarget >> package [
 	^ package
