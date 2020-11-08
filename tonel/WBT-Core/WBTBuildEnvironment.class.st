@@ -126,13 +126,13 @@ WBTBuildEnvironment >> buildPlatformVariableEnvironment [
 ]
 
 { #category : #'as yet unclassified' }
-WBTBuildEnvironment >> executeBuildCommandLineCommand: command [
-	^ (LibC system: command) = 0
+WBTBuildEnvironment >> executeCommandAndReadStdout: command [
+	^ LibC resultOfCommand: command
 ]
 
 { #category : #'as yet unclassified' }
-WBTBuildEnvironment >> executeCommandAndReadStdout: command [
-	^ LibC resultOfCommand: command
+WBTBuildEnvironment >> executeCommandLineCommand: command [
+	^ (LibC system: command) = 0
 ]
 
 { #category : #'as yet unclassified' }

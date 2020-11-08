@@ -2,9 +2,14 @@ Class {
 	#name : #WBTMSVCStyleCommandLineToolChain,
 	#superclass : #WBTCommandLineToolChain,
 	#instVars : [
-		'vcvarsallPath',
 		'cl',
-		'link'
+		'link',
+		'lib',
+		'visualStudioInstallationPath',
+		'vcvarsall',
+		'compilerArch',
+		'targetArch',
+		'vcBuildEnvironmentSetupPrefix'
 	],
 	#category : #'WBT-Core-Environment'
 }
@@ -19,17 +24,49 @@ WBTMSVCStyleCommandLineToolChain >> cl: anObject [
 	cl := anObject
 ]
 
+{ #category : #accessing }
+WBTMSVCStyleCommandLineToolChain >> findVCVarsAllPath [
+	| path |
+	path := self visualStudioInstallationPath asFileReference / 'VC' / 'Auxiliary' / 'Build' / 'vcvarsall.bat'.
+	path exists ifFalse: [ self error: 'Failed to find vcvarsall.bat' ].
+	^ path fullName
+]
+
+{ #category : #accessing }
+WBTMSVCStyleCommandLineToolChain >> findVisualStudioInstallationPath [
+	| result |
+	result := (LibC resultOfCommand: '""%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe"" -latest -requires Microsoft.VisualStudio.Workload.NativeDesktop -property installationPath') trimBoth asFileReference.
+	result exists ifFalse: [ self error: 'Failed to find the visual studio installation path.' ].
+	^ result fullName
+]
+
 { #category : #initialization }
 WBTMSVCStyleCommandLineToolChain >> initialize [
 	super initialize.
 	importLibraryFolderArgumentPrefix := '/LIBPATH:'.
 	importLibraryArgumentPrefix := ''.
 	importLibraryArgumentSuffix := '.lib'.
+	includeDirectoryArgumentPrefix := '/I'.
+	compilerArch := Smalltalk wordSize = 8
+		ifTrue: [ 'x64' ]
+		ifFalse: [ 'x86' ].
+	targetArch := compilerArch.
+
 ]
 
 { #category : #testing }
 WBTMSVCStyleCommandLineToolChain >> isMSVCStyle [
 	^ true
+]
+
+{ #category : #accessing }
+WBTMSVCStyleCommandLineToolChain >> lib [
+	^ lib
+]
+
+{ #category : #accessing }
+WBTMSVCStyleCommandLineToolChain >> lib: anObject [
+	lib := anObject
 ]
 
 { #category : #accessing }
@@ -43,6 +80,16 @@ WBTMSVCStyleCommandLineToolChain >> link: anObject [
 ]
 
 { #category : #initialization }
+WBTMSVCStyleCommandLineToolChain >> setForARM [
+	self targetArch: #arm
+]
+
+{ #category : #initialization }
+WBTMSVCStyleCommandLineToolChain >> setForARM64 [
+	self targetArch: #arm64
+]
+
+{ #category : #initialization }
 WBTMSVCStyleCommandLineToolChain >> setForClangCL [
 	self setForWindowsCommon.
 	cl := 'clang-cl.exe'.
@@ -52,32 +99,87 @@ WBTMSVCStyleCommandLineToolChain >> setForClangCL [
 { #category : #initialization }
 WBTMSVCStyleCommandLineToolChain >> setForMSVC [
 	self setForWindowsCommon.
-	cl := 'cl.exe'.
-	link := 'link.exe'.
+	cl := 'cl.exe /nologo'.
+	link := 'link.exe /nologo'.
 ]
 
 { #category : #initialization }
 WBTMSVCStyleCommandLineToolChain >> setForWindowsCommon [
+	lib := 'lib.exe /nologo'.
+]
+
+{ #category : #initialization }
+WBTMSVCStyleCommandLineToolChain >> setForX64 [
+	self targetArch: #x64
+]
+
+{ #category : #initialization }
+WBTMSVCStyleCommandLineToolChain >> setForX86 [
+	self targetArch: #x86
 ]
 
 { #category : #'as yet unclassified' }
 WBTMSVCStyleCommandLineToolChain >> substitutionVariables [
 	^ super substitutionVariables , { 
-		#WBT_C_COMPILER . [self cl].
-		#WBT_C_COMPILE_OBJECT . '$(WBT_C_COMPILER) /Fo$(WBT_OUTPUT_FILE) /c $(WBT_INPUT_FILES) $(WBT_C_FLAGS)'.
+		#WBT_C_DEBUG_FLAGS . '/Zi'.
+		#WBT_C_MINSIZE_FLAGS . '/O1'.
+		#WBT_C_RELWITHDEBINFO_FLAGS . '/Zi /O2'.
+		#WBT_C_RELEASE_FLAGS . '/O2'.
+		
+		#WBT_C_COMPILER . [ self vcBuildEnvironmentSetupPrefix , self cl].
+		#WBT_C_COMPILE_OBJECT . '$(WBT_C_COMPILER) $(WBT_C_FLAGS) $(WBT_C_$(WBT_BUILD_TYPE)_FLAGS) $(WBT_C_INCLUDE_DIRECTORIES_FLAGS) /Fo$(WBT_OUTPUT_FILE) /c $(WBT_INPUT_FILES) $(WBT_C_FLAGS)'.
 
-		#WBT_C_LINKER . [self link].
-		#WBT_C_LINK_EXECUTABLE . '$(WBT_C_COMPILER) /Fe$(WBT_OUTPUT_FILE) $(WBT_INPUT_FILES) /link $(WBT_EXECUTABLE_LINKER_FLAGS)'.
+		#WBT_C_LINKER . [self vcBuildEnvironmentSetupPrefix , self link].
+		#WBT_C_LINK_EXECUTABLE . '$(WBT_C_COMPILER) /Fe$(WBT_OUTPUT_FILE) $(WBT_INPUT_FILES) /link $(WBT_EXECUTABLE_LINKER_FLAGS) $(WBT_LINK_LIBRARIES)'.
 
-		#WBT_CXX_COMPILER . [self cl].
-		#WBT_CXX_COMPILE_OBJECT . '$(WBT_CXX_COMPILER) /Fo$(WBT_OUTPUT_FILE) /c $(WBT_INPUT_FILES) $(WBT_CXX_FLAGS)'.
+		#WBT_CXX_COMPILER . [self vcBuildEnvironmentSetupPrefix , self cl].
+		#WBT_CXX_COMPILE_OBJECT . '$(WBT_CXX_COMPILER) $(WBT_CXX_FLAGS) $(WBT_CXX_$(WBT_BUILD_TYPE)_FLAGS) $(WBT_C_INCLUDE_DIRECTORIES_FLAGS) /Fo$(WBT_OUTPUT_FILE) /c $(WBT_INPUT_FILES) $(WBT_CXX_FLAGS)'.
 
-		#WBT_CXX_LINKER . [self link].
-		#WBT_CXX_LINK_EXECUTABLE . '$(WBT_CXX_COMPILER) /Fe$(WBT_OUTPUT_FILE) $(WBT_INPUT_FILES) /link $(WBT_EXECUTABLE_LINKER_FLAGS)'.
+		#WBT_STATIC_LINKER . [self vcBuildEnvironmentSetupPrefix , self lib ].
+
+		#WBT_LINK_STATIC_LIBRARY . '$(WBT_STATIC_LINKER) /OUT:$(WBT_OUTPUT_FILE) $(WBT_INPUT_FILES)'.
+		#WBT_C_LINK_STATIC_LIBRARY . '$(WBT_LINK_STATIC_LIBRARY)'.
+		#WBT_CXX_LINK_STATIC_LIBRARY . '$(WBT_LINK_STATIC_LIBRARY)'.
+
+		#WBT_CXX_LINKER . [self vcBuildEnvironmentSetupPrefix , self link].
+		#WBT_CXX_LINK_EXECUTABLE . '$(WBT_CXX_COMPILER) /Fe$(WBT_OUTPUT_FILE) $(WBT_INPUT_FILES) /link $(WBT_EXECUTABLE_LINKER_FLAGS) $(WBT_LINK_LIBRARIES)'.
+		
+		#WBT_LINK_DYNAMIC_LIBRARY . '$(WBT_C_LINKER) /DLL /OUT:$(WBT_OUTPUT_FILE) $(WBT_INPUT_FILES) $(WBT_DYNAMIC_LIBRARY_LINKER_FLAGS) $(WBT_LINK_LIBRARIES)'.
+		#WBT_C_LINK_DYNAMIC_LIBRARY . '$(WBT_LINK_STATIC_LIBRARY)'.
+		#WBT_CXX_LINK_DYNAMIC_LIBRARY . '$(WBT_CXX_LINKER) /DLL /OUT:$(WBT_OUTPUT_FILE) $(WBT_INPUT_FILES) $(WBT_DYNAMIC_LIBRARY_LINKER_FLAGS) $(WBT_LINK_LIBRARIES)'.
 	 }
 ]
 
 { #category : #accessing }
-WBTMSVCStyleCommandLineToolChain >> vcvarsallPath [
-	^ vcvarsallPath ifNil: [ vcvarsallPath := LibC resultOfCommand: '"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe"' ]
+WBTMSVCStyleCommandLineToolChain >> targetArch [
+	^ targetArch
+]
+
+{ #category : #accessing }
+WBTMSVCStyleCommandLineToolChain >> targetArch: anObject [
+	targetArch := anObject
+]
+
+{ #category : #accessing }
+WBTMSVCStyleCommandLineToolChain >> vcBuildEnvironmentSetupPrefix [
+	^ vcBuildEnvironmentSetupPrefix ifNil: [vcBuildEnvironmentSetupPrefix
+		:= 'call "{1}" {2} > NUL &&' format:  {self vcvarsall . self vcvarsallArch }
+	]
+]
+
+{ #category : #accessing }
+WBTMSVCStyleCommandLineToolChain >> vcvarsall [
+	^ vcvarsall ifNil: [ vcvarsall := self findVCVarsAllPath ]
+]
+
+{ #category : #'as yet unclassified' }
+WBTMSVCStyleCommandLineToolChain >> vcvarsallArch [
+	^ compilerArch = targetArch
+		ifTrue: [ compilerArch ]
+		ifFalse: [ compilerArch , '_' , targetArch ]
+]
+
+{ #category : #accessing }
+WBTMSVCStyleCommandLineToolChain >> visualStudioInstallationPath [
+	^ visualStudioInstallationPath ifNil: [visualStudioInstallationPath := self findVisualStudioInstallationPath]
 ]

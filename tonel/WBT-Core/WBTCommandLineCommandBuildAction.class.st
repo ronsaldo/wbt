@@ -43,7 +43,7 @@ WBTCommandLineCommandBuildAction >> execute [
 	self ensureOutputDirectoryExists.
 	formattedCommand := self formattedCommand.
 	self assert: formattedCommand isNotEmpty.
-	^ self buildEnvironment executeBuildCommandLineCommand: formattedCommand
+	^ self buildEnvironment executeCommandLineCommand: formattedCommand
 ]
 
 { #category : #formatting }

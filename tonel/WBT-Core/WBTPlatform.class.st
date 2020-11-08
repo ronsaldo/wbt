@@ -69,7 +69,7 @@ WBTPlatform class >> windowsClangCLX64 [
 	^ self new
 		name: #windows;
 		architecture: WBTArchitecture x64;
-		toolchain: WBTToolChain windowsClangCL;
+		toolchain: WBTToolChain windowsClangCL setForX64;
 		setForWindowsConventions;
 		yourself
 ]
@@ -79,7 +79,7 @@ WBTPlatform class >> windowsClangCLX86 [
 	^ self new
 		name: #windows;
 		architecture: WBTArchitecture x86;
-		toolchain: WBTToolChain windowsClangCL;
+		toolchain: WBTToolChain windowsClangCL setForX86;
 		setForWindowsConventions;
 		yourself
 ]
@@ -109,7 +109,7 @@ WBTPlatform class >> windowsX64 [
 	^ self new
 		name: #windows;
 		architecture: WBTArchitecture x64;
-		toolchain: WBTToolChain windowsMSVC;
+		toolchain: WBTToolChain windowsMSVC setForX64;
 		setForWindowsConventions;
 		yourself
 ]
@@ -119,7 +119,7 @@ WBTPlatform class >> windowsX86 [
 	^ self new
 		name: #windows;
 		architecture: WBTArchitecture x86;
-		toolchain: WBTToolChain windowsMSVC;
+		toolchain: WBTToolChain windowsMSVC setForX86;
 		setForWindowsConventions;
 		yourself
 ]
