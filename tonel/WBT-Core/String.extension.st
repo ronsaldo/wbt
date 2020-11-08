@@ -36,8 +36,11 @@ String >> wbtSubstituteVariablesWith: aSubstitutionBlock [
 	[ shouldContinue ] whileTrue: [
 		shouldContinue := false.
 		result := regex copy: result translatingMatchesUsing: [:varExpression |
+			| rawVariableExpressionContent variableExpressionContentValue|
 			shouldContinue := true.
-			aSubstitutionBlock value: (varExpression copyFrom: 3 to: varExpression size - 1)
+			rawVariableExpressionContent := (varExpression copyFrom: 3 to: varExpression size - 1).
+			variableExpressionContentValue := rawVariableExpressionContent wbtSubstituteVariablesWith: aSubstitutionBlock.
+			aSubstitutionBlock value: variableExpressionContentValue.
 		]
 	].
 

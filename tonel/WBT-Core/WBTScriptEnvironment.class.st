@@ -94,6 +94,21 @@ WBTScriptEnvironment >> importPhanapiBintrayLibrary: libraryName fromUser: bintr
 ]
 
 { #category : #adding }
+WBTScriptEnvironment >> includeDirectories: directoriesToInclude [
+	directoriesToInclude do: [ :each | self includeDirectory: each ]
+]
+
+{ #category : #adding }
+WBTScriptEnvironment >> includeDirectory: aDirectoryToInclude [
+	package includeDirectory: (workingDirectory resolve: aDirectoryToInclude asFileReference).
+]
+
+{ #category : #adding }
+WBTScriptEnvironment >> includePublicDirectories: directoriesToInclude [
+	directoriesToInclude do: [ :each | self includePublicDirectory: each ]
+]
+
+{ #category : #adding }
 WBTScriptEnvironment >> library: programName with: aBlock [
 	| builder |
 	builder := WBTLibraryBuilder for: self named: programName.

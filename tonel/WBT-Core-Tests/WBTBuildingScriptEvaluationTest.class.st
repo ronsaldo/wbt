@@ -69,6 +69,11 @@ WBTBuildingScriptEvaluationTest >> wbtBuildOutputDirectory [
 ]
 
 { #category : #running }
+WBTBuildingScriptEvaluationTest >> wbtIncludeDirectory [
+	^ self wbtTestDirectory / 'include'
+]
+
+{ #category : #running }
 WBTBuildingScriptEvaluationTest >> wbtObjectBuildDirectory [
 	^ self wbtTestDirectory / 'obj'
 ]
@@ -101,6 +106,17 @@ WBTBuildingScriptEvaluationTest >> wbtTestName [
 { #category : #running }
 WBTBuildingScriptEvaluationTest >> wbtTestParentDirectory [
 	^ FileSystem workingDirectory / 'wbt-test'
+]
+
+{ #category : #running }
+WBTBuildingScriptEvaluationTest >> writeIncludeFileNamed: fileName text: sourceText [
+	| sourceFileReference |
+	sourceFileReference := (self wbtIncludeDirectory resolve: fileName asFileReference) asAbsolute.
+	sourceFileReference parent ensureCreateDirectory.
+	sourceFileReference writeStreamDo: [ :out |
+		out truncate.
+		out nextPutAll: sourceText withPlatformSpecificLineEndings
+	]
 ]
 
 { #category : #running }

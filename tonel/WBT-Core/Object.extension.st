@@ -25,3 +25,8 @@ Object >> selectCase: cases [
 
 	self error: 'Pattern not found.'
 ]
+
+{ #category : #'*WBT-Core' }
+Object >> wbtEvaluateSubstitutionVariableInEnvironment: evaluationEnvironment [
+	^ self
+]

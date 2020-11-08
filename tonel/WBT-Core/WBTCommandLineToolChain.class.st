@@ -3,10 +3,16 @@ Class {
 	#superclass : #WBTToolChain,
 	#instVars : [
 		'importLibraryFolderArgumentPrefix',
-		'importLibraryArgumentPrefix'
+		'importLibraryArgumentPrefix',
+		'includeDirectoryArgumentPrefix'
 	],
 	#category : #'WBT-Core-Environment'
 }
+
+{ #category : #'as yet unclassified' }
+WBTCommandLineToolChain >> formatIncludeDirectoryArgument: includeDirectory [
+	^ includeDirectoryArgumentPrefix , includeDirectory asWBTVarSubstitution
+]
 
 { #category : #formatting }
 WBTCommandLineToolChain >> formatLinkerArgumentsForImportingLibraries: libraries [
@@ -55,6 +61,16 @@ WBTCommandLineToolChain >> importLibraryFolderArgumentPrefix: anObject [
 	importLibraryFolderArgumentPrefix := anObject
 ]
 
+{ #category : #accessing }
+WBTCommandLineToolChain >> includeDirectoryArgumentPrefix [
+	^ includeDirectoryArgumentPrefix
+]
+
+{ #category : #accessing }
+WBTCommandLineToolChain >> includeDirectoryArgumentPrefix: anObject [
+	includeDirectoryArgumentPrefix := anObject
+]
+
 { #category : #testing }
 WBTCommandLineToolChain >> isCommandLineToolChain [
 	^ true
@@ -63,4 +79,18 @@ WBTCommandLineToolChain >> isCommandLineToolChain [
 { #category : #'as yet unclassified' }
 WBTCommandLineToolChain >> rpathLocalLinkerArgument [
 	^ nil
+]
+
+{ #category : #'as yet unclassified' }
+WBTCommandLineToolChain >> substitutionVariables [
+	| includeDirectoriesBlock |
+	includeDirectoriesBlock := [:env |
+		(env evaluateVariableValue: #WBT_ACTIVE_INCLUDE_DIRECTORIES ifAbsent: [#()])
+			collect: [ :each | self formatIncludeDirectoryArgument: each ]
+	].
+
+	^ super substitutionVariables , { 
+		#WBT_C_INCLUDE_DIRECTORIES_FLAGS . includeDirectoriesBlock. 
+		#WBT_CXX_INCLUDE_DIRECTORIES_FLAGS . includeDirectoriesBlock.
+	 }
 ]

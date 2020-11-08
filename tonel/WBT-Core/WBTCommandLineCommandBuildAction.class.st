@@ -5,8 +5,7 @@ Class {
 		'inputFiles',
 		'outputFiles',
 		'command',
-		'variables',
-		'parentEnvironment'
+		'variableEnvironment'
 	],
 	#category : #'WBT-Core-Actions'
 }
@@ -50,7 +49,7 @@ WBTCommandLineCommandBuildAction >> execute [
 { #category : #formatting }
 WBTCommandLineCommandBuildAction >> formattedCommand [
 	^ command wbtSubstituteVariablesWith: [ :varName |
-		(variables at: varName ifAbsent: [ parentEnvironment at: varName ifAbsent: [ nil ] ]) asWBTVarSubstitution
+		self variableEnvironment substitutionForVariable: varName
 	]
 ]
 
@@ -75,21 +74,11 @@ WBTCommandLineCommandBuildAction >> outputFiles: anObject [
 ]
 
 { #category : #accessing }
-WBTCommandLineCommandBuildAction >> parentEnvironment [
-	^ parentEnvironment ifNil: [ parentEnvironment := Dictionary new ]
+WBTCommandLineCommandBuildAction >> variableEnvironment [
+	^ variableEnvironment ifNil: [ variableEnvironment := WBTVariableSubstitutionEnvironment empty ]
 ]
 
 { #category : #accessing }
-WBTCommandLineCommandBuildAction >> parentEnvironment: anObject [
-	parentEnvironment := anObject
-]
-
-{ #category : #accessing }
-WBTCommandLineCommandBuildAction >> variables [
-	^ variables ifNil: [ variables := Dictionary new ]
-]
-
-{ #category : #accessing }
-WBTCommandLineCommandBuildAction >> variables: anObject [
-	variables := anObject
+WBTCommandLineCommandBuildAction >> variableEnvironment: anObject [
+	variableEnvironment := anObject
 ]

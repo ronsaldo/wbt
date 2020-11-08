@@ -9,3 +9,8 @@ BlockClosure >> evaluateMatchedPatternElement: matchedElement [
 BlockClosure >> matchesPatternElement: matchedElement [
 	^ self cull: matchedElement
 ]
+
+{ #category : #'*WBT-Core' }
+BlockClosure >> wbtEvaluateSubstitutionVariableInEnvironment: evaluationEnvironment [
+	^ self cull: evaluationEnvironment
+]

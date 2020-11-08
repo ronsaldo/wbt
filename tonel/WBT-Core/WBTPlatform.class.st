@@ -56,12 +56,12 @@ WBTPlatform class >> osx [
 
 { #category : #'as yet unclassified' }
 WBTPlatform class >> win32 [
-	^ self windowsClangCLX86
+	^ self windowsX86
 ]
 
 { #category : #'as yet unclassified' }
 WBTPlatform class >> win64 [
-	^ self windowsClangCLX64
+	^ self windowsX64
 ]
 
 { #category : #'as yet unclassified' }
@@ -340,4 +340,11 @@ WBTPlatform >> triple [
 { #category : #accessing }
 WBTPlatform >> triple: anObject [
 	triple := anObject
+]
+
+{ #category : #'as yet unclassified' }
+WBTPlatform >> variableEnvironment [
+	^ WBTVariableSubstitutionEnvironment empty
+		setVariables: self substitutionVariables;
+		yourself
 ]

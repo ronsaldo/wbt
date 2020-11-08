@@ -9,10 +9,19 @@ Class {
 		'buildObjectDirectory',
 		'buildOutputDirectory',
 		'mainElements',
-		'buildTargetDependencies'
+		'buildTargetDependencies',
+		'hostPlatformVariableEnvironment',
+		'includeDirectories',
+		'publicIncludeDirectories',
+		'activeIncludeDirectories'
 	],
 	#category : #'WBT-Core-Targets'
 }
+
+{ #category : #adding }
+WBTPackage >> activeIncludeDirectories [
+	^ activeIncludeDirectories ifNil: [activeIncludeDirectories := (includeDirectories , publicIncludeDirectories) collect: [ :each | each fullName ] ]
+]
 
 { #category : #adding }
 WBTPackage >> addElement: anElement [
@@ -79,6 +88,13 @@ WBTPackage >> exportedLibrariesLinkerArguments [
 	^ buildEnvironment platform toolchain formatLinkerArgumentsForImportingLibraries: self exportedLibraries
 ]
 
+{ #category : #'as yet unclassified' }
+WBTPackage >> hostPlatformVariableEnvironment [
+	^ hostPlatformVariableEnvironment ifNil: [ hostPlatformVariableEnvironment := WBTVariableSubstitutionEnvironment parent: buildEnvironment hostPlatformVariableEnvironment withVariables: {
+		#WBT_ACTIVE_INCLUDE_DIRECTORIES . [ self activeIncludeDirectories ]
+	}]
+]
+
 { #category : #adding }
 WBTPackage >> importLibrary: libraryName [
 	self addElement: (WBTLibraryTarget new
@@ -142,12 +158,34 @@ WBTPackage >> inFolder: folder evaluateScript: scriptSource [
 		evaluateScript: scriptSource
 ]
 
+{ #category : #adding }
+WBTPackage >> includeDirectories: directoriesToInclude [
+	directoriesToInclude do: [ :each | self includeDirectory: each ]
+]
+
+{ #category : #adding }
+WBTPackage >> includeDirectory: aDirectoryToInclude [
+	includeDirectories add: aDirectoryToInclude asFileReference
+]
+
+{ #category : #adding }
+WBTPackage >> includePublicDirectories: directoriesToInclude [
+	directoriesToInclude do: [ :each | self includePublicDirectory: each ]
+]
+
+{ #category : #adding }
+WBTPackage >> includePublicDirectory: aDirectoryToInclude [
+	publicIncludeDirectories add: aDirectoryToInclude asFileReference asAbsolute canonicalize
+]
+
 { #category : #initialization }
 WBTPackage >> initialize [
 	super initialize.
 	dependencies := OrderedCollection new.
 	elements := OrderedCollection new.
 	mainElements := OrderedCollection new.
+	includeDirectories := OrderedCollection new.
+	publicIncludeDirectories := OrderedCollection new.
 ]
 
 { #category : #actions }
@@ -188,11 +226,10 @@ WBTPackage >> name: anObject [
 WBTPackage >> newCommandLineCommandBuildAction: command inputFiles: inputFiles outputFile: outputFile [
 	^ WBTCommandLineCommandBuildAction new
 		command: command;
-		variables: (Dictionary newFromPairs: {
+		variableEnvironment: (WBTVariableSubstitutionEnvironment parent: self hostPlatformVariableEnvironment withVariables: {
 			'WBT_INPUT_FILES' . inputFiles .
 			'WBT_OUTPUT_FILE' . outputFile .
 		});
-		parentEnvironment: self substitutionVariablesEnvironment;
 		inputFiles: inputFiles;
 		outputFiles: { outputFile };
 		yourself

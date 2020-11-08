@@ -10,9 +10,9 @@ Class {
 		'buildObjectDirectory',
 		'buildOutputDirectory',
 		'languages',
-		'buildPlatformSubstitutionVariables',
-		'hostPlatformSubstitutionVariables',
-		'targetPlatformSubstitutionVariables'
+		'buildPlatformVariableEnvironment',
+		'hostPlatformVariableEnvironment',
+		'targetPlatformVariableEnvironment'
 	],
 	#category : #'WBT-Core-Environment'
 }
@@ -120,9 +120,9 @@ WBTBuildEnvironment >> buildPlatform: anObject [
 	buildPlatform := anObject
 ]
 
-{ #category : #initialization }
-WBTBuildEnvironment >> buildPlatformSubstitutionVariables [
-	^ buildPlatformSubstitutionVariables ifNil: [ buildPlatformSubstitutionVariables := Dictionary newFromPairs: buildPlatform substitutionVariables ]
+{ #category : #accessing }
+WBTBuildEnvironment >> buildPlatformVariableEnvironment [
+	^ buildPlatformVariableEnvironment ifNil: [ buildPlatformVariableEnvironment := buildPlatform variableEnvironment ]
 ]
 
 { #category : #'as yet unclassified' }
@@ -153,9 +153,9 @@ WBTBuildEnvironment >> hostPlatform: anObject [
 	hostPlatform := anObject
 ]
 
-{ #category : #initialization }
-WBTBuildEnvironment >> hostPlatformSubstitutionVariables [
-	^ hostPlatformSubstitutionVariables ifNil: [ hostPlatformSubstitutionVariables := Dictionary newFromPairs: hostPlatform substitutionVariables ]
+{ #category : #accessing }
+WBTBuildEnvironment >> hostPlatformVariableEnvironment [
+	^ hostPlatformVariableEnvironment ifNil: [ hostPlatformVariableEnvironment := hostPlatform variableEnvironment ]
 ]
 
 { #category : #initialization }
@@ -221,9 +221,9 @@ WBTBuildEnvironment >> targetPlatform: anObject [
 	targetPlatform := anObject
 ]
 
-{ #category : #initialization }
-WBTBuildEnvironment >> targetPlatformSubstitutionVariables [
-	^ targetPlatformSubstitutionVariables ifNil: [ targetPlatformSubstitutionVariables := Dictionary newFromPairs: buildPlatform substitutionVariables ]
+{ #category : #accessing }
+WBTBuildEnvironment >> targetPlatformVariableEnvironment [
+	^ targetPlatformVariableEnvironment ifNil: [ targetPlatformVariableEnvironment := targetPlatform variableEnvironment ]
 ]
 
 { #category : #'as yet unclassified' }
