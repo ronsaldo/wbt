@@ -25,6 +25,13 @@ WBTScriptEnvironment >> buildEnvironment: anObject [
 ]
 
 { #category : #'as yet unclassified' }
+WBTScriptEnvironment >> ensureSourceFileExists: sourceFile [
+	(workingDirectory resolve: sourceFile asFileReference) exists ifFalse: [
+		self error: ('Failed to find source file named: {1}' format: sourceFile)
+	]
+]
+
+{ #category : #'as yet unclassified' }
 WBTScriptEnvironment >> evaluateScript: scriptSource [
 	^ self class compiler receiver: self; evaluate: scriptSource
 ]
@@ -86,6 +93,14 @@ WBTScriptEnvironment >> importPhanapiBintrayLibrary: libraryName fromUser: bintr
 	package importPhanapiBintrayLibrary: libraryName fromUser: bintrayUser repository: repositoryName package: packageName
 ]
 
+{ #category : #adding }
+WBTScriptEnvironment >> library: programName with: aBlock [
+	| builder |
+	builder := WBTLibraryBuilder for: self named: programName.
+	aBlock value: builder.
+	^ builder module
+]
+
 { #category : #accessing }
 WBTScriptEnvironment >> package [
 	^ package
@@ -103,12 +118,43 @@ WBTScriptEnvironment >> platform [
 
 { #category : #adding }
 WBTScriptEnvironment >> program: programName with: aBlock [
-	self halt
+	| builder |
+	builder := WBTProgramBuilder for: self named: programName.
+	aBlock value: builder.
+	^ builder finish
 ]
 
 { #category : #adding }
 WBTScriptEnvironment >> solveRelativePath: path [
 	^ (workingDirectory resolve: path asFileReference) fullName
+]
+
+{ #category : #'as yet unclassified' }
+WBTScriptEnvironment >> solveSourceFile: fileName [
+	| relativeFileRef solvedFileReference extension language |
+	relativeFileRef := fileName asFileReference.
+	relativeFileRef isAbsolute ifTrue: [ relativeFileRef := relativeFileRef basename asFileReference ].
+	
+	self ensureSourceFileExists: fileName.
+	solvedFileReference := (workingDirectory resolve: fileName asFileReference) asAbsolute canonicalize.
+	extension := solvedFileReference extension asLowercase.
+	language := ((self buildEnvironment languageForFileExtension: extension) ifNil: [ WBTNullLanguage uniqueInstance ]).
+
+	^ language makeSourceFileElementFor: solvedFileReference withRelativeFileReference: relativeFileRef
+]
+
+{ #category : #'as yet unclassified' }
+WBTScriptEnvironment >> solveSourceFileOrGlobPattern: fileNameOrGlobPattern [
+	^ (fileNameOrGlobPattern includesAnyOf: '*?') ifTrue: [
+		self solveSourceGlobPattern: fileNameOrGlobPattern
+	] ifFalse: [ 
+		{self solveSourceFile: fileNameOrGlobPattern}
+	]
+]
+
+{ #category : #'as yet unclassified' }
+WBTScriptEnvironment >> solveSourceGlobPattern: globPattern [
+	self halt
 ]
 
 { #category : #accessing }

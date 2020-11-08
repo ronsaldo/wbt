@@ -1,6 +1,11 @@
 Extension { #name : #Object }
 
 { #category : #'*WBT-Core' }
+Object >> asWBTVarSubstitution [
+	^ self asString asWBTVarSubstitution
+]
+
+{ #category : #'*WBT-Core' }
 Object >> evaluateMatchedPatternElement: matchedElement [
 	^ self
 ]

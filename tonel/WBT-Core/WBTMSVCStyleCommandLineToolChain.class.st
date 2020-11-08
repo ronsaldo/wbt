@@ -50,3 +50,20 @@ WBTMSVCStyleCommandLineToolChain >> setForMSVC [
 { #category : #initialization }
 WBTMSVCStyleCommandLineToolChain >> setForWindowsCommon [
 ]
+
+{ #category : #'as yet unclassified' }
+WBTMSVCStyleCommandLineToolChain >> substitutionVariables [
+	^ { 
+		#WBT_C_COMPILER . cl.
+		#WBT_C_COMPILE_OBJECT . '$(WBT_C_COMPILER) /Fo$(WBT_OUTPUT_FILE) /c $(WBT_INPUT_FILES) $(WBT_C_FLAGS)'.
+
+		#WBT_C_LINKER . link.
+		#WBT_C_LINK_EXECUTABLE . '$(WBT_C_COMPILER) /Fe$(WBT_OUTPUT_FILE) $(WBT_INPUT_FILES) /link $(WBT_EXECUTABLE_LINKER_FLAGS)'.
+
+		#WBT_CXX_COMPILER . cl.
+		#WBT_CXX_COMPILE_OBJECT . '$(WBT_CXX_COMPILER) /Fo$(WBT_OUTPUT_FILE) /c $(WBT_INPUT_FILES) $(WBT_CXX_FLAGS)'.
+
+		#WBT_CXX_LINKER . link.
+		#WBT_CXX_LINK_EXECUTABLE . '$(WBT_CXX_COMPILER) /Fe$(WBT_OUTPUT_FILE) $(WBT_INPUT_FILES) /link $(WBT_EXECUTABLE_LINKER_FLAGS)'.
+	 }
+]

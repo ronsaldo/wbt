@@ -1,26 +1,26 @@
 Class {
-	#name : #WBTLibrary,
-	#superclass : #WBTPackageElement,
+	#name : #WBTLibraryTarget,
+	#superclass : #WBTModuleTarget,
 	#instVars : [
 		'importLibName',
 		'importLibFolder',
 		'binaryLibFolder'
 	],
-	#category : #'WBT-Core'
+	#category : #'WBT-Core-Targets'
 }
 
 { #category : #accessing }
-WBTLibrary >> binaryLibFolder [
+WBTLibraryTarget >> binaryLibFolder [
 	^ binaryLibFolder
 ]
 
 { #category : #accessing }
-WBTLibrary >> binaryLibFolder: anObject [
+WBTLibraryTarget >> binaryLibFolder: anObject [
 	binaryLibFolder := anObject
 ]
 
 { #category : #installation }
-WBTLibrary >> exportedDynamicLibraries [
+WBTLibraryTarget >> exportedDynamicLibraries [
 	| dynamicLibrarySuffix binaryLibFolderFileReference |
 	binaryLibFolder ifNil: [ ^ #() ].
 	dynamicLibrarySuffix := self platform dynamicLibrarySuffix.
@@ -31,27 +31,27 @@ WBTLibrary >> exportedDynamicLibraries [
 ]
 
 { #category : #accessing }
-WBTLibrary >> importLibFolder [
+WBTLibraryTarget >> importLibFolder [
 	^ importLibFolder
 ]
 
 { #category : #accessing }
-WBTLibrary >> importLibFolder: anObject [
+WBTLibraryTarget >> importLibFolder: anObject [
 	importLibFolder := anObject
 ]
 
 { #category : #accessing }
-WBTLibrary >> importLibName [
+WBTLibraryTarget >> importLibName [
 	^ importLibName
 ]
 
 { #category : #accessing }
-WBTLibrary >> importLibName: anObject [
+WBTLibraryTarget >> importLibName: anObject [
 	importLibName := anObject
 ]
 
 { #category : #installation }
-WBTLibrary >> installInto: outputDirectory [
+WBTLibraryTarget >> installInto: outputDirectory [
 	| outputDirectoryFileRef dynamicLibraries binaryLibFolderFileRef |
 	dynamicLibraries := self exportedDynamicLibraries.
 	dynamicLibraries ifEmpty: [ ^ self ].
@@ -66,11 +66,11 @@ WBTLibrary >> installInto: outputDirectory [
 ]
 
 { #category : #testing }
-WBTLibrary >> isExportedLibrary [
+WBTLibraryTarget >> isExportedLibrary [
 	^ true
 ]
 
 { #category : #testing }
-WBTLibrary >> isLibrary [
+WBTLibraryTarget >> isLibrary [
 	^ true
 ]

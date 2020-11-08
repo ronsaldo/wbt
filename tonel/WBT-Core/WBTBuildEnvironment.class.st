@@ -8,7 +8,11 @@ Class {
 		'buildPlatform',
 		'packages',
 		'buildObjectDirectory',
-		'buildOutputDirectory'
+		'buildOutputDirectory',
+		'languages',
+		'buildPlatformSubstitutionVariables',
+		'hostPlatformSubstitutionVariables',
+		'targetPlatformSubstitutionVariables'
 	],
 	#category : #'WBT-Core-Environment'
 }
@@ -95,7 +99,10 @@ WBTBuildEnvironment >> buildOutputDirectory: aDirectory [
 
 { #category : #bootstrapping }
 WBTBuildEnvironment >> buildPackageNamed: packageName inFolder: folder withBlock: aBlock [
-	^ (self getOrCreatePackageNamed: packageName) inFolder: folder evaluateBlock: aBlock
+	| package |
+	package := (self getOrCreatePackageNamed: packageName).
+	package inFolder: folder evaluateBlock: aBlock.
+	^ package
 ]
 
 { #category : #bootstrapping }
@@ -111,6 +118,21 @@ WBTBuildEnvironment >> buildPlatform [
 { #category : #accessing }
 WBTBuildEnvironment >> buildPlatform: anObject [
 	buildPlatform := anObject
+]
+
+{ #category : #initialization }
+WBTBuildEnvironment >> buildPlatformSubstitutionVariables [
+	^ buildPlatformSubstitutionVariables ifNil: [ buildPlatformSubstitutionVariables := Dictionary newFromPairs: buildPlatform substitutionVariables ]
+]
+
+{ #category : #'as yet unclassified' }
+WBTBuildEnvironment >> executeBuildCommandLineCommand: command [
+	^ (LibC system: command) = 0
+]
+
+{ #category : #'as yet unclassified' }
+WBTBuildEnvironment >> executeCommandAndReadStdout: command [
+	^ LibC resultOfCommand: command
 ]
 
 { #category : #'as yet unclassified' }
@@ -132,10 +154,16 @@ WBTBuildEnvironment >> hostPlatform: anObject [
 ]
 
 { #category : #initialization }
+WBTBuildEnvironment >> hostPlatformSubstitutionVariables [
+	^ hostPlatformSubstitutionVariables ifNil: [ hostPlatformSubstitutionVariables := Dictionary newFromPairs: hostPlatform substitutionVariables ]
+]
+
+{ #category : #initialization }
 WBTBuildEnvironment >> initialize [
 	super initialize.
 	packages := Dictionary new.
 	packageSpecLocations := OrderedCollection new.
+	languages := WBTLanguage allSupportedLanguages.
 ]
 
 { #category : #'as yet unclassified' }
@@ -147,6 +175,11 @@ WBTBuildEnvironment >> installFile: sourceFile in: destFile [
 	destFileReference parent ensureCreateDirectory.
 	destFileReference exists ifTrue: [ destFileReference delete ].
 	sourceFile copyTo: destFileReference
+]
+
+{ #category : #accessing }
+WBTBuildEnvironment >> languageForFileExtension: anExtension [
+	^ languages detect: [ :each | each handlesFileExtension: anExtension ] ifNone: [ nil ]
 ]
 
 { #category : #bootstrapping }
@@ -186,6 +219,11 @@ WBTBuildEnvironment >> targetPlatform [
 { #category : #accessing }
 WBTBuildEnvironment >> targetPlatform: anObject [
 	targetPlatform := anObject
+]
+
+{ #category : #initialization }
+WBTBuildEnvironment >> targetPlatformSubstitutionVariables [
+	^ targetPlatformSubstitutionVariables ifNil: [ targetPlatformSubstitutionVariables := Dictionary newFromPairs: buildPlatform substitutionVariables ]
 ]
 
 { #category : #'as yet unclassified' }

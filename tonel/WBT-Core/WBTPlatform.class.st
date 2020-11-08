@@ -56,12 +56,12 @@ WBTPlatform class >> osx [
 
 { #category : #'as yet unclassified' }
 WBTPlatform class >> win32 [
-	^ self windowsClangX86
+	^ self windowsClangCLX86
 ]
 
 { #category : #'as yet unclassified' }
 WBTPlatform class >> win64 [
-	^ self windowsClangX64
+	^ self windowsClangCLX64
 ]
 
 { #category : #'as yet unclassified' }
@@ -204,6 +204,21 @@ WBTPlatform >> formatDynamicLibraryImportFileName: libraryName [
 	^ self dynamicLibraryImportPrefix , libraryName , self dynamicLibraryImportSuffix
 ]
 
+{ #category : #'as yet unclassified' }
+WBTPlatform >> formatExecutableFileName: executableFileName [
+	^ self executablePrefix , executableFileName , self executableSuffix
+]
+
+{ #category : #'as yet unclassified' }
+WBTPlatform >> formatObjectFileName: objectFileName [
+	^ self objectFilePrefix , objectFileName , self objectFileSuffix
+]
+
+{ #category : #'as yet unclassified' }
+WBTPlatform >> formatStaticLibraryFileName: libraryName [
+	^ self staticLibraryPrefix , libraryName , self staticLibrarySuffix
+]
+
 { #category : #accessing }
 WBTPlatform >> name [
 	^ name
@@ -300,6 +315,11 @@ WBTPlatform >> staticLibrarySuffix [
 { #category : #accessing }
 WBTPlatform >> staticLibrarySuffix: anObject [
 	staticLibrarySuffix := anObject
+]
+
+{ #category : #'as yet unclassified' }
+WBTPlatform >> substitutionVariables [
+	^ self toolchain substitutionVariables
 ]
 
 { #category : #accessing }

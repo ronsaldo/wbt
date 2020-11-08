@@ -62,3 +62,8 @@ WBTToolChain >> isMSVCStyle [
 WBTToolChain >> isUnixStyle [
 	^ false
 ]
+
+{ #category : #'as yet unclassified' }
+WBTToolChain >> substitutionVariables [
+	^ #()
+]

@@ -1,20 +1,27 @@
 Class {
 	#name : #WBTPackage,
-	#superclass : #WBTBuildElement,
+	#superclass : #WBTBuildTarget,
 	#instVars : [
 		'name',
 		'buildEnvironment',
 		'elements',
 		'dependencies',
 		'buildObjectDirectory',
-		'buildOutputDirectory'
+		'buildOutputDirectory',
+		'mainElements',
+		'buildTargetDependencies'
 	],
-	#category : #'WBT-Core'
+	#category : #'WBT-Core-Targets'
 }
 
 { #category : #adding }
 WBTPackage >> addElement: anElement [
+	self assert: anElement package isNil.
+	anElement package: self.
 	elements add: anElement.
+	anElement isModuleTarget ifTrue: [
+		mainElements add: anElement
+	].
 	^ anElement
 ]
 
@@ -45,6 +52,11 @@ WBTPackage >> buildOutputDirectory: aDirectory [
 	buildOutputDirectory := aDirectory asFileReference.
 ]
 
+{ #category : #'as yet unclassified' }
+WBTPackage >> buildTargetDependencies [
+	^ buildTargetDependencies ifNil: [ buildTargetDependencies := dependencies , mainElements ]
+]
+
 { #category : #accessing }
 WBTPackage >> dependencies [
 	^ dependencies
@@ -59,7 +71,7 @@ WBTPackage >> evaluateScriptFromFile: file [
 
 { #category : #accessing }
 WBTPackage >> exportedLibraries [
-	^ elements select: [ :each | each isExportedLibrary ]
+	^ mainElements select: [ :each | each isExportedLibrary ]
 ]
 
 { #category : #accessing }
@@ -69,8 +81,8 @@ WBTPackage >> exportedLibrariesLinkerArguments [
 
 { #category : #adding }
 WBTPackage >> importLibrary: libraryName [
-	self addElement: (WBTLibrary new
-		package: self;
+	self addElement: (WBTLibraryTarget new
+		name: name;
 		importLibName: libraryName;
 		yourself
 	).
@@ -84,8 +96,8 @@ WBTPackage >> importLibrary: libraryName fromDebianPackage: debianPackageName [
 
 { #category : #adding }
 WBTPackage >> importLibrary: libraryName fromLibFolder: libraryFolderName [
-	self addElement: (WBTLibrary new
-		package: self;
+	self addElement: (WBTLibraryTarget new
+		name: name;
 		importLibName: libraryName;
 		importLibFolder: libraryFolderName;
 		yourself
@@ -94,8 +106,8 @@ WBTPackage >> importLibrary: libraryName fromLibFolder: libraryFolderName [
 
 { #category : #adding }
 WBTPackage >> importLibrary: libraryName fromLibFolder: libraryFolderName binFolder: libraryBinaryFolder [
-	self addElement: (WBTLibrary new
-		package: self;
+	self addElement: (WBTLibraryTarget new
+		name: name;
 		importLibName: libraryName;
 		importLibFolder: libraryFolderName;
 		binaryLibFolder: libraryBinaryFolder;
@@ -135,11 +147,17 @@ WBTPackage >> initialize [
 	super initialize.
 	dependencies := OrderedCollection new.
 	elements := OrderedCollection new.
+	mainElements := OrderedCollection new.
 ]
 
 { #category : #actions }
 WBTPackage >> installExportedLibrariesInto: outputDirectory [
 	self exportedLibraries do: [ :each | each installInto: outputDirectory ]
+]
+
+{ #category : #accessing }
+WBTPackage >> mainElements [
+	^ mainElements
 ]
 
 { #category : #actions }
@@ -164,6 +182,25 @@ WBTPackage >> name [
 { #category : #accessing }
 WBTPackage >> name: anObject [
 	name := anObject
+]
+
+{ #category : #'instance creation' }
+WBTPackage >> newCommandLineCommandBuildAction: command inputFiles: inputFiles outputFile: outputFile [
+	^ WBTCommandLineCommandBuildAction new
+		command: command;
+		variables: (Dictionary newFromPairs: {
+			'WBT_INPUT_FILES' . inputFiles .
+			'WBT_OUTPUT_FILE' . outputFile .
+		});
+		parentEnvironment: self substitutionVariablesEnvironment;
+		inputFiles: inputFiles;
+		outputFiles: { outputFile };
+		yourself
+]
+
+{ #category : #'as yet unclassified' }
+WBTPackage >> substitutionVariablesEnvironment [
+	^ buildEnvironment hostPlatformSubstitutionVariables
 ]
 
 { #category : #'as yet unclassified' }
