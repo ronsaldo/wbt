@@ -62,7 +62,7 @@ WBTCommandLineToolChainTest >> testWindowsMSVC [
 	toolchain := WBTToolChain windowsMSVC.
 	self assert: toolchain isMSVCStyle.
 	self assert: toolchain isCommandLineToolChain.
-	self assert: toolchain cl equals: 'cl.exe'.
-	self assert: toolchain link equals: 'link.exe'.
+	self assert: toolchain cl equals: 'cl.exe /nologo'.
+	self assert: toolchain link equals: 'link.exe /nologo'.
 
 ]
