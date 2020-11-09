@@ -20,6 +20,11 @@ WBTBuildingScriptEvaluationTest class >> cleanUpTestingArtifacts: aBoolean [
 	CleanUpTestingArtifacts := aBoolean
 ]
 
+{ #category : #accessing }
+WBTBuildingScriptEvaluationTest class >> defaultTimeLimit [
+	^ 2 minutes
+]
+
 { #category : #'as yet unclassified' }
 WBTBuildingScriptEvaluationTest class >> disableTestingArtifactCleanUp [
 	<script>
