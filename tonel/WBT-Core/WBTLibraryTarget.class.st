@@ -24,6 +24,11 @@ WBTLibraryTarget >> isLibrary [
 	^ true
 ]
 
+{ #category : #testing }
+WBTLibraryTarget >> requiresLocalRPath [
+	^ false
+]
+
 { #category : #'as yet unclassified' }
 WBTLibraryTarget >> wbtSolveLinkLibraryInPackage: targetPackage [
 	^ self

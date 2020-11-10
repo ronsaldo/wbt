@@ -6,7 +6,7 @@ Class {
 
 { #category : #'as yet unclassified' }
 WBTExecutableProgramTarget >> executeAndReadStdout [
-	^ self buildEnvironment executeCommandAndReadStdout: self outputFileReference fullName
+	^ self buildEnvironment executeCommandAndReadStdout: ('cd "{1}" && {2}' format: {self outputFileReference parent fullName . self outputFileReference fullName})
 ]
 
 { #category : #testing }

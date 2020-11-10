@@ -40,6 +40,11 @@ WBTBuildTarget >> buildTargetDependencies [
 ]
 
 { #category : #testing }
+WBTBuildTarget >> isDynamicLibrary [
+	^ false
+]
+
+{ #category : #testing }
 WBTBuildTarget >> isExecutableProgram [
 	^ false
 ]

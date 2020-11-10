@@ -123,6 +123,11 @@ WBTModuleTarget >> outputFileReference: anObject [
 	outputFileReference := anObject
 ]
 
+{ #category : #testing }
+WBTModuleTarget >> requiresPositionIndependentCode [
+	^ false
+]
+
 { #category : #'as yet unclassified' }
 WBTModuleTarget >> selectBuildAction [
 	self subclassResponsibility

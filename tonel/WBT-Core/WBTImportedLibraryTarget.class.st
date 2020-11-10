@@ -62,6 +62,11 @@ WBTImportedLibraryTarget >> isImportedLibrary [
 	^ true
 ]
 
+{ #category : #testing }
+WBTImportedLibraryTarget >> requiresLocalRPath [
+	^ importLibFolder isNotNil
+]
+
 { #category : #'as yet unclassified' }
 WBTImportedLibraryTarget >> selectBuildAction [
 	"Nothing is required here"

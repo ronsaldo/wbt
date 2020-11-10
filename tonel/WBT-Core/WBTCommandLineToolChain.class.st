@@ -31,6 +31,10 @@ WBTCommandLineToolChain >> formatLinkerArgumentsForLinkingLibraries: libraries [
 
 { #category : #formatting }
 WBTCommandLineToolChain >> formatLinkerArgumentsForLinkingLibraries: libraries into: out [
+	libraries detect: [ :each | each requiresLocalRPath ] ifFound: [:f |
+		self rpathLocalLinkerArgument ifNotNil: [ :arg | out add: arg ].
+	].
+
 	libraries do: [ :each |
 		self formatLinkerArgumentsForLinkingLibrary: each into: out
 	].
@@ -40,9 +44,6 @@ WBTCommandLineToolChain >> formatLinkerArgumentsForLinkingLibraries: libraries i
 WBTCommandLineToolChain >> formatLinkerArgumentsForLinkingLibrary: library into: out [
 	library importLibFolder ifNotNil: [:folder |
 		out add: self importLibraryFolderArgumentPrefix , (folder asFileReference asAbsolute canonicalize fullName).
-		library isStaticLibrary ifFalse: [ 
-			self rpathLocalLinkerArgument ifNotNil: [ :arg | out add: arg ].
-		].
 	].
 
 	library importLibName ifNotNil: [ :lib |

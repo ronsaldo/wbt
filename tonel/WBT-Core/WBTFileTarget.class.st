@@ -12,8 +12,7 @@ Class {
 
 { #category : #adding }
 WBTFileTarget >> addIntermediateObjectFilesToModule: targetModule [
-	targetModule
-		addIntermediateObjectFiles: (language createIntermediateObjectFilesFor: self)
+	language createIntermediateObjectFilesFor: self module: targetModule
 
 ]
 
