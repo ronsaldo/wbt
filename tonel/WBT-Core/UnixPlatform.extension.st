@@ -4,3 +4,8 @@ Extension { #name : #UnixPlatform }
 UnixPlatform >> wbtPlatform [
 	^ WBTPlatform linux
 ]
+
+{ #category : #'*WBT-Core' }
+UnixPlatform >> wbtPlatformWithClang [
+	^ WBTPlatform linuxClang
+]

@@ -1,11 +1,12 @@
 Class {
 	#name : #WBTArchitecture,
-	#superclass : #Object,
+	#superclass : #WBTObject,
 	#instVars : [
 		'canonicalName',
 		'name',
 		'subarchitecture',
-		'pointerSize'
+		'pointerSize',
+		'fullCanonicalName'
 	],
 	#category : #'WBT-Core-Environment'
 }
@@ -91,6 +92,16 @@ WBTArchitecture class >> forCurrentPlatform [
 		ifFalse: [ self x64 ]
 ]
 
+{ #category : #'as yet unclassified' }
+WBTArchitecture class >> getNamed: architectureName [
+	^ self perform: architectureName asSymbol
+]
+
+{ #category : #construction }
+WBTArchitecture class >> i686 [
+	^ self x86
+]
+
 { #category : #construction }
 WBTArchitecture class >> mipsel [
 	^ self new
@@ -141,6 +152,11 @@ WBTArchitecture class >> x86 [
 		yourself
 ]
 
+{ #category : #construction }
+WBTArchitecture class >> x86_64 [
+	^ self x64
+]
+
 { #category : #accessing }
 WBTArchitecture >> canonicalName [
 	^ canonicalName
@@ -149,6 +165,11 @@ WBTArchitecture >> canonicalName [
 { #category : #accessing }
 WBTArchitecture >> canonicalName: anObject [
 	canonicalName := anObject
+]
+
+{ #category : #accessing }
+WBTArchitecture >> fullCanonicalName [
+	^ fullCanonicalName ifNil: [fullCanonicalName := (canonicalName , (subarchitecture ifNil: [ '' ])) asSymbol]
 ]
 
 { #category : #testing }

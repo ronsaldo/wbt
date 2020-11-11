@@ -28,8 +28,8 @@ String >> asWBTVarSubstitution [
 ]
 
 { #category : #'*WBT-Core' }
-String >> wbtSolveLinkLibraryInPackage: targetPackage [
-	^ targetPackage getMainTargetNamed: self ifAbsent: [ WBTImportedLibraryTarget new name: self ]
+String >> wbtSolveLinkLibrariesInPackage: targetPackage [
+	^ {targetPackage getMainTargetNamed: self ifAbsent: [ WBTImportedLibraryTarget new name: self ]}
 ]
 
 { #category : #'*WBT-Core' }

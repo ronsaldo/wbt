@@ -1,5 +1,5 @@
 Class {
 	#name : #WBTNullLanguage,
-	#superclass : #WBTLanguage,
+	#superclass : #WBTBatchCompilationBasedLanguage,
 	#category : #'WBT-Core-Language'
 }

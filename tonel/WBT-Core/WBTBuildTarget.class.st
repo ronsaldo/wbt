@@ -1,6 +1,6 @@
 Class {
 	#name : #WBTBuildTarget,
-	#superclass : #Object,
+	#superclass : #WBTObject,
 	#instVars : [
 		'buildActions'
 	],
@@ -39,6 +39,11 @@ WBTBuildTarget >> buildTargetDependencies [
 	^ #()
 ]
 
+{ #category : #'as yet unclassified' }
+WBTBuildTarget >> ensureIsBuilt [
+	self runBuildActions
+]
+
 { #category : #testing }
 WBTBuildTarget >> isDynamicLibrary [
 	^ false
@@ -75,6 +80,11 @@ WBTBuildTarget >> isObjectFile [
 ]
 
 { #category : #testing }
+WBTBuildTarget >> isObjectLibrary [
+	^ false
+]
+
+{ #category : #testing }
 WBTBuildTarget >> isStaticLibrary [
 	^ false
 ]
@@ -86,10 +96,7 @@ WBTBuildTarget >> name [
 
 { #category : #'as yet unclassified' }
 WBTBuildTarget >> runBuildActions [
-	self withUnsatisfiedTopologicalSortedDependencies do: [ :each |
-		each runTargetBuildActions ifFalse: [ ^ false ]
-	].
-	^ true
+	^ self withUnsatisfiedSortedDependencies allSatisfy: [ :each | each runTargetBuildActions]
 ]
 
 { #category : #'as yet unclassified' }
@@ -99,25 +106,11 @@ WBTBuildTarget >> runTargetBuildActions [
 ]
 
 { #category : #'as yet unclassified' }
-WBTBuildTarget >> topologicalSortDependenciesInto: result visited: visited [
-	(visited includes: self) ifTrue: [ ^ self ].
-	visited add: self.
-	self buildTargetDependencies do: [ :each |
-		each topologicalSortDependenciesInto: result visited: visited
-	].
-	result add: self.
+WBTBuildTarget >> withSortedDependencies [
+	^ WBTBuildTargetDependencySorter new addBuildTarget: self; value
 ]
 
 { #category : #'as yet unclassified' }
-WBTBuildTarget >> withTopologicalSortedDependencies [
-	| result visited |
-	result := OrderedCollection new.
-	visited := IdentitySet new.
-	self topologicalSortDependenciesInto: result visited: visited.
-	^ result
-]
-
-{ #category : #'as yet unclassified' }
-WBTBuildTarget >> withUnsatisfiedTopologicalSortedDependencies [
-	^ self withTopologicalSortedDependencies
+WBTBuildTarget >> withUnsatisfiedSortedDependencies [
+	^ WBTBuildTargetDependencySorter new addBuildTarget: self; unsatisfiedBuildTargets
 ]

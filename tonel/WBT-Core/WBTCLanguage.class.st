@@ -1,6 +1,6 @@
 Class {
 	#name : #WBTCLanguage,
-	#superclass : #WBTBatchCompilationBasedLanguage,
+	#superclass : #WBTBatchCompilationBasedSourceLanguage,
 	#category : #'WBT-Core-Language'
 }
 

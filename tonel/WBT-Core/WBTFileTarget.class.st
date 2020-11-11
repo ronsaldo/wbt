@@ -1,6 +1,6 @@
 Class {
 	#name : #WBTFileTarget,
-	#superclass : #WBTPackageElementTarget,
+	#superclass : #WBTModuleSourceTarget,
 	#instVars : [
 		'fileReference',
 		'relativeFileReference',
@@ -40,6 +40,11 @@ WBTFileTarget >> dependencies [
 { #category : #accessing }
 WBTFileTarget >> dependencies: anObject [
 	dependencies := anObject
+]
+
+{ #category : #testing }
+WBTFileTarget >> exists [
+	^ fileReference exists
 ]
 
 { #category : #accessing }

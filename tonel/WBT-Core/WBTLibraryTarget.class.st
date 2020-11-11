@@ -30,6 +30,6 @@ WBTLibraryTarget >> requiresLocalRPath [
 ]
 
 { #category : #'as yet unclassified' }
-WBTLibraryTarget >> wbtSolveLinkLibraryInPackage: targetPackage [
-	^ self
+WBTLibraryTarget >> wbtSolveLinkLibrariesInPackage: targetPackage [
+	^ {self}
 ]

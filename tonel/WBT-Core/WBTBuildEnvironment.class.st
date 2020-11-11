@@ -1,6 +1,6 @@
 Class {
 	#name : #WBTBuildEnvironment,
-	#superclass : #Object,
+	#superclass : #WBTObject,
 	#instVars : [
 		'packageSpecLocations',
 		'targetPlatform',
@@ -14,7 +14,9 @@ Class {
 		'hostPlatformVariableEnvironment',
 		'targetPlatformVariableEnvironment',
 		'buildDirectory',
-		'buildCacheDirectory'
+		'buildCacheDirectory',
+		'buildMode',
+		'buildResourcesDirectory'
 	],
 	#category : #'WBT-Core-Environment'
 }
@@ -22,6 +24,11 @@ Class {
 { #category : #'as yet unclassified' }
 WBTBuildEnvironment class >> forCurrentPlatform [
 	^ self forPlatform: WBTPlatform current
+]
+
+{ #category : #'as yet unclassified' }
+WBTBuildEnvironment class >> forCurrentPlatformWithClang [
+	^ self forPlatform: WBTPlatform currentWithClang
 ]
 
 { #category : #'as yet unclassified' }
@@ -90,6 +97,29 @@ WBTBuildEnvironment class >> forWindowsX86 [
 	^ self forPlatform: WBTPlatform windowsX86
 ]
 
+{ #category : #bootstrapping }
+WBTBuildEnvironment >> addMainPackageWithBlock: aBlock [
+	^ self addPackageNamed: self mainPackageName inFolder: FileSystem workingDirectory withBlock: aBlock
+]
+
+{ #category : #bootstrapping }
+WBTBuildEnvironment >> addPackageNamed: packageName inFolder: folder withBlock: aBlock [
+	| package |
+	package := (self getOrCreatePackageNamed: packageName).
+	package inFolder: folder evaluateBlock: aBlock.
+	^ package
+]
+
+{ #category : #bootstrapping }
+WBTBuildEnvironment >> addPackageNamed: packageName scriptEnvironmentInFolder: folder [
+	^ (self getOrCreatePackageNamed: packageName) makeScriptEnvironmentInFolder: folder
+]
+
+{ #category : #bootstrapping }
+WBTBuildEnvironment >> addPackageNamed: packageName withBlock: aBlock [
+	^ self addPackageNamed: packageName inFolder: FileSystem workingDirectory withBlock: aBlock
+]
+
 { #category : #adding }
 WBTBuildEnvironment >> addPackageSpecLocations: locations [
 	packageSpecLocations addAll: locations
@@ -112,6 +142,21 @@ WBTBuildEnvironment >> buildDirectory: aDirectory [
 
 ]
 
+{ #category : #'as yet unclassified' }
+WBTBuildEnvironment >> buildMainPackage [
+	^ self buildPackageNamed: self mainPackageName
+]
+
+{ #category : #accessing }
+WBTBuildEnvironment >> buildMode [
+	^ buildMode
+]
+
+{ #category : #accessing }
+WBTBuildEnvironment >> buildMode: anObject [
+	buildMode := anObject
+]
+
 { #category : #accessing }
 WBTBuildEnvironment >> buildObjectDirectory: aDirectory [
 	buildObjectDirectory := aDirectory asFileReference asAbsolute canonicalize 
@@ -124,17 +169,20 @@ WBTBuildEnvironment >> buildOutputDirectory: aDirectory [
 
 ]
 
-{ #category : #bootstrapping }
-WBTBuildEnvironment >> buildPackageNamed: packageName inFolder: folder withBlock: aBlock [
-	| package |
-	package := (self getOrCreatePackageNamed: packageName).
-	package inFolder: folder evaluateBlock: aBlock.
-	^ package
+{ #category : #'as yet unclassified' }
+WBTBuildEnvironment >> buildPackageNamed: packageName [
+	^ self buildPackagesNamed: { packageName }
 ]
 
-{ #category : #bootstrapping }
-WBTBuildEnvironment >> buildPackageNamed: packageName scriptEnvironmentInFolder: folder [
-	^ (self getOrCreatePackageNamed: packageName) makeScriptEnvironmentInFolder: folder
+{ #category : #'as yet unclassified' }
+WBTBuildEnvironment >> buildPackagesNamed: aCollectionOfPackageNames [
+	| sorter |
+	sorter := WBTBuildTargetDependencySorter new.
+	aCollectionOfPackageNames do: [ :each |
+		sorter addBuildTarget: (self getOrLoadPackageNamed: each)
+	].
+	
+	^ sorter unsatisfiedBuildTargets allSatisfy: [ :each | each runBuildActions ]
 ]
 
 { #category : #accessing }
@@ -144,12 +192,19 @@ WBTBuildEnvironment >> buildPlatform [
 
 { #category : #accessing }
 WBTBuildEnvironment >> buildPlatform: anObject [
-	buildPlatform := anObject
+	buildPlatform := anObject.
+	buildPlatform environment: self.
 ]
 
 { #category : #accessing }
 WBTBuildEnvironment >> buildPlatformVariableEnvironment [
 	^ buildPlatformVariableEnvironment ifNil: [ buildPlatformVariableEnvironment := buildPlatform variableEnvironment ]
+]
+
+{ #category : #accessing }
+WBTBuildEnvironment >> buildResourcesDirectory: aDirectory [
+	buildResourcesDirectory := aDirectory asFileReference asAbsolute canonicalize 
+
 ]
 
 { #category : #'as yet unclassified' }
@@ -184,6 +239,11 @@ WBTBuildEnvironment >> getOrCreatePackageNamed: packageName [
 			yourself ]
 ]
 
+{ #category : #'as yet unclassified' }
+WBTBuildEnvironment >> getOrLoadPackageNamed: packageName [
+	^ packages at: packageName ifAbsent: [ self loadPackageNamed: packageName ]
+]
+
 { #category : #accessing }
 WBTBuildEnvironment >> hostPlatform [
 	^ hostPlatform
@@ -191,7 +251,8 @@ WBTBuildEnvironment >> hostPlatform [
 
 { #category : #accessing }
 WBTBuildEnvironment >> hostPlatform: anObject [
-	hostPlatform := anObject
+	hostPlatform := anObject.
+	hostPlatform environment: self.
 ]
 
 { #category : #accessing }
@@ -239,6 +300,24 @@ WBTBuildEnvironment >> loadPackageNamed: packageName [
 	^ package
 ]
 
+{ #category : #'as yet unclassified' }
+WBTBuildEnvironment >> mainPackageName [
+	^ #Root
+]
+
+{ #category : #'as yet unclassified' }
+WBTBuildEnvironment >> makeImplicitSourceFileDependencyFor: fileName [
+	| relativeFileRef absoluteFileRef extension language |
+	absoluteFileRef := relativeFileRef := fileName asFileReference.
+	relativeFileRef isAbsolute ifTrue: [ relativeFileRef := relativeFileRef basename asFileReference ].
+	
+	absoluteFileRef := absoluteFileRef asAbsolute canonicalize.
+	extension := absoluteFileRef extension asLowercase.
+	language := self validLanguageForFileExtension: extension.
+
+	^ language makeSourceFileElementFor: absoluteFileRef withRelativeFileReference: relativeFileRef
+]
+
 { #category : #accessing }
 WBTBuildEnvironment >> platform [
 	^ self hostPlatform
@@ -252,6 +331,26 @@ WBTBuildEnvironment >> platform: aPlatform [
 		targetPlatform: aPlatform.
 ]
 
+{ #category : #'build mode' }
+WBTBuildEnvironment >> setDebugBuildMode [
+	self buildMode: #debug.
+]
+
+{ #category : #'build mode' }
+WBTBuildEnvironment >> setMinSizeBuildMode [
+	self buildMode: #minSize.
+]
+
+{ #category : #'build mode' }
+WBTBuildEnvironment >> setReleaseBuildMode [
+	self buildMode: #release.
+]
+
+{ #category : #'build mode' }
+WBTBuildEnvironment >> setReleaseWithDebugInfoBuildMode [
+	self buildMode: #relWithDebInfo.
+]
+
 { #category : #accessing }
 WBTBuildEnvironment >> targetPlatform [
 	^ targetPlatform
@@ -259,7 +358,8 @@ WBTBuildEnvironment >> targetPlatform [
 
 { #category : #accessing }
 WBTBuildEnvironment >> targetPlatform: anObject [
-	targetPlatform := anObject
+	targetPlatform := anObject.
+	targetPlatform environment: self
 ]
 
 { #category : #accessing }
@@ -285,4 +385,14 @@ WBTBuildEnvironment >> validBuildObjectDirectory [
 { #category : #'as yet unclassified' }
 WBTBuildEnvironment >> validBuildOutputDirectory [
 	^ buildOutputDirectory ifNil: [ self validBuildDirectory / 'out' ]
+]
+
+{ #category : #'as yet unclassified' }
+WBTBuildEnvironment >> validBuildResourcesDirectory [
+	^ buildResourcesDirectory ifNil: [ self validBuildOutputDirectory / 'resources' ]
+]
+
+{ #category : #'as yet unclassified' }
+WBTBuildEnvironment >> validLanguageForFileExtension: extension [
+	^ (self languageForFileExtension: extension) ifNil: [ WBTNullLanguage uniqueInstance ].
 ]

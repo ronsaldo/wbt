@@ -1,6 +1,6 @@
 Class {
 	#name : #WBTToolChain,
-	#superclass : #Object,
+	#superclass : #WBTObject,
 	#classVars : [
 		'ClangIsPresent',
 		'LLCIsPresent',

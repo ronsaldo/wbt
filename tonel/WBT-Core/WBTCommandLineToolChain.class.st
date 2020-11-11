@@ -25,13 +25,23 @@ WBTCommandLineToolChain >> formatLinkerArgumentsForLibrariesDirectories: librari
 ]
 
 { #category : #formatting }
+WBTCommandLineToolChain >> formatLinkerArgumentsForLibrariesDirectories: librariesDirectories libraries: libraries extraArguments: extraArguments [
+	| result |
+	result := OrderedCollection new.
+	librariesDirectories do: [ :each | result add: each asFileReference fullPath fullName ].
+	self formatLinkerArgumentsForLinkingLibraries: libraries into: result.
+	result addAll: extraArguments.
+	^ result
+]
+
+{ #category : #formatting }
 WBTCommandLineToolChain >> formatLinkerArgumentsForLinkingLibraries: libraries [
 	^ self formatLinkerArgumentsForLibrariesDirectories: #() libraries: libraries
 ]
 
 { #category : #formatting }
 WBTCommandLineToolChain >> formatLinkerArgumentsForLinkingLibraries: libraries into: out [
-	libraries detect: [ :each | each requiresLocalRPath ] ifFound: [:f |
+	(libraries anySatisfy: [ :each | each requiresLocalRPath ]) ifTrue: [
 		self rpathLocalLinkerArgument ifNotNil: [ :arg | out add: arg ].
 	].
 
@@ -42,14 +52,26 @@ WBTCommandLineToolChain >> formatLinkerArgumentsForLinkingLibraries: libraries i
 
 { #category : #formatting }
 WBTCommandLineToolChain >> formatLinkerArgumentsForLinkingLibrary: library into: out [
-	library importLibFolder ifNotNil: [:folder |
-		out add: self importLibraryFolderArgumentPrefix , (folder asFileReference asAbsolute canonicalize fullName).
+	library isString ifTrue: [ out nextPut: library ].
+	library isObjectLibrary ifTrue: [
+		out addAll: library allObjectFiles
+	] ifFalse: [ 
+		library importLibFolder ifNotNil: [:folder |
+			out add: self importLibraryFolderArgumentPrefix , (folder asFileReference asAbsolute canonicalize fullName).
+		].
+
+		library importLibName ifNotNil: [ :lib |
+			out add: self importLibraryArgumentPrefix , ((lib endsWith: importLibraryArgumentSuffix)
+				ifTrue: [ lib ] ifFalse: [ lib , importLibraryArgumentSuffix ])
+		].
 	].
 
-	library importLibName ifNotNil: [ :lib |
-		out add: self importLibraryArgumentPrefix , ((lib endsWith: importLibraryArgumentSuffix)
-			ifTrue: [ lib ] ifFalse: [ lib , importLibraryArgumentSuffix ])
+	library isDynamicLibrary ifFalse: [ 
+		library allLinkLibraries do: [ :each | self formatLinkerArgumentsForLinkingLibrary: each into: out ]
 	].
+
+	out addAll: library allLinkerArguments
+
 ]
 
 { #category : #accessing }

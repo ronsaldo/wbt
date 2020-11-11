@@ -64,7 +64,7 @@ WBTImportedLibraryTarget >> isImportedLibrary [
 
 { #category : #testing }
 WBTImportedLibraryTarget >> requiresLocalRPath [
-	^ importLibFolder isNotNil
+	^ self exportedDynamicLibraries isNotEmpty
 ]
 
 { #category : #'as yet unclassified' }

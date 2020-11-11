@@ -1,6 +1,6 @@
 Class {
 	#name : #WBTModuleBuilder,
-	#superclass : #Object,
+	#superclass : #WBTObject,
 	#instVars : [
 		'script',
 		'module'

@@ -1,9 +1,12 @@
 Class {
 	#name : #WBTPlatform,
-	#superclass : #Object,
+	#superclass : #WBTObject,
 	#instVars : [
-		'name',
+		'environment',
 		'architecture',
+		'name',
+		'canonicalName',
+		'abiName',
 		'triple',
 		'cpu',
 		'fpu',
@@ -22,7 +25,7 @@ Class {
 		'dynamicLibraryImportSuffix',
 		'pluginPrefix',
 		'pluginSuffix',
-		'properties'
+		'systemVendor'
 	],
 	#category : #'WBT-Core-Environment'
 }
@@ -30,6 +33,11 @@ Class {
 { #category : #accessing }
 WBTPlatform class >> current [
 	^ Smalltalk os current wbtPlatform
+]
+
+{ #category : #accessing }
+WBTPlatform class >> currentWithClang [
+	^ Smalltalk os current wbtPlatformWithClang
 ]
 
 { #category : #'as yet unclassified' }
@@ -43,7 +51,7 @@ WBTPlatform class >> linuxClang [
 		name: #linux;
 		architecture: WBTArchitecture forCurrentPlatform;
 		toolchain: WBTToolChain linuxClang;
-		setForUnixConventions;
+		setDefaultOperatingSystemConventions;
 		yourself
 ]
 
@@ -53,7 +61,7 @@ WBTPlatform class >> linuxGCC [
 		name: #linux;
 		architecture: WBTArchitecture forCurrentPlatform;
 		toolchain: WBTToolChain linuxGCC;
-		setForUnixConventions;
+		setDefaultOperatingSystemConventions;
 		yourself
 ]
 
@@ -61,6 +69,7 @@ WBTPlatform class >> linuxGCC [
 WBTPlatform class >> osx [
 	^ self new
 		name: #osx;
+		architecture: WBTArchitecture forCurrentPlatform;
 		toolchain: WBTToolChain osxClang;
 		setForOSXConventions;
 		yourself
@@ -82,7 +91,7 @@ WBTPlatform class >> windowsClangCLX64 [
 		name: #windows;
 		architecture: WBTArchitecture x64;
 		toolchain: WBTToolChain windowsClangCL;
-		setForWindowsConventions;
+		setDefaultOperatingSystemConventions;
 		yourself
 ]
 
@@ -92,7 +101,7 @@ WBTPlatform class >> windowsClangCLX86 [
 		name: #windows;
 		architecture: WBTArchitecture x86;
 		toolchain: WBTToolChain windowsClangCL;
-		setForWindowsConventions;
+		setDefaultOperatingSystemConventions;
 		yourself
 ]
 
@@ -102,7 +111,7 @@ WBTPlatform class >> windowsClangX64 [
 		name: #windows;
 		architecture: WBTArchitecture x64;
 		toolchain: WBTToolChain windowsClang;
-		setForWindowsConventions;
+		setDefaultOperatingSystemConventions;
 		yourself
 ]
 
@@ -112,7 +121,7 @@ WBTPlatform class >> windowsClangX86 [
 		name: #windows;
 		architecture: WBTArchitecture x86;
 		toolchain: WBTToolChain windowsClang;
-		setForWindowsConventions;
+		setDefaultOperatingSystemConventions;
 		yourself
 ]
 
@@ -122,7 +131,7 @@ WBTPlatform class >> windowsX64 [
 		name: #windows;
 		architecture: WBTArchitecture x64;
 		toolchain: WBTToolChain windowsMSVC;
-		setForWindowsConventions;
+		setDefaultOperatingSystemConventions;
 		yourself
 ]
 
@@ -132,8 +141,18 @@ WBTPlatform class >> windowsX86 [
 		name: #windows;
 		architecture: WBTArchitecture x86;
 		toolchain: WBTToolChain windowsMSVC;
-		setForWindowsConventions;
+		setDefaultOperatingSystemConventions;
 		yourself
+]
+
+{ #category : #accessing }
+WBTPlatform >> abiName [
+	^ abiName ifNil: [ abiName := self defaultAbiName ]
+]
+
+{ #category : #accessing }
+WBTPlatform >> abiName: anObject [
+	abiName := anObject
 ]
 
 { #category : #accessing }
@@ -147,6 +166,16 @@ WBTPlatform >> architecture: anObject [
 ]
 
 { #category : #accessing }
+WBTPlatform >> canonicalName [
+	^ canonicalName
+]
+
+{ #category : #accessing }
+WBTPlatform >> canonicalName: anObject [
+	canonicalName := anObject
+]
+
+{ #category : #accessing }
 WBTPlatform >> cpu [
 	^ cpu
 ]
@@ -154,6 +183,31 @@ WBTPlatform >> cpu [
 { #category : #accessing }
 WBTPlatform >> cpu: anObject [
 	cpu := anObject
+]
+
+{ #category : #'as yet unclassified' }
+WBTPlatform >> defaultAbiName [
+	(architecture isX86 or: [ architecture isX64 ]) ifTrue: [ 
+		self isWindowsFamily ifTrue: [ ^ #msvc ].
+		self isAppleFamily ifTrue: [ ^ #macho ].
+		self isUnixFamily ifTrue: [ ^ #gnu ].
+		^ #elf
+	].
+	(architecture isARM32 or: [architecture isARM64]) ifTrue: [ 
+		self isLinux ifTrue: [ ^ self floatAbiName = #hard ifTrue: [ #gnueabihf ] ifFalse: [ #gnueabi ] ].
+		^ #eabi
+	].
+
+	^ #''
+]
+
+{ #category : #accessing }
+WBTPlatform >> defaultVendorName [
+	(architecture isX86 or: [ architecture isX64 ]) ifTrue: [
+		^ #pc
+	].
+
+	^ #unknown
 ]
 
 { #category : #accessing }
@@ -197,6 +251,16 @@ WBTPlatform >> dynamicLibrarySuffix: anObject [
 ]
 
 { #category : #accessing }
+WBTPlatform >> environment [
+	^ environment
+]
+
+{ #category : #accessing }
+WBTPlatform >> environment: anObject [
+	environment := anObject
+]
+
+{ #category : #accessing }
 WBTPlatform >> executablePrefix [
 	^ executablePrefix
 ]
@@ -236,29 +300,53 @@ WBTPlatform >> floatingPointModel: anObject [
 	floatingPointModel := anObject
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #utility }
 WBTPlatform >> formatDynamicLibraryFileName: libraryName [
 	^ self dynamicLibraryPrefix , libraryName , self dynamicLibrarySuffix
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #utility }
 WBTPlatform >> formatDynamicLibraryImportFileName: libraryName [
 	^ self dynamicLibraryImportPrefix , libraryName , self dynamicLibraryImportSuffix
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #utility }
 WBTPlatform >> formatExecutableFileName: executableFileName [
 	^ self executablePrefix , executableFileName , self executableSuffix
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #utility }
 WBTPlatform >> formatObjectFileName: objectFileName [
 	^ self objectFilePrefix , objectFileName , self objectFileSuffix
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #utility }
 WBTPlatform >> formatStaticLibraryFileName: libraryName [
 	^ self staticLibraryPrefix , libraryName , self staticLibrarySuffix
+]
+
+{ #category : #accessing }
+WBTPlatform >> formatTriple [
+	^ ByteString streamContents: [ :out |
+		out nextPutAll: architecture fullCanonicalName.
+		self systemVendor ifNotEmpty: [ 
+			out nextPut: $-; nextPutAll: systemVendor
+		] ifEmpty: [ 
+			out nextPutAll: '-unknown'
+		].
+	
+		canonicalName ifNotEmpty: [ 
+			out nextPut: $-; nextPutAll: canonicalName
+		] ifEmpty: [ 
+			out nextPutAll: '-none'
+		].
+
+		self abiName ifNotEmpty: [
+			out nextPut: $-; nextPutAll: abiName
+		] ifEmpty: [ 
+			out nextPutAll: '-unknown'
+		].
+	]
 ]
 
 { #category : #accessing }
@@ -271,10 +359,24 @@ WBTPlatform >> fpu: anObject [
 	fpu := anObject
 ]
 
-{ #category : #initialization }
-WBTPlatform >> initialize [
-	super initialize.
-	properties := Dictionary new.
+{ #category : #testing }
+WBTPlatform >> isAndroid [
+	^ name = #android
+]
+
+{ #category : #testing }
+WBTPlatform >> isAppleFamily [
+	^ #(osx ios) includes: name
+]
+
+{ #category : #testing }
+WBTPlatform >> isBSD [
+	^ name = #bsd
+]
+
+{ #category : #testing }
+WBTPlatform >> isIOS [
+	^ name = #ios
 ]
 
 { #category : #testing }
@@ -282,14 +384,64 @@ WBTPlatform >> isLinux [
 	^ name = #linux
 ]
 
+{ #category : #'testing game consoles' }
+WBTPlatform >> isMicrosoftXboxOne [
+	^ name = #xone
+]
+
+{ #category : #'testing game consoles' }
+WBTPlatform >> isMicrosoftXboxSeriesOne [
+	^ name = #xsone
+]
+
+{ #category : #'testing game consoles' }
+WBTPlatform >> isNintendo3DS [
+	^ name = #n3ds
+]
+
+{ #category : #'testing game consoles' }
+WBTPlatform >> isNintendoSwitch [
+	^ name = #switch
+]
+
 { #category : #testing }
 WBTPlatform >> isOSX [
 	^ name = #osx
 ]
 
+{ #category : #'testing game consoles' }
+WBTPlatform >> isSonyPS4 [
+	^ name = #ps4
+]
+
+{ #category : #'testing game consoles' }
+WBTPlatform >> isSonyPS5 [
+	^ name = #ps5
+]
+
+{ #category : #testing }
+WBTPlatform >> isUniversalWindowsPlatform [
+	^ name = #uwp
+]
+
+{ #category : #testing }
+WBTPlatform >> isUnixFamily [
+	^ #(linux bsd) includes: name
+]
+
 { #category : #testing }
 WBTPlatform >> isWindows [
 	^ name = #windows
+]
+
+{ #category : #testing }
+WBTPlatform >> isWindowsFamily [
+	^ #(windows uwp) includes: name
+]
+
+{ #category : #testing }
+WBTPlatform >> isWindowsStore [
+	^ name = #uwp
 ]
 
 { #category : #accessing }
@@ -299,7 +451,8 @@ WBTPlatform >> name [
 
 { #category : #accessing }
 WBTPlatform >> name: anObject [
-	name := anObject
+	name := anObject.
+	canonicalName := anObject.
 ]
 
 { #category : #accessing }
@@ -320,6 +473,18 @@ WBTPlatform >> objectFileSuffix [
 { #category : #accessing }
 WBTPlatform >> objectFileSuffix: anObject [
 	objectFileSuffix := anObject
+]
+
+{ #category : #accessing }
+WBTPlatform >> pluginPrefix [
+	^ pluginPrefix
+]
+
+{ #category : #initialization }
+WBTPlatform >> setDefaultOperatingSystemConventions [
+	self isWindowsFamily ifTrue: [ ^ self setForWindowsConventions ].
+	self isAppleFamily ifTrue: [ ^ self setForOSXConventions ].
+	^ self setForUnixConventions
 ]
 
 { #category : #initialization }
@@ -390,9 +555,19 @@ WBTPlatform >> staticLibrarySuffix: anObject [
 	staticLibrarySuffix := anObject
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'substitution variables' }
 WBTPlatform >> substitutionVariables [
 	^ self toolchain substitutionVariablesForPlatform: self
+]
+
+{ #category : #accessing }
+WBTPlatform >> systemVendor [
+	^ systemVendor ifNil: [ systemVendor := self defaultVendorName ]
+]
+
+{ #category : #accessing }
+WBTPlatform >> systemVendor: anObject [
+	systemVendor := anObject
 ]
 
 { #category : #accessing }
@@ -407,7 +582,7 @@ WBTPlatform >> toolchain: anObject [
 
 { #category : #accessing }
 WBTPlatform >> triple [
-	^ triple
+	^ triple ifNil: [ triple := self formatTriple ]
 ]
 
 { #category : #accessing }
@@ -415,7 +590,7 @@ WBTPlatform >> triple: anObject [
 	triple := anObject
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'substitution variables' }
 WBTPlatform >> variableEnvironment [
 	^ WBTVariableSubstitutionEnvironment empty
 		setVariables: self substitutionVariables;

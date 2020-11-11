@@ -7,7 +7,6 @@ Class {
 		'elements',
 		'dependencies',
 		'buildObjectDirectory',
-		'buildOutputDirectory',
 		'mainElements',
 		'buildTargetDependencies',
 		'hostPlatformVariableEnvironment',
@@ -54,11 +53,6 @@ WBTPackage >> buildEnvironment: anObject [
 { #category : #'as yet unclassified' }
 WBTPackage >> buildObjectDirectory: aDirectory [
 	buildObjectDirectory := aDirectory asFileReference.
-]
-
-{ #category : #'as yet unclassified' }
-WBTPackage >> buildOutputDirectory: aDirectory [
-	buildOutputDirectory := aDirectory asFileReference.
 ]
 
 { #category : #'as yet unclassified' }
@@ -195,6 +189,11 @@ WBTPackage >> installExportedLibrariesInto: outputDirectory [
 	self exportedLibraries do: [ :each | each installInto: outputDirectory ]
 ]
 
+{ #category : #testing }
+WBTPackage >> isRootPackage [
+	^ name = self buildEnvironment mainPackageName
+]
+
 { #category : #accessing }
 WBTPackage >> mainElements [
 	^ mainElements
@@ -254,5 +253,10 @@ WBTPackage >> validBuildObjectDirectory [
 
 { #category : #'as yet unclassified' }
 WBTPackage >> validBuildOutputDirectory [
-	^ buildOutputDirectory ifNil: [ buildOutputDirectory := buildEnvironment validBuildOutputDirectory ]
+	^ buildEnvironment validBuildOutputDirectory
+]
+
+{ #category : #'as yet unclassified' }
+WBTPackage >> wbtSolveLinkLibrariesInPackage: targetPackage [
+	^ self exportedLibraries
 ]

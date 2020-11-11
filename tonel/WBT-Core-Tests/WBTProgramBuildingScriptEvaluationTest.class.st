@@ -32,7 +32,7 @@ int main(int argc, const char *argv[])
 	].
 
 	self assert: rootPackage mainElements size equals: 1.
-	sortedDependencies := rootPackage withTopologicalSortedDependencies.
+	sortedDependencies := rootPackage withSortedDependencies.
 	self assert: (sortedDependencies collect: [ :each | each name ] as: Array) equals:
 	{ 'hello.c' .
 		(buildEnvironment platform formatObjectFileName: 'hello.c') . 'hello' .
@@ -106,7 +106,7 @@ int main(int argc, const char *argv[])
 	].
 
 	self assert: rootPackage mainElements size equals: 2.
-	sortedDependencies := rootPackage withTopologicalSortedDependencies.
+	sortedDependencies := rootPackage withSortedDependencies.
 	self assert: (sortedDependencies collect: [ :each | each name ] as: Array) equals:
 	{ 
 		'helloLib.c' .
@@ -150,7 +150,7 @@ int main(int argc, const char *argv[])
 	].
 
 	self assert: rootPackage mainElements size equals: 1.
-	sortedDependencies := rootPackage withTopologicalSortedDependencies.
+	sortedDependencies := rootPackage withSortedDependencies.
 	self assert: (sortedDependencies collect: [ :each | each name ] as: Array) equals:
 	{ 'hello.cpp' .
 		(buildEnvironment platform formatObjectFileName: 'hello.cpp') . 'hello' .
@@ -223,7 +223,7 @@ int main(int argc, const char *argv[])
 	].
 
 	self assert: rootPackage mainElements size equals: 2.
-	sortedDependencies := rootPackage withTopologicalSortedDependencies.
+	sortedDependencies := rootPackage withSortedDependencies.
 	self assert: (sortedDependencies collect: [ :each | each name ] as: Array) equals:
 	{ 
 		'helloLib.cpp' .
@@ -291,7 +291,7 @@ int main(int argc, const char *argv[])
 	].
 
 	self assert: rootPackage mainElements size equals: 2.
-	sortedDependencies := rootPackage withTopologicalSortedDependencies.
+	sortedDependencies := rootPackage withSortedDependencies.
 	self assert: (sortedDependencies collect: [ :each | each name ] as: Array) equals:
 	{ 
 		'helloLib.cpp' .
@@ -359,7 +359,7 @@ int main(int argc, const char *argv[])
 	].
 
 	self assert: rootPackage mainElements size equals: 2.
-	sortedDependencies := rootPackage withTopologicalSortedDependencies.
+	sortedDependencies := rootPackage withSortedDependencies.
 	self assert: (sortedDependencies collect: [ :each | each name ] as: Array) equals:
 	{ 
 		'helloLib.c' .
@@ -412,7 +412,7 @@ int main(int argc, const char *argv[])
 	].
 
 	self assert: rootPackage mainElements size equals: 1.
-	sortedDependencies := rootPackage withTopologicalSortedDependencies.
+	sortedDependencies := rootPackage withSortedDependencies.
 	self assert: (sortedDependencies collect: [ :each | each name ] as: Array) equals:
 	{ 
 		'hello.h' .
@@ -462,7 +462,7 @@ int main(int argc, const char *argv[])
 	].
 
 	self assert: rootPackage mainElements size equals: 1.
-	sortedDependencies := rootPackage withTopologicalSortedDependencies.
+	sortedDependencies := rootPackage withSortedDependencies.
 	self assert: (sortedDependencies collect: [ :each | each name ] as: Array) equals:
 	{ 
 		'hello.c' .
@@ -511,7 +511,7 @@ int main(int argc, const char *argv[])
 	].
 
 	self assert: rootPackage mainElements size equals: 1.
-	sortedDependencies := rootPackage withTopologicalSortedDependencies.
+	sortedDependencies := rootPackage withSortedDependencies.
 	self assert: (sortedDependencies collect: [ :each | each name ] as: Array) equals:
 	{ 
 		'hello.h' .
@@ -561,7 +561,7 @@ int main(int argc, const char *argv[])
 	].
 
 	self assert: rootPackage mainElements size equals: 1.
-	sortedDependencies := rootPackage withTopologicalSortedDependencies.
+	sortedDependencies := rootPackage withSortedDependencies.
 	self assert: (sortedDependencies collect: [ :each | each name ] as: Array) equals:
 	{ 
 		'hello.cpp' .
@@ -597,7 +597,7 @@ define i32 @main() {
 	].
 
 	self assert: rootPackage mainElements size equals: 1.
-	sortedDependencies := rootPackage withTopologicalSortedDependencies.
+	sortedDependencies := rootPackage withSortedDependencies.
 	self assert: (sortedDependencies collect: [ :each | each name ] as: Array) equals:
 	{ 'hello.ll' .
 		(buildEnvironment platform formatObjectFileName: 'hello.ll') . 'hello' .
