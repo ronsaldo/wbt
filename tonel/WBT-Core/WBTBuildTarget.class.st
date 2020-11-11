@@ -2,10 +2,22 @@ Class {
 	#name : #WBTBuildTarget,
 	#superclass : #WBTObject,
 	#instVars : [
-		'buildActions'
+		'buildActions',
+		'newestBuildTargetDependenciesTimestamp',
+		'currentOutputVersionTimestamp'
 	],
 	#category : #'WBT-Core-Targets'
 }
+
+{ #category : #constants }
+WBTBuildTarget class >> alwaysNewToDateTimeStamp [
+	^ Float infinity
+]
+
+{ #category : #constants }
+WBTBuildTarget class >> alwaysOldTimeStamp [
+	^ Float negativeInfinity
+]
 
 { #category : #adding }
 WBTBuildTarget >> addBuildAction: anAction [
@@ -39,9 +51,39 @@ WBTBuildTarget >> buildTargetDependencies [
 	^ #()
 ]
 
+{ #category : #accessing }
+WBTBuildTarget >> currentOutputVersionTimestamp [
+	^ currentOutputVersionTimestamp ifNil: [
+		currentOutputVersionTimestamp := self class alwaysNewToDateTimeStamp.
+		self targetOutputFileReferences do: [ :each |
+			each exists ifTrue: [ 
+				currentOutputVersionTimestamp := currentOutputVersionTimestamp min: each modificationTime asUnixTime
+			] ifFalse: [
+				currentOutputVersionTimestamp := self class alwaysOldTimeStamp
+			]
+		].
+		self targetOutputTargets do: [ :each |
+			currentOutputVersionTimestamp := currentOutputVersionTimestamp min: each currentVersionTimestamp
+		].
+	
+		currentOutputVersionTimestamp
+	]
+]
+
+{ #category : #accessing }
+WBTBuildTarget >> currentVersionTimestamp [
+	^ self currentOutputVersionTimestamp max: self newestBuildTargetDependenciesTimestamp
+]
+
 { #category : #'as yet unclassified' }
 WBTBuildTarget >> ensureIsBuilt [
 	self runBuildActions
+]
+
+{ #category : #accessing }
+WBTBuildTarget >> invalidateTimestamps [
+	newestBuildTargetDependenciesTimestamp := nil.
+	currentOutputVersionTimestamp := nil.
 ]
 
 { #category : #testing }
@@ -85,13 +127,35 @@ WBTBuildTarget >> isObjectLibrary [
 ]
 
 { #category : #testing }
+WBTBuildTarget >> isSatisfiedBuildTarget [
+	^ self currentOutputVersionTimestamp >= self newestBuildTargetDependenciesTimestamp
+]
+
+{ #category : #testing }
 WBTBuildTarget >> isStaticLibrary [
 	^ false
+]
+
+{ #category : #testing }
+WBTBuildTarget >> isUnsatifiedBuildTarget [
+	^ self isSatisfiedBuildTarget not
 ]
 
 { #category : #accessing }
 WBTBuildTarget >> name [
 	^ self subclassResponsibility
+]
+
+{ #category : #accessing }
+WBTBuildTarget >> newestBuildTargetDependenciesTimestamp [
+	^ newestBuildTargetDependenciesTimestamp ifNil: [
+		newestBuildTargetDependenciesTimestamp := self class alwaysOldTimeStamp.
+		self buildTargetDependencies do: [ :each |
+			newestBuildTargetDependenciesTimestamp := newestBuildTargetDependenciesTimestamp max: each currentVersionTimestamp
+		].
+
+		newestBuildTargetDependenciesTimestamp
+	].
 ]
 
 { #category : #'as yet unclassified' }
@@ -101,8 +165,19 @@ WBTBuildTarget >> runBuildActions [
 
 { #category : #'as yet unclassified' }
 WBTBuildTarget >> runTargetBuildActions [
+	currentOutputVersionTimestamp := nil.
 	self buildActions do: [ :each | each execute ifFalse: [ ^ false ] ].
 	^ true
+]
+
+{ #category : #accessing }
+WBTBuildTarget >> targetOutputFileReferences [
+	^ #()
+]
+
+{ #category : #accessing }
+WBTBuildTarget >> targetOutputTargets [
+	^ #()
 ]
 
 { #category : #'as yet unclassified' }

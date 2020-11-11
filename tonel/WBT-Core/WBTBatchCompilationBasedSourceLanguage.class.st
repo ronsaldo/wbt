@@ -20,6 +20,7 @@ WBTBatchCompilationBasedSourceLanguage >> createIntermediateObjectFilesFor: sour
 		language: WBTObjectFileLanguage uniqueInstance;
 		relativeFileReference: objectFileRelativeFileRef;
 		fileReference: objectFileReference;
+		addDependency: sourceFile;
 		addBuildAction: (sourceFile package newCommandLineCommandBuildAction: self buildActionCommand inputFiles: {sourceFile} outputFile: objectFileReference
 		variables: {
 			#WBT_POSITION_INDEPENDENT_CODE_ENABLED . [targetModule requiresPositionIndependentCode

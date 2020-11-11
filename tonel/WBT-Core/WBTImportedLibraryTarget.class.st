@@ -21,6 +21,11 @@ WBTImportedLibraryTarget >> binaryLibFolder: anObject [
 	binaryLibFolder := anObject
 ]
 
+{ #category : #accessing }
+WBTImportedLibraryTarget >> currentOutputVersionTimestamp [
+	^ self class alwaysOldTimeStamp
+]
+
 { #category : #installation }
 WBTImportedLibraryTarget >> exportedDynamicLibraries [
 	| dynamicLibrarySuffix binaryLibFolderFileReference |
@@ -60,6 +65,16 @@ WBTImportedLibraryTarget >> installInto: outputDirectory [
 { #category : #testing }
 WBTImportedLibraryTarget >> isImportedLibrary [
 	^ true
+]
+
+{ #category : #accessing }
+WBTImportedLibraryTarget >> isSatisfiedBuildTarget [
+	^ true
+]
+
+{ #category : #accessing }
+WBTImportedLibraryTarget >> newestBuildTargetDependenciesTimestamp [
+	^ self class alwaysOldTimeStamp
 ]
 
 { #category : #testing }

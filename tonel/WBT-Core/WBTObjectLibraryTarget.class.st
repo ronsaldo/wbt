@@ -15,6 +15,16 @@ WBTObjectLibraryTarget >> isObjectLibrary [
 ]
 
 { #category : #'as yet unclassified' }
+WBTObjectLibraryTarget >> outputFileName [
+	^ name , '.stamp'
+]
+
+{ #category : #accessing }
+WBTObjectLibraryTarget >> outputFileReference [
+	^ outputFileReference ifNil: [ outputFileReference := self package validBuildObjectDirectory / self outputFileName ]
+]
+
+{ #category : #'as yet unclassified' }
 WBTObjectLibraryTarget >> selectBuildAction [
-	"Nothing is required here."
+	self addBuildAction: (WBTTouchFileBuildAction new fileReference: self outputFileReference)
 ]

@@ -26,7 +26,7 @@ WBTBuildTargetDependencySorter >> initialize [
 
 { #category : #'as yet unclassified' }
 WBTBuildTargetDependencySorter >> unsatisfiedBuildTargets [
-	^ self value
+	^ self value select: [ :each | each isUnsatifiedBuildTarget ]
 ]
 
 { #category : #evaluating }

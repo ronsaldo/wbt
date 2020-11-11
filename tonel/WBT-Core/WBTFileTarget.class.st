@@ -11,6 +11,11 @@ Class {
 }
 
 { #category : #adding }
+WBTFileTarget >> addDependency: aDependency [
+	dependencies := dependencies copyWith: aDependency
+]
+
+{ #category : #adding }
 WBTFileTarget >> addIntermediateObjectFilesToModule: targetModule [
 	language createIntermediateObjectFilesFor: self module: targetModule
 
@@ -35,11 +40,6 @@ WBTFileTarget >> buildTargetDependencies [
 { #category : #accessing }
 WBTFileTarget >> dependencies [
 	^ dependencies
-]
-
-{ #category : #accessing }
-WBTFileTarget >> dependencies: anObject [
-	dependencies := anObject
 ]
 
 { #category : #testing }

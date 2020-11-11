@@ -246,6 +246,11 @@ WBTPackage >> substitutionVariablesEnvironment [
 	^ buildEnvironment hostPlatformSubstitutionVariables
 ]
 
+{ #category : #accessing }
+WBTPackage >> targetOutputTargets [
+	^ mainElements
+]
+
 { #category : #'as yet unclassified' }
 WBTPackage >> validBuildObjectDirectory [
 	^ buildObjectDirectory ifNil: [ buildObjectDirectory := buildEnvironment validBuildObjectDirectory / name ]

@@ -17,19 +17,16 @@ WBTCommandLineToolChain >> formatIncludeDirectoryArgument: includeDirectory [
 
 { #category : #formatting }
 WBTCommandLineToolChain >> formatLinkerArgumentsForLibrariesDirectories: librariesDirectories libraries: libraries [
-	| result |
-	result := OrderedCollection new.
-	librariesDirectories do: [ :each | result add: each asFileReference fullPath fullName ].
-	self formatLinkerArgumentsForLinkingLibraries: libraries into: result.
-	^ result
+	^ self formatLinkerArgumentsForLibrariesDirectories: librariesDirectories libraries: libraries extraArguments: #()
 ]
 
 { #category : #formatting }
 WBTCommandLineToolChain >> formatLinkerArgumentsForLibrariesDirectories: librariesDirectories libraries: libraries extraArguments: extraArguments [
-	| result |
+	| result visited |
 	result := OrderedCollection new.
+	visited := Set new.
 	librariesDirectories do: [ :each | result add: each asFileReference fullPath fullName ].
-	self formatLinkerArgumentsForLinkingLibraries: libraries into: result.
+	self formatLinkerArgumentsForLinkingLibraries: libraries into: result visited: visited.
 	result addAll: extraArguments.
 	^ result
 ]
@@ -40,18 +37,26 @@ WBTCommandLineToolChain >> formatLinkerArgumentsForLinkingLibraries: libraries [
 ]
 
 { #category : #formatting }
-WBTCommandLineToolChain >> formatLinkerArgumentsForLinkingLibraries: libraries into: out [
-	(libraries anySatisfy: [ :each | each requiresLocalRPath ]) ifTrue: [
-		self rpathLocalLinkerArgument ifNotNil: [ :arg | out add: arg ].
-	].
-
+WBTCommandLineToolChain >> formatLinkerArgumentsForLinkingLibraries: libraries into: out visited: visited [
 	libraries do: [ :each |
-		self formatLinkerArgumentsForLinkingLibrary: each into: out
+		self formatLinkerArgumentsForLinkingLibrary: each into: out visited: visited
 	].
 ]
 
 { #category : #formatting }
-WBTCommandLineToolChain >> formatLinkerArgumentsForLinkingLibrary: library into: out [
+WBTCommandLineToolChain >> formatLinkerArgumentsForLinkingLibrary: library into: out visited: visited [
+	(visited includes: library) ifTrue: [ ^ self ].
+	visited add: library.
+	
+	library requiresLocalRPath ifTrue: [
+		self rpathLocalLinkerArgument ifNotNil: [ :arg |
+			(visited includes: arg) ifFalse: [ 
+				out add: arg.
+				visited add: arg
+			].
+		].
+	].
+
 	library isString ifTrue: [ out nextPut: library ].
 	library isObjectLibrary ifTrue: [
 		out addAll: library allObjectFiles
@@ -67,7 +72,7 @@ WBTCommandLineToolChain >> formatLinkerArgumentsForLinkingLibrary: library into:
 	].
 
 	library isDynamicLibrary ifFalse: [ 
-		library allLinkLibraries do: [ :each | self formatLinkerArgumentsForLinkingLibrary: each into: out ]
+		library allLinkLibraries do: [ :each | self formatLinkerArgumentsForLinkingLibrary: each into: out visited: visited ]
 	].
 
 	out addAll: library allLinkerArguments

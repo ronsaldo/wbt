@@ -211,6 +211,11 @@ WBTModuleTarget >> sysmelModuleTarget [
 	]
 ]
 
+{ #category : #accessing }
+WBTModuleTarget >> targetOutputFileReferences [
+	^ self asFileReference ifNil: [#()] ifNotNil: [:fr | { fr }]
+]
+
 { #category : #'as yet unclassified' }
 WBTModuleTarget >> validLinkerLanguage [
 	linkerLanguage ifNotNil: [ ^ linkerLanguage ].

@@ -121,8 +121,17 @@ WBTBuildEnvironment >> addPackageNamed: packageName withBlock: aBlock [
 ]
 
 { #category : #adding }
+WBTBuildEnvironment >> addPackageSpecLocation: location [
+	(packageSpecLocations includes: location) ifFalse: [ 
+		packageSpecLocations add: location
+	]
+
+]
+
+{ #category : #adding }
 WBTBuildEnvironment >> addPackageSpecLocations: locations [
-	packageSpecLocations addAll: locations
+	locations do: [:each | self addPackageSpecLocation: each].
+	
 ]
 
 { #category : #accessing }
@@ -145,6 +154,11 @@ WBTBuildEnvironment >> buildDirectory: aDirectory [
 { #category : #'as yet unclassified' }
 WBTBuildEnvironment >> buildMainPackage [
 	^ self buildPackageNamed: self mainPackageName
+]
+
+{ #category : #bootstrapping }
+WBTBuildEnvironment >> buildMainPackageWithBlock: aBlock [
+	^ self buildPackageNamed: self mainPackageName withBlock: aBlock
 ]
 
 { #category : #accessing }
@@ -174,6 +188,13 @@ WBTBuildEnvironment >> buildPackageNamed: packageName [
 	^ self buildPackagesNamed: { packageName }
 ]
 
+{ #category : #bootstrapping }
+WBTBuildEnvironment >> buildPackageNamed: packageName withBlock: aBlock [
+	^ self
+		addPackageNamed: packageName withBlock: aBlock;
+		buildPackageNamed: packageName
+]
+
 { #category : #'as yet unclassified' }
 WBTBuildEnvironment >> buildPackagesNamed: aCollectionOfPackageNames [
 	| sorter |
@@ -182,7 +203,7 @@ WBTBuildEnvironment >> buildPackagesNamed: aCollectionOfPackageNames [
 		sorter addBuildTarget: (self getOrLoadPackageNamed: each)
 	].
 	
-	^ sorter unsatisfiedBuildTargets allSatisfy: [ :each | each runBuildActions ]
+	^ sorter unsatisfiedBuildTargets allSatisfy: [ :each | each runTargetBuildActions ]
 ]
 
 { #category : #accessing }
