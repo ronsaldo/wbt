@@ -50,8 +50,7 @@ WBTBuildingScriptEvaluationTest >> setUp [
 	self wbtSourceDirectory ensureCreateDirectory.
 	buildEnvironment := WBTBuildEnvironment forCurrentPlatform.
 	buildEnvironment
-		buildObjectDirectory: self wbtBuildObjectDirectory;
-		buildOutputDirectory: self wbtBuildOutputDirectory.
+		buildDirectory: self wbtBuildDirectory
 
 ]
 
@@ -64,13 +63,8 @@ WBTBuildingScriptEvaluationTest >> tearDown [
 ]
 
 { #category : #running }
-WBTBuildingScriptEvaluationTest >> wbtBuildObjectDirectory [
-	^ self wbtTestDirectory / 'obj'
-]
-
-{ #category : #running }
-WBTBuildingScriptEvaluationTest >> wbtBuildOutputDirectory [
-	^ self wbtTestDirectory / 'out'
+WBTBuildingScriptEvaluationTest >> wbtBuildDirectory [
+	^ self wbtTestDirectory
 ]
 
 { #category : #running }

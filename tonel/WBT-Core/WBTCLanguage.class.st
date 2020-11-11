@@ -18,8 +18,3 @@ WBTCLanguage >> buildActionCommand [
 WBTCLanguage >> handlesFileExtension: aFileExtension [
 	^ aFileExtension = 'c'
 ]
-
-{ #category : #'as yet unclassified' }
-WBTCLanguage >> linkPriority [
-	^ 2
-]

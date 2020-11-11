@@ -5,6 +5,10 @@ Class {
 		'name',
 		'architecture',
 		'triple',
+		'cpu',
+		'fpu',
+		'floatAbiName',
+		'floatingPointModel',
 		'toolchain',
 		'objectFilePrefix',
 		'objectFileSuffix',
@@ -17,10 +21,16 @@ Class {
 		'dynamicLibraryImportPrefix',
 		'dynamicLibraryImportSuffix',
 		'pluginPrefix',
-		'pluginSuffix'
+		'pluginSuffix',
+		'properties'
 	],
 	#category : #'WBT-Core-Environment'
 }
+
+{ #category : #accessing }
+WBTPlatform class >> current [
+	^ Smalltalk os current wbtPlatform
+]
 
 { #category : #'as yet unclassified' }
 WBTPlatform class >> linux [
@@ -31,6 +41,7 @@ WBTPlatform class >> linux [
 WBTPlatform class >> linuxClang [
 	^ self new
 		name: #linux;
+		architecture: WBTArchitecture forCurrentPlatform;
 		toolchain: WBTToolChain linuxClang;
 		setForUnixConventions;
 		yourself
@@ -40,6 +51,7 @@ WBTPlatform class >> linuxClang [
 WBTPlatform class >> linuxGCC [
 	^ self new
 		name: #linux;
+		architecture: WBTArchitecture forCurrentPlatform;
 		toolchain: WBTToolChain linuxGCC;
 		setForUnixConventions;
 		yourself
@@ -69,7 +81,7 @@ WBTPlatform class >> windowsClangCLX64 [
 	^ self new
 		name: #windows;
 		architecture: WBTArchitecture x64;
-		toolchain: WBTToolChain windowsClangCL setForX64;
+		toolchain: WBTToolChain windowsClangCL;
 		setForWindowsConventions;
 		yourself
 ]
@@ -79,7 +91,7 @@ WBTPlatform class >> windowsClangCLX86 [
 	^ self new
 		name: #windows;
 		architecture: WBTArchitecture x86;
-		toolchain: WBTToolChain windowsClangCL setForX86;
+		toolchain: WBTToolChain windowsClangCL;
 		setForWindowsConventions;
 		yourself
 ]
@@ -109,7 +121,7 @@ WBTPlatform class >> windowsX64 [
 	^ self new
 		name: #windows;
 		architecture: WBTArchitecture x64;
-		toolchain: WBTToolChain windowsMSVC setForX64;
+		toolchain: WBTToolChain windowsMSVC;
 		setForWindowsConventions;
 		yourself
 ]
@@ -119,7 +131,7 @@ WBTPlatform class >> windowsX86 [
 	^ self new
 		name: #windows;
 		architecture: WBTArchitecture x86;
-		toolchain: WBTToolChain windowsMSVC setForX86;
+		toolchain: WBTToolChain windowsMSVC;
 		setForWindowsConventions;
 		yourself
 ]
@@ -132,6 +144,16 @@ WBTPlatform >> architecture [
 { #category : #accessing }
 WBTPlatform >> architecture: anObject [
 	architecture := anObject
+]
+
+{ #category : #accessing }
+WBTPlatform >> cpu [
+	^ cpu
+]
+
+{ #category : #accessing }
+WBTPlatform >> cpu: anObject [
+	cpu := anObject
 ]
 
 { #category : #accessing }
@@ -194,6 +216,26 @@ WBTPlatform >> executableSuffix: anObject [
 	executableSuffix := anObject
 ]
 
+{ #category : #accessing }
+WBTPlatform >> floatAbiName [
+	^ floatAbiName
+]
+
+{ #category : #accessing }
+WBTPlatform >> floatAbiName: anObject [
+	floatAbiName := anObject
+]
+
+{ #category : #accessing }
+WBTPlatform >> floatingPointModel [
+	^ floatingPointModel
+]
+
+{ #category : #accessing }
+WBTPlatform >> floatingPointModel: anObject [
+	floatingPointModel := anObject
+]
+
 { #category : #'as yet unclassified' }
 WBTPlatform >> formatDynamicLibraryFileName: libraryName [
 	^ self dynamicLibraryPrefix , libraryName , self dynamicLibrarySuffix
@@ -217,6 +259,37 @@ WBTPlatform >> formatObjectFileName: objectFileName [
 { #category : #'as yet unclassified' }
 WBTPlatform >> formatStaticLibraryFileName: libraryName [
 	^ self staticLibraryPrefix , libraryName , self staticLibrarySuffix
+]
+
+{ #category : #accessing }
+WBTPlatform >> fpu [
+	^ fpu
+]
+
+{ #category : #accessing }
+WBTPlatform >> fpu: anObject [
+	fpu := anObject
+]
+
+{ #category : #initialization }
+WBTPlatform >> initialize [
+	super initialize.
+	properties := Dictionary new.
+]
+
+{ #category : #testing }
+WBTPlatform >> isLinux [
+	^ name = #linux
+]
+
+{ #category : #testing }
+WBTPlatform >> isOSX [
+	^ name = #osx
+]
+
+{ #category : #testing }
+WBTPlatform >> isWindows [
+	^ name = #windows
 ]
 
 { #category : #accessing }
@@ -319,7 +392,7 @@ WBTPlatform >> staticLibrarySuffix: anObject [
 
 { #category : #'as yet unclassified' }
 WBTPlatform >> substitutionVariables [
-	^ self toolchain substitutionVariables
+	^ self toolchain substitutionVariablesForPlatform: self
 ]
 
 { #category : #accessing }

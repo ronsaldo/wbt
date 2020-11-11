@@ -6,7 +6,12 @@ Class {
 
 { #category : #'as yet unclassified' }
 WBTExecutableProgramTarget >> executeAndReadStdout [
-	^ self buildEnvironment executeCommandAndReadStdout: ('cd "{1}" && {2}' format: {self outputFileReference parent fullName . self outputFileReference fullName})
+	^ self buildEnvironment executeCommandAndReadStdout: self programExecutionScript
+]
+
+{ #category : #'as yet unclassified' }
+WBTExecutableProgramTarget >> executeSilently [
+	^ self buildEnvironment executeCommandSilently: self programExecutionScript
 ]
 
 { #category : #testing }
@@ -17,6 +22,11 @@ WBTExecutableProgramTarget >> isExecutableProgram [
 { #category : #'as yet unclassified' }
 WBTExecutableProgramTarget >> outputFileName [
 	^ self platform formatExecutableFileName: name
+]
+
+{ #category : #'as yet unclassified' }
+WBTExecutableProgramTarget >> programExecutionScript [
+	^ 'cd "{1}" && {2}' format: {self outputFileReference parent fullName . self outputFileReference fullName}
 ]
 
 { #category : #'as yet unclassified' }

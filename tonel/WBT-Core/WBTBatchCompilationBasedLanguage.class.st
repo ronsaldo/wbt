@@ -67,6 +67,11 @@ WBTBatchCompilationBasedLanguage >> linkExecutableCommand [
 ]
 
 { #category : #'as yet unclassified' }
+WBTBatchCompilationBasedLanguage >> linkPriority [
+	^ 2
+]
+
+{ #category : #'as yet unclassified' }
 WBTBatchCompilationBasedLanguage >> linkStaticLibraryCommand [
 	^ '$(WBT_C_LINK_STATIC_LIBRARY)'
 ]

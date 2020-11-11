@@ -18,6 +18,7 @@ Class {
 WBTModuleTarget >> addIntermediateObjectFile: aSourceFile [
 	self package addElement: aSourceFile.
 	intermediateObjectFiles add: aSourceFile.
+	aSourceFile addIntermediateObjectFilesToModule: self.
 
 ]
 

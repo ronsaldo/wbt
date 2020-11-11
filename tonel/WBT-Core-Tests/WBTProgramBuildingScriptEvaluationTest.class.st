@@ -572,3 +572,38 @@ int main(int argc, const char *argv[])
 	self assert: programModule executeAndReadStdout equals: ('Hello World' , String lf).
 	
 ]
+
+{ #category : #tests }
+WBTProgramBuildingScriptEvaluationTest >> testLLVMAssembly [
+	| programModule rootPackage sortedDependencies |
+	self
+		writeSourceFileNamed: 'hello.ll' text: '
+define i32 @main() {
+  ret i32 42
+}
+'.
+	rootPackage := self wbtScriptWith: [:script |
+		programModule := script
+			program: 'hello' with: [ :prog |
+				prog
+					source: 'hello.ll'
+			].
+			
+		self assert: programModule sources size equals: 1.
+		self assert: programModule sources first relativeFileReference equals: 'hello.ll' asFileReference.
+
+		self assert: programModule intermediateObjectFiles size equals: 1.
+		self assert: programModule intermediateObjectFiles first fileReference basename equals: (buildEnvironment platform formatObjectFileName: 'hello.ll')
+	].
+
+	self assert: rootPackage mainElements size equals: 1.
+	sortedDependencies := rootPackage withTopologicalSortedDependencies.
+	self assert: (sortedDependencies collect: [ :each | each name ] as: Array) equals:
+	{ 'hello.ll' .
+		(buildEnvironment platform formatObjectFileName: 'hello.ll') . 'hello' .
+		#Root
+	}.
+	self assert: rootPackage runBuildActions.
+	self assert: programModule executeSilently equals: 42.
+	
+]

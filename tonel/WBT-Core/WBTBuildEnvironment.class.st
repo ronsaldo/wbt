@@ -12,14 +12,27 @@ Class {
 		'languages',
 		'buildPlatformVariableEnvironment',
 		'hostPlatformVariableEnvironment',
-		'targetPlatformVariableEnvironment'
+		'targetPlatformVariableEnvironment',
+		'buildDirectory',
+		'buildCacheDirectory'
 	],
 	#category : #'WBT-Core-Environment'
 }
 
 { #category : #'as yet unclassified' }
 WBTBuildEnvironment class >> forCurrentPlatform [
-	^ self forPlatform: Smalltalk os current wbtPlatform
+	^ self forPlatform: WBTPlatform current
+]
+
+{ #category : #'as yet unclassified' }
+WBTBuildEnvironment class >> forHostPlatform: hostPlatform [
+	| currentPlatform |
+	currentPlatform := WBTPlatform current.
+	^ self new
+		buildPlatform: currentPlatform;
+		hostPlatform: hostPlatform;
+		targetPlatform: hostPlatform;
+		yourself
 ]
 
 { #category : #'as yet unclassified' }
@@ -88,13 +101,27 @@ WBTBuildEnvironment >> architecture [
 ]
 
 { #category : #accessing }
+WBTBuildEnvironment >> buildCacheDirectory: aDirectory [
+	buildCacheDirectory := aDirectory asFileReference asAbsolute canonicalize 
+
+]
+
+{ #category : #accessing }
+WBTBuildEnvironment >> buildDirectory: aDirectory [
+	buildDirectory := aDirectory asFileReference asAbsolute canonicalize 
+
+]
+
+{ #category : #accessing }
 WBTBuildEnvironment >> buildObjectDirectory: aDirectory [
-	buildObjectDirectory := aDirectory asFileReference
+	buildObjectDirectory := aDirectory asFileReference asAbsolute canonicalize 
+
 ]
 
 { #category : #accessing }
 WBTBuildEnvironment >> buildOutputDirectory: aDirectory [
-	buildOutputDirectory := aDirectory asFileReference
+	buildOutputDirectory := aDirectory asFileReference asAbsolute canonicalize 
+
 ]
 
 { #category : #bootstrapping }
@@ -126,13 +153,27 @@ WBTBuildEnvironment >> buildPlatformVariableEnvironment [
 ]
 
 { #category : #'as yet unclassified' }
+WBTBuildEnvironment >> devNullRedirection [
+	^ Smalltalk os isWindows ifFalse: [ ' > /dev/null' ] ifTrue: [ ' > NUL' ]
+]
+
+{ #category : #'as yet unclassified' }
 WBTBuildEnvironment >> executeCommandAndReadStdout: command [
 	^ LibC resultOfCommand: command
 ]
 
 { #category : #'as yet unclassified' }
 WBTBuildEnvironment >> executeCommandLineCommand: command [
-	^ (LibC system: command) = 0
+	| exitCode |
+	exitCode := LibC system: command.
+	^ Smalltalk os isWindows
+		ifTrue: [ exitCode ]
+		ifFalse: [ exitCode >> 8 ]
+]
+
+{ #category : #'as yet unclassified' }
+WBTBuildEnvironment >> executeCommandSilently: command [
+	^ self executeCommandLineCommand: command , self devNullRedirection
 ]
 
 { #category : #'as yet unclassified' }
@@ -227,11 +268,21 @@ WBTBuildEnvironment >> targetPlatformVariableEnvironment [
 ]
 
 { #category : #'as yet unclassified' }
+WBTBuildEnvironment >> validBuildCacheDirectory [
+	^ buildCacheDirectory ifNil: [ self validBuildDirectory / 'cache' ]
+]
+
+{ #category : #'as yet unclassified' }
+WBTBuildEnvironment >> validBuildDirectory [
+	^ buildDirectory ifNil: [FileSystem workingDirectory]
+]
+
+{ #category : #'as yet unclassified' }
 WBTBuildEnvironment >> validBuildObjectDirectory [
-	^ buildObjectDirectory ifNil: [ FileSystem workingDirectory / 'obj' ]
+	^ buildObjectDirectory ifNil: [ self validBuildDirectory / 'obj' ]
 ]
 
 { #category : #'as yet unclassified' }
 WBTBuildEnvironment >> validBuildOutputDirectory [
-	^ buildOutputDirectory ifNil: [ FileSystem workingDirectory / 'out' ]
+	^ buildOutputDirectory ifNil: [ self validBuildDirectory / 'out' ]
 ]

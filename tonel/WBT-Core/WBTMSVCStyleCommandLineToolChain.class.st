@@ -7,9 +7,9 @@ Class {
 		'lib',
 		'visualStudioInstallationPath',
 		'vcvarsall',
+		'vcBuildEnvironmentSetupPrefix',
 		'compilerArch',
-		'targetArch',
-		'vcBuildEnvironmentSetupPrefix'
+		'targetArch'
 	],
 	#category : #'WBT-Core-Environment'
 }
@@ -50,8 +50,6 @@ WBTMSVCStyleCommandLineToolChain >> initialize [
 	compilerArch := Smalltalk wordSize = 8
 		ifTrue: [ 'x64' ]
 		ifFalse: [ 'x86' ].
-	targetArch := compilerArch.
-
 ]
 
 { #category : #testing }
@@ -80,16 +78,6 @@ WBTMSVCStyleCommandLineToolChain >> link: anObject [
 ]
 
 { #category : #initialization }
-WBTMSVCStyleCommandLineToolChain >> setForARM [
-	self targetArch: #arm
-]
-
-{ #category : #initialization }
-WBTMSVCStyleCommandLineToolChain >> setForARM64 [
-	self targetArch: #arm64
-]
-
-{ #category : #initialization }
 WBTMSVCStyleCommandLineToolChain >> setForClangCL [
 	self setForWindowsCommon.
 	cl := 'clang-cl.exe'.
@@ -106,16 +94,6 @@ WBTMSVCStyleCommandLineToolChain >> setForMSVC [
 { #category : #initialization }
 WBTMSVCStyleCommandLineToolChain >> setForWindowsCommon [
 	lib := 'lib.exe /nologo'.
-]
-
-{ #category : #initialization }
-WBTMSVCStyleCommandLineToolChain >> setForX64 [
-	self targetArch: #x64
-]
-
-{ #category : #initialization }
-WBTMSVCStyleCommandLineToolChain >> setForX86 [
-	self targetArch: #x86
 ]
 
 { #category : #'as yet unclassified' }
@@ -157,14 +135,10 @@ WBTMSVCStyleCommandLineToolChain >> substitutionVariables [
 	 }
 ]
 
-{ #category : #accessing }
-WBTMSVCStyleCommandLineToolChain >> targetArch [
-	^ targetArch
-]
-
-{ #category : #accessing }
-WBTMSVCStyleCommandLineToolChain >> targetArch: anObject [
-	targetArch := anObject
+{ #category : #'as yet unclassified' }
+WBTMSVCStyleCommandLineToolChain >> substitutionVariablesForPlatform: aPlatform [
+	targetArch := aPlatform architecture name.
+	^ super substitutionVariablesForPlatform: aPlatform
 ]
 
 { #category : #accessing }
