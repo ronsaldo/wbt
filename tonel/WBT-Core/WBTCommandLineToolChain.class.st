@@ -116,7 +116,7 @@ WBTCommandLineToolChain >> llvmClangCompilationCommandsFor: aPlatform [
 WBTCommandLineToolChain >> llvmCompilationCommandsFor: aPlatform [
 	self class hasLLC ifTrue: [ ^ self llvmLLCCompilationCommandsFor: aPlatform].
 	self class hasClang ifTrue: [ ^ self llvmClangCompilationCommandsFor: aPlatform].
-	^ false
+	^ #()
 
 ]
 
