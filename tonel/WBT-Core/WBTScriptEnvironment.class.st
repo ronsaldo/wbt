@@ -156,6 +156,13 @@ WBTScriptEnvironment >> program: programName with: aBlock [
 ]
 
 { #category : #adding }
+WBTScriptEnvironment >> programWithSource: sourceName [
+	^ self program: sourceName asFileReference basenameWithoutExtension with: [ :prog |
+		prog source: sourceName
+	]
+]
+
+{ #category : #adding }
 WBTScriptEnvironment >> solveRelativePath: path [
 	^ (workingDirectory resolve: path asFileReference) fullName
 ]

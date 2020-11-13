@@ -153,5 +153,9 @@ WBTUnixStyleCommandLineToolChain >> substitutionVariables [
 		#WBT_LINK_DYNAMIC_LIBRARY . '$(WBT_C_COMPILER) $(WBT_DYNAMIC_LIBRARY_LINKER_FLAGS) -shared -o $(WBT_OUTPUT_FILE) $(WBT_INPUT_FILES) $(WBT_LINK_LIBRARIES)'.
 		#WBT_C_LINK_DYNAMIC_LIBRARY . '$(WBT_LINK_DYNAMIC_LIBRARY)'.
 		#WBT_CXX_LINK_DYNAMIC_LIBRARY . '$(WBT_CXX_COMPILER) $(WBT_DYNAMIC_LIBRARY_LINKER_FLAGS) -shared -o $(WBT_OUTPUT_FILE) $(WBT_INPUT_FILES) $(WBT_LINK_LIBRARIES)'.
+
+		#WBT_C_FLAGS . '-Wall -Wextra -fdata-sections -ffunction-sections'.
+		#WBT_CXX_FLAGS . '-Wall -Wextra -fdata-sections -ffunction-sections'.
+		#WBT_EXECUTABLE_LINKER_FLAGS . '-Wl,--gc-sections'.
 	 }
 ]

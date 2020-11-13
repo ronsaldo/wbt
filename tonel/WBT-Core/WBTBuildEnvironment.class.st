@@ -16,7 +16,8 @@ Class {
 		'buildDirectory',
 		'buildCacheDirectory',
 		'buildMode',
-		'buildResourcesDirectory'
+		'buildResourcesDirectory',
+		'buildModeDirectory'
 	],
 	#category : #'WBT-Core-Environment'
 }
@@ -97,27 +98,32 @@ WBTBuildEnvironment class >> forWindowsX86 [
 	^ self forPlatform: WBTPlatform windowsX86
 ]
 
-{ #category : #bootstrapping }
-WBTBuildEnvironment >> addMainPackageWithBlock: aBlock [
-	^ self addPackageNamed: self mainPackageName inFolder: FileSystem workingDirectory withBlock: aBlock
+{ #category : #building }
+WBTBuildEnvironment >> addMainPackageInFolder: sourceFolder with: aBlock [
+	^ self addPackageNamed: self mainPackageName inFolder: sourceFolder with: aBlock
 ]
 
-{ #category : #bootstrapping }
-WBTBuildEnvironment >> addPackageNamed: packageName inFolder: folder withBlock: aBlock [
+{ #category : #building }
+WBTBuildEnvironment >> addMainPackageWith: aBlock [
+	^ self addPackageNamed: self mainPackageName with: aBlock
+]
+
+{ #category : #building }
+WBTBuildEnvironment >> addPackageNamed: packageName inFolder: folder with: aBlock [
 	| package |
 	package := (self getOrCreatePackageNamed: packageName).
 	package inFolder: folder evaluateBlock: aBlock.
 	^ package
 ]
 
-{ #category : #bootstrapping }
+{ #category : #building }
 WBTBuildEnvironment >> addPackageNamed: packageName scriptEnvironmentInFolder: folder [
 	^ (self getOrCreatePackageNamed: packageName) makeScriptEnvironmentInFolder: folder
 ]
 
-{ #category : #bootstrapping }
-WBTBuildEnvironment >> addPackageNamed: packageName withBlock: aBlock [
-	^ self addPackageNamed: packageName inFolder: FileSystem workingDirectory withBlock: aBlock
+{ #category : #building }
+WBTBuildEnvironment >> addPackageNamed: packageName with: aBlock [
+	^ self addPackageNamed: packageName inFolder: FileSystem workingDirectory with: aBlock
 ]
 
 { #category : #adding }
@@ -156,9 +162,14 @@ WBTBuildEnvironment >> buildMainPackage [
 	^ self buildPackageNamed: self mainPackageName
 ]
 
-{ #category : #bootstrapping }
-WBTBuildEnvironment >> buildMainPackageWithBlock: aBlock [
-	^ self buildPackageNamed: self mainPackageName withBlock: aBlock
+{ #category : #building }
+WBTBuildEnvironment >> buildMainPackageInFolder: sourceFolder with: aBlock [
+	^ self buildPackageNamed: self mainPackageName inFolder: sourceFolder with: aBlock
+]
+
+{ #category : #building }
+WBTBuildEnvironment >> buildMainPackageWith: aBlock [
+	^ self buildPackageNamed: self mainPackageName with: aBlock
 ]
 
 { #category : #accessing }
@@ -188,10 +199,17 @@ WBTBuildEnvironment >> buildPackageNamed: packageName [
 	^ self buildPackagesNamed: { packageName }
 ]
 
-{ #category : #bootstrapping }
-WBTBuildEnvironment >> buildPackageNamed: packageName withBlock: aBlock [
+{ #category : #building }
+WBTBuildEnvironment >> buildPackageNamed: packageName inFolder: sourceFolder with: aBlock [
 	^ self
-		addPackageNamed: packageName withBlock: aBlock;
+		addPackageNamed: packageName inFolder: sourceFolder with: aBlock;
+		buildPackageNamed: packageName
+]
+
+{ #category : #building }
+WBTBuildEnvironment >> buildPackageNamed: packageName with: aBlock [
+	^ self
+		addPackageNamed: packageName with: aBlock;
 		buildPackageNamed: packageName
 ]
 
@@ -265,6 +283,11 @@ WBTBuildEnvironment >> getOrLoadPackageNamed: packageName [
 	^ packages at: packageName ifAbsent: [ self loadPackageNamed: packageName ]
 ]
 
+{ #category : #testing }
+WBTBuildEnvironment >> hasBuildModeWithDebugInformation [
+	^ #(debug minsize relwithdebinfo) includes: self buildMode asLowercase
+]
+
 { #category : #accessing }
 WBTBuildEnvironment >> hostPlatform [
 	^ hostPlatform
@@ -294,7 +317,7 @@ WBTBuildEnvironment >> languageForFileExtension: anExtension [
 	^ languages detect: [ :each | each handlesFileExtension: anExtension ] ifNone: [ nil ]
 ]
 
-{ #category : #bootstrapping }
+{ #category : #private }
 WBTBuildEnvironment >> loadPackageNamed: packageName [
 	| package |
 	package := nil.
@@ -353,7 +376,7 @@ WBTBuildEnvironment >> platform: aPlatform [
 
 { #category : #'build mode' }
 WBTBuildEnvironment >> setDebugBuildMode [
-	self buildMode: #debug.
+	self buildMode: #debug
 ]
 
 { #category : #'build mode' }
@@ -389,7 +412,7 @@ WBTBuildEnvironment >> targetPlatformVariableEnvironment [
 
 { #category : #'as yet unclassified' }
 WBTBuildEnvironment >> validBuildCacheDirectory [
-	^ buildCacheDirectory ifNil: [ self validBuildDirectory / 'cache' ]
+	^ buildCacheDirectory ifNil: [ self validBuildModeDirectory / 'cache' ]
 ]
 
 { #category : #'as yet unclassified' }
@@ -398,13 +421,18 @@ WBTBuildEnvironment >> validBuildDirectory [
 ]
 
 { #category : #'as yet unclassified' }
+WBTBuildEnvironment >> validBuildModeDirectory [
+	^ buildModeDirectory ifNil: [buildModeDirectory := self validBuildDirectory / self buildMode ]
+]
+
+{ #category : #'as yet unclassified' }
 WBTBuildEnvironment >> validBuildObjectDirectory [
-	^ buildObjectDirectory ifNil: [ self validBuildDirectory / 'obj' ]
+	^ buildObjectDirectory ifNil: [ self validBuildModeDirectory / 'obj' ]
 ]
 
 { #category : #'as yet unclassified' }
 WBTBuildEnvironment >> validBuildOutputDirectory [
-	^ buildOutputDirectory ifNil: [ self validBuildDirectory / 'out' ]
+	^ buildOutputDirectory ifNil: [ self validBuildModeDirectory / 'out' ]
 ]
 
 { #category : #'as yet unclassified' }

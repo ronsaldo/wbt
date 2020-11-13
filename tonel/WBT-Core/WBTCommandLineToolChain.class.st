@@ -127,6 +127,9 @@ WBTCommandLineToolChain >> isCommandLineToolChain [
 { #category : #'as yet unclassified' }
 WBTCommandLineToolChain >> llvmClangCompilationCommandsFor: aPlatform [
 	^ {
+		"TODO: Allow disabling these flags."
+		#WBT_LLVM_CLANG_FLAGS . '-fdata-sections -ffunction-sections'.
+
 		#WBT_LLVM_CLANG_DEBUG_FLAGS . ''.
 		#WBT_LLVM_CLANG_MINSIZE_FLAGS . '-Os'.
 		#WBT_LLVM_CLANG_RELWITHDEBINFO_FLAGS . '-O2'.
@@ -150,6 +153,8 @@ WBTCommandLineToolChain >> llvmCompilationCommandsFor: aPlatform [
 { #category : #'as yet unclassified' }
 WBTCommandLineToolChain >> llvmLLCCompilationCommandsFor: aPlatform [
 	^ {
+		#WBT_LLVM_LLC_FLAGS . '--data-sections --function-sections'.
+
 		#WBT_LLVM_LLC_DEBUG_FLAGS . ''.
 		#WBT_LLVM_LLC_MINSIZE_FLAGS . '-O=1'.
 		#WBT_LLVM_LLC_RELWITHDEBINFO_FLAGS . '-O=2'.

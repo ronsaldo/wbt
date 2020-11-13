@@ -79,7 +79,7 @@ WBTBuildingScriptEvaluationTest >> wbtObjectBuildDirectory [
 
 { #category : #'as yet unclassified' }
 WBTBuildingScriptEvaluationTest >> wbtScriptWith: aBlock [
-	^ buildEnvironment addPackageNamed: #Root inFolder: self wbtSourceDirectory withBlock: aBlock
+	^ buildEnvironment addPackageNamed: #Root inFolder: self wbtSourceDirectory with: aBlock
 ]
 
 { #category : #running }
