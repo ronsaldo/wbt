@@ -5,11 +5,6 @@ Class {
 }
 
 { #category : #'as yet unclassified' }
-WBTBatchCompilationBasedLanguage >> buildActionCommand [
-	^ self subclassResponsibility
-]
-
-{ #category : #'as yet unclassified' }
 WBTBatchCompilationBasedLanguage >> createBuildActionForDynamicLibrary: staticLibrary [
 	^ staticLibrary
 		addCommandLineCommandBuildAction: self linkDynamicLibraryCommand
@@ -24,7 +19,7 @@ WBTBatchCompilationBasedLanguage >> createBuildActionForExecutableProgram: execu
 		addCommandLineCommandBuildAction: self linkExecutableCommand
 			inputFiles: executableProgram allObjectFiles outputFile: executableProgram outputFileReference
 			variables: {
-				#WBT_LINK_LIBRARIES . [toolchain formatLinkerArgumentsForLibrariesDirectories: executableProgram allLinkLibrariesDirectories libraries: executableProgram allLinkLibraries].
+				#WBT_LINK_LIBRARIES . [toolchain formatLinkerArgumentsForLibrariesDirectories: executableProgram allLinkLibrariesDirectories libraries: executableProgram allLinkLibraries extraArguments: executableProgram allLinkerArguments].
 			}
 ]
 
@@ -36,20 +31,6 @@ WBTBatchCompilationBasedLanguage >> createBuildActionForStaticLibrary: staticLib
 ]
 
 { #category : #'as yet unclassified' }
-WBTBatchCompilationBasedLanguage >> createIntermediateObjectFilesFor: sourceFile [
-	| sourceRelativeFileRef objectFileRelativeFileRef objectFileReference |
-	sourceRelativeFileRef := sourceFile relativeFileReference.
-	objectFileRelativeFileRef := sourceRelativeFileRef parent / (sourceFile platform formatObjectFileName: sourceRelativeFileRef basename).
-	objectFileReference := (sourceFile package validBuildObjectDirectory resolve: objectFileRelativeFileRef) asAbsolute canonicalize.
-	^ {WBTFileTarget new
-		language: WBTObjectFileLanguage uniqueInstance;
-		relativeFileReference: objectFileRelativeFileRef;
-		fileReference: objectFileReference;
-		addBuildAction: (sourceFile package newCommandLineCommandBuildAction: self buildActionCommand inputFiles: {sourceFile} outputFile: objectFileReference);
-		yourself}
-]
-
-{ #category : #'as yet unclassified' }
 WBTBatchCompilationBasedLanguage >> linkDynamicLibraryCommand [
 	^ '$(WBT_C_LINK_DYNAMIC_LIBRARY)'
 ]
@@ -57,6 +38,11 @@ WBTBatchCompilationBasedLanguage >> linkDynamicLibraryCommand [
 { #category : #'as yet unclassified' }
 WBTBatchCompilationBasedLanguage >> linkExecutableCommand [
 	^ '$(WBT_C_LINK_EXECUTABLE)'
+]
+
+{ #category : #'as yet unclassified' }
+WBTBatchCompilationBasedLanguage >> linkPriority [
+	^ 2
 ]
 
 { #category : #'as yet unclassified' }

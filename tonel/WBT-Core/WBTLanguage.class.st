@@ -45,8 +45,8 @@ WBTLanguage >> createBuildActionForStaticLibrary: staticLibrary [
 ]
 
 { #category : #'as yet unclassified' }
-WBTLanguage >> createIntermediateObjectFilesFor: sourceFile [
-	^ #()
+WBTLanguage >> createIntermediateObjectFilesFor: sourceFile module: targetModule [
+	"Nothing required here."
 ]
 
 { #category : #'as yet unclassified' }

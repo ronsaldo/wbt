@@ -1,6 +1,6 @@
 Class {
 	#name : #WBTAssemblyLanguage,
-	#superclass : #WBTBatchCompilationBasedLanguage,
+	#superclass : #WBTBatchCompilationBasedSourceLanguage,
 	#category : #'WBT-Core-Language'
 }
 

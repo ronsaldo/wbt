@@ -1,6 +1,6 @@
 Class {
 	#name : #WBTCHeaderLanguage,
-	#superclass : #WBTLanguage,
+	#superclass : #WBTBatchCompilationBasedLanguage,
 	#category : #'WBT-Core-Language'
 }
 

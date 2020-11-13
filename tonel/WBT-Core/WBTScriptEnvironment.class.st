@@ -124,6 +124,14 @@ WBTScriptEnvironment >> library: programName with: aBlock [
 	^ builder module
 ]
 
+{ #category : #adding }
+WBTScriptEnvironment >> objectLibrary: programName with: aBlock [
+	| builder |
+	builder := WBTObjectLibraryBuilder for: self named: programName.
+	aBlock value: builder.
+	^ builder finish
+]
+
 { #category : #accessing }
 WBTScriptEnvironment >> package [
 	^ package
@@ -155,13 +163,13 @@ WBTScriptEnvironment >> solveRelativePath: path [
 { #category : #'as yet unclassified' }
 WBTScriptEnvironment >> solveSourceFile: fileName [
 	| relativeFileRef solvedFileReference extension language |
-	relativeFileRef := fileName asFileReference.
+	solvedFileReference := relativeFileRef := fileName asFileReference.
 	relativeFileRef isAbsolute ifTrue: [ relativeFileRef := relativeFileRef basename asFileReference ].
 	
 	self ensureSourceFileExists: fileName.
-	solvedFileReference := (workingDirectory resolve: fileName asFileReference) asAbsolute canonicalize.
+	solvedFileReference := (workingDirectory resolve: solvedFileReference) asAbsolute canonicalize.
 	extension := solvedFileReference extension asLowercase.
-	language := ((self buildEnvironment languageForFileExtension: extension) ifNil: [ WBTNullLanguage uniqueInstance ]).
+	language := self buildEnvironment validLanguageForFileExtension: extension.
 
 	^ language makeSourceFileElementFor: solvedFileReference withRelativeFileReference: relativeFileRef
 ]

@@ -1,6 +1,6 @@
 Class {
 	#name : #WBTBuildAction,
-	#superclass : #Object,
+	#superclass : #WBTObject,
 	#instVars : [
 		'parentTarget'
 	],

@@ -1,11 +1,23 @@
 Class {
 	#name : #WBTBuildTarget,
-	#superclass : #Object,
+	#superclass : #WBTObject,
 	#instVars : [
-		'buildActions'
+		'buildActions',
+		'newestBuildTargetDependenciesTimestamp',
+		'currentOutputVersionTimestamp'
 	],
 	#category : #'WBT-Core-Targets'
 }
+
+{ #category : #constants }
+WBTBuildTarget class >> alwaysNewToDateTimeStamp [
+	^ Float infinity
+]
+
+{ #category : #constants }
+WBTBuildTarget class >> alwaysOldTimeStamp [
+	^ Float negativeInfinity
+]
 
 { #category : #adding }
 WBTBuildTarget >> addBuildAction: anAction [
@@ -39,6 +51,46 @@ WBTBuildTarget >> buildTargetDependencies [
 	^ #()
 ]
 
+{ #category : #accessing }
+WBTBuildTarget >> currentOutputVersionTimestamp [
+	^ currentOutputVersionTimestamp ifNil: [
+		currentOutputVersionTimestamp := self class alwaysNewToDateTimeStamp.
+		self targetOutputFileReferences do: [ :each |
+			each exists ifTrue: [ 
+				currentOutputVersionTimestamp := currentOutputVersionTimestamp min: each modificationTime asUnixTime
+			] ifFalse: [
+				currentOutputVersionTimestamp := self class alwaysOldTimeStamp
+			]
+		].
+		self targetOutputTargets do: [ :each |
+			currentOutputVersionTimestamp := currentOutputVersionTimestamp min: each currentVersionTimestamp
+		].
+	
+		currentOutputVersionTimestamp
+	]
+]
+
+{ #category : #accessing }
+WBTBuildTarget >> currentVersionTimestamp [
+	^ self currentOutputVersionTimestamp max: self newestBuildTargetDependenciesTimestamp
+]
+
+{ #category : #'as yet unclassified' }
+WBTBuildTarget >> ensureIsBuilt [
+	self runBuildActions
+]
+
+{ #category : #accessing }
+WBTBuildTarget >> invalidateTimestamps [
+	newestBuildTargetDependenciesTimestamp := nil.
+	currentOutputVersionTimestamp := nil.
+]
+
+{ #category : #testing }
+WBTBuildTarget >> isDynamicLibrary [
+	^ false
+]
+
 { #category : #testing }
 WBTBuildTarget >> isExecutableProgram [
 	^ false
@@ -70,8 +122,23 @@ WBTBuildTarget >> isObjectFile [
 ]
 
 { #category : #testing }
+WBTBuildTarget >> isObjectLibrary [
+	^ false
+]
+
+{ #category : #testing }
+WBTBuildTarget >> isSatisfiedBuildTarget [
+	^ self currentOutputVersionTimestamp >= self newestBuildTargetDependenciesTimestamp
+]
+
+{ #category : #testing }
 WBTBuildTarget >> isStaticLibrary [
 	^ false
+]
+
+{ #category : #testing }
+WBTBuildTarget >> isUnsatifiedBuildTarget [
+	^ self isSatisfiedBuildTarget not
 ]
 
 { #category : #accessing }
@@ -79,40 +146,46 @@ WBTBuildTarget >> name [
 	^ self subclassResponsibility
 ]
 
+{ #category : #accessing }
+WBTBuildTarget >> newestBuildTargetDependenciesTimestamp [
+	^ newestBuildTargetDependenciesTimestamp ifNil: [
+		newestBuildTargetDependenciesTimestamp := self class alwaysOldTimeStamp.
+		self buildTargetDependencies do: [ :each |
+			newestBuildTargetDependenciesTimestamp := newestBuildTargetDependenciesTimestamp max: each currentVersionTimestamp
+		].
+
+		newestBuildTargetDependenciesTimestamp
+	].
+]
+
 { #category : #'as yet unclassified' }
 WBTBuildTarget >> runBuildActions [
-	self withUnsatisfiedTopologicalSortedDependencies do: [ :each |
-		each runTargetBuildActions ifFalse: [ ^ false ]
-	].
-	^ true
+	^ self withUnsatisfiedSortedDependencies allSatisfy: [ :each | each runTargetBuildActions]
 ]
 
 { #category : #'as yet unclassified' }
 WBTBuildTarget >> runTargetBuildActions [
+	currentOutputVersionTimestamp := nil.
 	self buildActions do: [ :each | each execute ifFalse: [ ^ false ] ].
 	^ true
 ]
 
-{ #category : #'as yet unclassified' }
-WBTBuildTarget >> topologicalSortDependenciesInto: result visited: visited [
-	(visited includes: self) ifTrue: [ ^ self ].
-	visited add: self.
-	self buildTargetDependencies do: [ :each |
-		each topologicalSortDependenciesInto: result visited: visited
-	].
-	result add: self.
+{ #category : #accessing }
+WBTBuildTarget >> targetOutputFileReferences [
+	^ #()
+]
+
+{ #category : #accessing }
+WBTBuildTarget >> targetOutputTargets [
+	^ #()
 ]
 
 { #category : #'as yet unclassified' }
-WBTBuildTarget >> withTopologicalSortedDependencies [
-	| result visited |
-	result := OrderedCollection new.
-	visited := IdentitySet new.
-	self topologicalSortDependenciesInto: result visited: visited.
-	^ result
+WBTBuildTarget >> withSortedDependencies [
+	^ WBTBuildTargetDependencySorter new addBuildTarget: self; value
 ]
 
 { #category : #'as yet unclassified' }
-WBTBuildTarget >> withUnsatisfiedTopologicalSortedDependencies [
-	^ self withTopologicalSortedDependencies
+WBTBuildTarget >> withUnsatisfiedSortedDependencies [
+	^ WBTBuildTargetDependencySorter new addBuildTarget: self; unsatisfiedBuildTargets
 ]

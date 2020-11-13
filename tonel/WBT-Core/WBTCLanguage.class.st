@@ -1,6 +1,6 @@
 Class {
 	#name : #WBTCLanguage,
-	#superclass : #WBTBatchCompilationBasedLanguage,
+	#superclass : #WBTBatchCompilationBasedSourceLanguage,
 	#category : #'WBT-Core-Language'
 }
 
@@ -17,9 +17,4 @@ WBTCLanguage >> buildActionCommand [
 { #category : #'as yet unclassified' }
 WBTCLanguage >> handlesFileExtension: aFileExtension [
 	^ aFileExtension = 'c'
-]
-
-{ #category : #'as yet unclassified' }
-WBTCLanguage >> linkPriority [
-	^ 2
 ]

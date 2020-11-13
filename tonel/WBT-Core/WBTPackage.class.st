@@ -7,7 +7,6 @@ Class {
 		'elements',
 		'dependencies',
 		'buildObjectDirectory',
-		'buildOutputDirectory',
 		'mainElements',
 		'buildTargetDependencies',
 		'hostPlatformVariableEnvironment',
@@ -57,11 +56,6 @@ WBTPackage >> buildObjectDirectory: aDirectory [
 ]
 
 { #category : #'as yet unclassified' }
-WBTPackage >> buildOutputDirectory: aDirectory [
-	buildOutputDirectory := aDirectory asFileReference.
-]
-
-{ #category : #'as yet unclassified' }
 WBTPackage >> buildTargetDependencies [
 	^ buildTargetDependencies ifNil: [ buildTargetDependencies := dependencies , mainElements ]
 ]
@@ -102,35 +96,41 @@ WBTPackage >> hostPlatformVariableEnvironment [
 
 { #category : #adding }
 WBTPackage >> importLibrary: libraryName [
-	self addElement: (WBTImportedLibraryTarget new
-		name: libraryName;
-		yourself
-	).
-
+	^ self importLibrary: libraryName with: [:importedLibrary | ]
 ]
 
 { #category : #adding }
 WBTPackage >> importLibrary: libraryName fromDebianPackage: debianPackageName [
-	self importLibrary: libraryName
+	^ self importLibrary: libraryName
 ]
 
 { #category : #adding }
 WBTPackage >> importLibrary: libraryName fromLibFolder: libraryFolderName [
-	self addElement: (WBTImportedLibraryTarget new
-		name: libraryName;
-		importLibFolder: libraryFolderName;
-		yourself
-	).
+	^ self importLibrary: libraryName with: [:importedLibrary |
+		importedLibrary
+			importLibFolder: libraryFolderName
+	]
 ]
 
 { #category : #adding }
 WBTPackage >> importLibrary: libraryName fromLibFolder: libraryFolderName binFolder: libraryBinaryFolder [
-	self addElement: (WBTImportedLibraryTarget new
+	^ self importLibrary: libraryName with: [:importedLibrary |
+		importedLibrary
+			importLibFolder: libraryFolderName;
+			binaryLibFolder: libraryBinaryFolder
+	]
+]
+
+{ #category : #adding }
+WBTPackage >> importLibrary: libraryName with: aBlock [
+	| importedLibraryTarget |
+	importedLibraryTarget := self addElement: (WBTImportedLibraryTarget new
 		name: libraryName;
-		importLibFolder: libraryFolderName;
-		binaryLibFolder: libraryBinaryFolder;
 		yourself
 	).
+	aBlock value: importedLibraryTarget.
+	importedLibraryTarget generateBinaryInstallationTarget.
+	^ importedLibraryTarget
 ]
 
 { #category : #adding }
@@ -146,7 +146,7 @@ WBTPackage >> importPhanapiBintrayLibrary: libraryName fromUser: bintrayUser rep
 	dynlibPath := (Smalltalk globals at: #PhaNAPI)
 		fullLibraryPathForCurrentPlatform: libraryName package: repositoryName.
 	parentFolder := dynlibPath parent fullName.
-	self importLibrary: libraryName fromLibFolder: parentFolder binFolder: parentFolder
+	^ self importLibrary: libraryName fromLibFolder: parentFolder binFolder: parentFolder
 ]
 
 { #category : #'as yet unclassified' }
@@ -190,9 +190,9 @@ WBTPackage >> initialize [
 	publicIncludeDirectories := OrderedCollection new.
 ]
 
-{ #category : #actions }
-WBTPackage >> installExportedLibrariesInto: outputDirectory [
-	self exportedLibraries do: [ :each | each installInto: outputDirectory ]
+{ #category : #testing }
+WBTPackage >> isRootPackage [
+	^ name = self buildEnvironment mainPackageName
 ]
 
 { #category : #accessing }
@@ -247,6 +247,11 @@ WBTPackage >> substitutionVariablesEnvironment [
 	^ buildEnvironment hostPlatformSubstitutionVariables
 ]
 
+{ #category : #accessing }
+WBTPackage >> targetOutputTargets [
+	^ mainElements
+]
+
 { #category : #'as yet unclassified' }
 WBTPackage >> validBuildObjectDirectory [
 	^ buildObjectDirectory ifNil: [ buildObjectDirectory := buildEnvironment validBuildObjectDirectory / name ]
@@ -254,5 +259,10 @@ WBTPackage >> validBuildObjectDirectory [
 
 { #category : #'as yet unclassified' }
 WBTPackage >> validBuildOutputDirectory [
-	^ buildOutputDirectory ifNil: [ buildOutputDirectory := buildEnvironment validBuildOutputDirectory ]
+	^ buildEnvironment validBuildOutputDirectory
+]
+
+{ #category : #'as yet unclassified' }
+WBTPackage >> wbtSolveLinkLibrariesInPackage: targetPackage [
+	^ self exportedLibraries
 ]

@@ -20,6 +20,11 @@ WBTBuildingScriptEvaluationTest class >> cleanUpTestingArtifacts: aBoolean [
 	CleanUpTestingArtifacts := aBoolean
 ]
 
+{ #category : #accessing }
+WBTBuildingScriptEvaluationTest class >> defaultTimeLimit [
+	^ 2 minutes
+]
+
 { #category : #'as yet unclassified' }
 WBTBuildingScriptEvaluationTest class >> disableTestingArtifactCleanUp [
 	<script>
@@ -45,8 +50,7 @@ WBTBuildingScriptEvaluationTest >> setUp [
 	self wbtSourceDirectory ensureCreateDirectory.
 	buildEnvironment := WBTBuildEnvironment forCurrentPlatform.
 	buildEnvironment
-		buildObjectDirectory: self wbtBuildObjectDirectory;
-		buildOutputDirectory: self wbtBuildOutputDirectory.
+		buildDirectory: self wbtBuildDirectory
 
 ]
 
@@ -59,13 +63,8 @@ WBTBuildingScriptEvaluationTest >> tearDown [
 ]
 
 { #category : #running }
-WBTBuildingScriptEvaluationTest >> wbtBuildObjectDirectory [
-	^ self wbtTestDirectory / 'obj'
-]
-
-{ #category : #running }
-WBTBuildingScriptEvaluationTest >> wbtBuildOutputDirectory [
-	^ self wbtTestDirectory / 'out'
+WBTBuildingScriptEvaluationTest >> wbtBuildDirectory [
+	^ self wbtTestDirectory
 ]
 
 { #category : #running }
@@ -80,7 +79,7 @@ WBTBuildingScriptEvaluationTest >> wbtObjectBuildDirectory [
 
 { #category : #'as yet unclassified' }
 WBTBuildingScriptEvaluationTest >> wbtScriptWith: aBlock [
-	^ buildEnvironment buildPackageNamed: #Root inFolder: self wbtSourceDirectory withBlock: aBlock
+	^ buildEnvironment addPackageNamed: #Root inFolder: self wbtSourceDirectory withBlock: aBlock
 ]
 
 { #category : #running }

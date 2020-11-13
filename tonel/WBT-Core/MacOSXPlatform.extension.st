@@ -4,3 +4,8 @@ Extension { #name : #MacOSXPlatform }
 MacOSXPlatform >> wbtPlatform [
 	^ WBTPlatform osx
 ]
+
+{ #category : #'*WBT-Core' }
+MacOSXPlatform >> wbtPlatformWithClang [
+	^ WBTPlatform osx
+]

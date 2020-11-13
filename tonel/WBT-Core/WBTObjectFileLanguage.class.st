@@ -1,6 +1,6 @@
 Class {
 	#name : #WBTObjectFileLanguage,
-	#superclass : #WBTLanguage,
+	#superclass : #WBTBatchCompilationBasedLanguage,
 	#category : #'WBT-Core-Language'
 }
 
