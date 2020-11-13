@@ -310,6 +310,7 @@ WBTBuildEnvironment >> initialize [
 	packages := Dictionary new.
 	packageSpecLocations := OrderedCollection new.
 	languages := WBTLanguage allSupportedLanguages.
+	self setDebugBuildMode.
 ]
 
 { #category : #accessing }
