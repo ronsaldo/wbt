@@ -289,17 +289,6 @@ WBTBuildEnvironment >> initialize [
 	languages := WBTLanguage allSupportedLanguages.
 ]
 
-{ #category : #'as yet unclassified' }
-WBTBuildEnvironment >> installFile: sourceFile in: destFile [
-	| sourceFileReference destFileReference |
-	sourceFileReference := sourceFile asFileReference.
-	destFileReference := destFile asFileReference.
-	sourceFileReference exists ifFalse: [ ^ self ].
-	destFileReference parent ensureCreateDirectory.
-	destFileReference exists ifTrue: [ destFileReference delete ].
-	sourceFile copyTo: destFileReference
-]
-
 { #category : #accessing }
 WBTBuildEnvironment >> languageForFileExtension: anExtension [
 	^ languages detect: [ :each | each handlesFileExtension: anExtension ] ifNone: [ nil ]
@@ -337,6 +326,16 @@ WBTBuildEnvironment >> makeImplicitSourceFileDependencyFor: fileName [
 	language := self validLanguageForFileExtension: extension.
 
 	^ language makeSourceFileElementFor: absoluteFileRef withRelativeFileReference: relativeFileRef
+]
+
+{ #category : #'as yet unclassified' }
+WBTBuildEnvironment >> makeOutputInstallFileTargetFrom: sourceFile into: destFile [
+	| sourceFileReference destFileReference sourceFileTarget |
+	sourceFileReference := sourceFile asFileReference.
+	destFileReference := destFile asFileReference.
+	
+	sourceFileTarget := WBTFileTarget for: sourceFileReference.
+	^ sourceFileTarget makeInstallIntoTarget: destFileReference
 ]
 
 { #category : #accessing }

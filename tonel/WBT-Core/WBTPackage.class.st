@@ -96,35 +96,41 @@ WBTPackage >> hostPlatformVariableEnvironment [
 
 { #category : #adding }
 WBTPackage >> importLibrary: libraryName [
-	self addElement: (WBTImportedLibraryTarget new
-		name: libraryName;
-		yourself
-	).
-
+	^ self importLibrary: libraryName with: [:importedLibrary | ]
 ]
 
 { #category : #adding }
 WBTPackage >> importLibrary: libraryName fromDebianPackage: debianPackageName [
-	self importLibrary: libraryName
+	^ self importLibrary: libraryName
 ]
 
 { #category : #adding }
 WBTPackage >> importLibrary: libraryName fromLibFolder: libraryFolderName [
-	self addElement: (WBTImportedLibraryTarget new
-		name: libraryName;
-		importLibFolder: libraryFolderName;
-		yourself
-	).
+	^ self importLibrary: libraryName with: [:importedLibrary |
+		importedLibrary
+			importLibFolder: libraryFolderName
+	]
 ]
 
 { #category : #adding }
 WBTPackage >> importLibrary: libraryName fromLibFolder: libraryFolderName binFolder: libraryBinaryFolder [
-	self addElement: (WBTImportedLibraryTarget new
+	^ self importLibrary: libraryName with: [:importedLibrary |
+		importedLibrary
+			importLibFolder: libraryFolderName;
+			binaryLibFolder: libraryBinaryFolder
+	]
+]
+
+{ #category : #adding }
+WBTPackage >> importLibrary: libraryName with: aBlock [
+	| importedLibraryTarget |
+	importedLibraryTarget := self addElement: (WBTImportedLibraryTarget new
 		name: libraryName;
-		importLibFolder: libraryFolderName;
-		binaryLibFolder: libraryBinaryFolder;
 		yourself
 	).
+	aBlock value: importedLibraryTarget.
+	importedLibraryTarget generateBinaryInstallationTarget.
+	^ importedLibraryTarget
 ]
 
 { #category : #adding }
@@ -140,7 +146,7 @@ WBTPackage >> importPhanapiBintrayLibrary: libraryName fromUser: bintrayUser rep
 	dynlibPath := (Smalltalk globals at: #PhaNAPI)
 		fullLibraryPathForCurrentPlatform: libraryName package: repositoryName.
 	parentFolder := dynlibPath parent fullName.
-	self importLibrary: libraryName fromLibFolder: parentFolder binFolder: parentFolder
+	^ self importLibrary: libraryName fromLibFolder: parentFolder binFolder: parentFolder
 ]
 
 { #category : #'as yet unclassified' }
@@ -182,11 +188,6 @@ WBTPackage >> initialize [
 	mainElements := OrderedCollection new.
 	includeDirectories := OrderedCollection new.
 	publicIncludeDirectories := OrderedCollection new.
-]
-
-{ #category : #actions }
-WBTPackage >> installExportedLibrariesInto: outputDirectory [
-	self exportedLibraries do: [ :each | each installInto: outputDirectory ]
 ]
 
 { #category : #testing }

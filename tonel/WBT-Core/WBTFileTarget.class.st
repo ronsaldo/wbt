@@ -10,6 +10,15 @@ Class {
 	#category : #'WBT-Core-Targets'
 }
 
+{ #category : #'instance creation' }
+WBTFileTarget class >> for: aFileReference [
+	^ self new
+		language: WBTNullLanguage uniqueInstance;
+		fileReference: aFileReference;
+		relativeFileReference: aFileReference basename asFileReference;
+		yourself
+]
+
 { #category : #adding }
 WBTFileTarget >> addDependency: aDependency [
 	dependencies := dependencies copyWith: aDependency
@@ -69,6 +78,12 @@ WBTFileTarget >> isObjectFile [
 	^ language isObjectFile
 ]
 
+{ #category : #testing }
+WBTFileTarget >> isSatisfiedBuildTarget [
+	fileReference exists ifFalse: [ ^ false ].
+	^ super isSatisfiedBuildTarget
+]
+
 { #category : #accessing }
 WBTFileTarget >> language [
 	^ language
@@ -77,6 +92,19 @@ WBTFileTarget >> language [
 { #category : #accessing }
 WBTFileTarget >> language: anObject [
 	language := anObject
+]
+
+{ #category : #'as yet unclassified' }
+WBTFileTarget >> makeInstallIntoTarget: destFileReference [
+	| destFileTarget |
+	destFileTarget := WBTFileTarget for: destFileReference.
+	destFileTarget
+		addDependency: self;
+		addBuildAction: (WBTInstallFileBuildAction new
+			sourceFileReference: fileReference;
+			destFileReference: destFileReference;
+			yourself).
+	^ destFileTarget
 ]
 
 { #category : #accessing }
