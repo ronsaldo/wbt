@@ -5,6 +5,7 @@ jobs:
     build-unixes:
         name: Build Unixes
         runs-on: ${{ matrix.variant.os }}
+        timeout-minutes: 10
         strategy:
             matrix:
                 variant:
@@ -42,6 +43,7 @@ jobs:
     build-windows:
         name: Build Windows
         runs-on: windows-latest
+        timeout-minutes: 10
         env:
             PLATFORM_NAME: win64
         steps:
