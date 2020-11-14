@@ -20,3 +20,17 @@ WBTBundleBuilder >> createTargetNamed: targetName [
 WBTBundleBuilder >> program: program [
 	target program: program
 ]
+
+{ #category : #'as yet unclassified' }
+WBTBundleBuilder >> source: source [
+	^ self program: (script program: target name with: [:prog |
+		prog source: source
+	])
+]
+
+{ #category : #'as yet unclassified' }
+WBTBundleBuilder >> sources: sources [
+	^ self program: (script program: target name with: [:prog |
+		prog sources: sources
+	])
+]

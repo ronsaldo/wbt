@@ -19,7 +19,7 @@ Class {
 
 { #category : #adding }
 WBTPackage >> activeIncludeDirectories [
-	^ activeIncludeDirectories ifNil: [activeIncludeDirectories := (includeDirectories , publicIncludeDirectories) collect: [ :each | each fullName ] ]
+	^ activeIncludeDirectories ifNil: [ activeIncludeDirectories := (includeDirectories , publicIncludeDirectories) collect: [ :each | each fullName ] ]
 ]
 
 { #category : #adding }

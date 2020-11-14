@@ -399,9 +399,14 @@ WBTBuildEnvironment >> makeOutputInstallFileTargetFrom: sourceFile into: destFil
 
 { #category : #'instance creation' }
 WBTBuildEnvironment >> newCommandLineCommandBuildAction: command inputFiles: inputFiles outputFile: outputFile variables: variables [
+	^ self newCommandLineCommandBuildAction: command inputFiles: inputFiles outputFile: outputFile variables: variables parentEnvironment: self hostPlatformVariableEnvironment
+]
+
+{ #category : #'instance creation' }
+WBTBuildEnvironment >> newCommandLineCommandBuildAction: command inputFiles: inputFiles outputFile: outputFile variables: variables parentEnvironment: parentEnvironment [
 	^ WBTCommandLineCommandBuildAction new
 		command: command;
-		variableEnvironment: (WBTVariableSubstitutionEnvironment parent: self hostPlatformVariableEnvironment withVariables: variables , {
+		variableEnvironment: (WBTVariableSubstitutionEnvironment parent: parentEnvironment withVariables: variables , {
 			'WBT_INPUT_FILES' . inputFiles .
 			'WBT_OUTPUT_FILE' . outputFile .
 		});

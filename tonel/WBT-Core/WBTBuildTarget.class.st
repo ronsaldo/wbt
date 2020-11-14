@@ -96,6 +96,11 @@ WBTBuildTarget >> ensureIsBuilt [
 ]
 
 { #category : #accessing }
+WBTBuildTarget >> hostPlatformVariableEnvironment [
+	^ self package hostPlatformVariableEnvironment
+]
+
+{ #category : #accessing }
 WBTBuildTarget >> invalidateTimestamps [
 	newestBuildTargetDependenciesTimestamp := nil.
 	currentOutputVersionTimestamp := nil.
@@ -173,7 +178,7 @@ WBTBuildTarget >> newCommandLineCommandBuildAction: command inputFiles: inputFil
 
 { #category : #adding }
 WBTBuildTarget >> newCommandLineCommandBuildAction: command inputFiles: inputFile outputFile: outputFile variables: variables [
-	^ self buildEnvironment newCommandLineCommandBuildAction: command inputFiles: inputFile outputFile: outputFile variables: variables
+	^ self buildEnvironment newCommandLineCommandBuildAction: command inputFiles: inputFile outputFile: outputFile variables: variables parentEnvironment: self hostPlatformVariableEnvironment
 ]
 
 { #category : #accessing }
