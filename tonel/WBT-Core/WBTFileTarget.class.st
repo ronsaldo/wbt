@@ -20,6 +20,11 @@ WBTFileTarget class >> for: aFileReference [
 ]
 
 { #category : #adding }
+WBTFileTarget >> addDependencies: aCollectionOfDependencies [
+	aCollectionOfDependencies do: [:each | self addDependency: each ]
+]
+
+{ #category : #adding }
 WBTFileTarget >> addDependency: aDependency [
 	dependencies := dependencies copyWith: aDependency
 ]

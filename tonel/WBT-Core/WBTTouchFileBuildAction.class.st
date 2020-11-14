@@ -10,6 +10,7 @@ Class {
 { #category : #execution }
 WBTTouchFileBuildAction >> execute [
 	fileReference parent ensureCreateDirectory.
+	fileReference ensureDelete.
 	fileReference writeStreamDo: [ :out | out truncate ].
 	^ true
 ]

@@ -17,7 +17,9 @@ Class {
 		'buildCacheDirectory',
 		'buildMode',
 		'buildResourcesDirectory',
-		'buildModeDirectory'
+		'buildModeDirectory',
+		'buildBundleDirectory',
+		'buildBundleTempDirectory'
 	],
 	#category : #'WBT-Core-Environment'
 }
@@ -259,6 +261,7 @@ WBTBuildEnvironment >> executeCommandAndReadStdout: command [
 { #category : #'as yet unclassified' }
 WBTBuildEnvironment >> executeCommandLineCommand: command [
 	| exitCode |
+	Stdio stdout nextPutAll: command; lf.
 	exitCode := LibC system: command.
 	^ Smalltalk os isWindows
 		ifTrue: [ exitCode ]
@@ -266,8 +269,30 @@ WBTBuildEnvironment >> executeCommandLineCommand: command [
 ]
 
 { #category : #'as yet unclassified' }
+WBTBuildEnvironment >> executeCommandLineCommand: command inDirectory: directory [
+	| formattedCommand |
+	formattedCommand := 'cd ' , directory asWBTVarSubstitution asWBTEscapedVarSubstitution , ' && ' , command.
+	^ self executeCommandLineCommand: formattedCommand
+]
+
+{ #category : #'as yet unclassified' }
 WBTBuildEnvironment >> executeCommandSilently: command [
 	^ self executeCommandLineCommand: command , self devNullRedirection
+]
+
+{ #category : #'as yet unclassified' }
+WBTBuildEnvironment >> generateTargetFile: fileName inputFiles: inputFiles withCommand: compilationCommand [
+	^ self generateTargetFile: fileName inputFiles: inputFiles withCommand: compilationCommand variables: #()
+]
+
+{ #category : #'as yet unclassified' }
+WBTBuildEnvironment >> generateTargetFile: fileName inputFiles: inputFiles withCommand: compilationCommand variables: variables [
+	| targetFile |
+	targetFile := self makeFileTargetFor: fileName.
+	^ targetFile
+		addDependencies: inputFiles;
+		addBuildAction: (self newCommandLineCommandBuildAction: compilationCommand inputFiles: inputFiles outputFile: targetFile variables: variables);
+		yourself
 ]
 
 { #category : #'as yet unclassified' }
@@ -285,7 +310,17 @@ WBTBuildEnvironment >> getOrLoadPackageNamed: packageName [
 
 { #category : #testing }
 WBTBuildEnvironment >> hasBuildModeWithDebugInformation [
-	^ #(debug minsize relwithdebinfo) includes: self buildMode asLowercase
+	^ #(debug assert minsize relwithdebinfo) includes: self buildMode asLowercase
+]
+
+{ #category : #testing }
+WBTBuildEnvironment >> hasMinimalSizeBuildMode [
+	^ #(minsize) includes: self buildMode asLowercase
+]
+
+{ #category : #testing }
+WBTBuildEnvironment >> hasReleaseBuildMode [
+	^ #(minsize relwithdebinfo release) includes: self buildMode asLowercase
 ]
 
 { #category : #accessing }
@@ -340,7 +375,7 @@ WBTBuildEnvironment >> mainPackageName [
 ]
 
 { #category : #'as yet unclassified' }
-WBTBuildEnvironment >> makeImplicitSourceFileDependencyFor: fileName [
+WBTBuildEnvironment >> makeFileTargetFor: fileName [
 	| relativeFileRef absoluteFileRef extension language |
 	absoluteFileRef := relativeFileRef := fileName asFileReference.
 	relativeFileRef isAbsolute ifTrue: [ relativeFileRef := relativeFileRef basename asFileReference ].
@@ -362,6 +397,19 @@ WBTBuildEnvironment >> makeOutputInstallFileTargetFrom: sourceFile into: destFil
 	^ sourceFileTarget makeInstallIntoTarget: destFileReference
 ]
 
+{ #category : #'instance creation' }
+WBTBuildEnvironment >> newCommandLineCommandBuildAction: command inputFiles: inputFiles outputFile: outputFile variables: variables [
+	^ WBTCommandLineCommandBuildAction new
+		command: command;
+		variableEnvironment: (WBTVariableSubstitutionEnvironment parent: self hostPlatformVariableEnvironment withVariables: variables , {
+			'WBT_INPUT_FILES' . inputFiles .
+			'WBT_OUTPUT_FILE' . outputFile .
+		});
+		inputFiles: inputFiles;
+		outputFiles: { outputFile };
+		yourself
+]
+
 { #category : #accessing }
 WBTBuildEnvironment >> platform [
 	^ self hostPlatform
@@ -373,6 +421,11 @@ WBTBuildEnvironment >> platform: aPlatform [
 		hostPlatform: aPlatform;
 		buildPlatform: aPlatform;
 		targetPlatform: aPlatform.
+]
+
+{ #category : #'build mode' }
+WBTBuildEnvironment >> setAssertBuildMode [
+	self buildMode: #assert
 ]
 
 { #category : #'build mode' }
@@ -409,6 +462,16 @@ WBTBuildEnvironment >> targetPlatform: anObject [
 { #category : #accessing }
 WBTBuildEnvironment >> targetPlatformVariableEnvironment [
 	^ targetPlatformVariableEnvironment ifNil: [ targetPlatformVariableEnvironment := targetPlatform variableEnvironment ]
+]
+
+{ #category : #'as yet unclassified' }
+WBTBuildEnvironment >> validBuildBundleDirectory [
+	^ buildBundleDirectory ifNil: [ self validBuildModeDirectory / 'bundle' ]
+]
+
+{ #category : #'as yet unclassified' }
+WBTBuildEnvironment >> validBuildBundleTempDirectory [
+	^ buildBundleTempDirectory ifNil: [ self validBuildModeDirectory / 'bundle-temp' ]
 ]
 
 { #category : #'as yet unclassified' }

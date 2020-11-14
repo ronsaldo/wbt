@@ -33,6 +33,16 @@ String >> wbtSolveLinkLibrariesInPackage: targetPackage [
 ]
 
 { #category : #'*WBT-Core' }
+String >> wbtSolveMainElementInPackage: targetPackage [
+	^ targetPackage getMainTargetNamed: self ifAbsent: [ self error: 'Failed to solve' ]
+]
+
+{ #category : #'*WBT-Core' }
+String >> wbtSubstituteVariables: variables [
+	^ self wbtSubstituteVariablesWith: [ :varName | (variables at: varName ifAbsent: [ nil ]) asWBTVarSubstitution ]
+]
+
+{ #category : #'*WBT-Core' }
 String >> wbtSubstituteVariablesWith: aSubstitutionBlock [
 	| regex shouldContinue result |
 	regex := '\$\(\w*\)' asRegex.

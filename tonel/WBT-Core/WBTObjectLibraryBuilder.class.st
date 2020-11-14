@@ -5,7 +5,7 @@ Class {
 }
 
 { #category : #'as yet unclassified' }
-WBTObjectLibraryBuilder >> createModuleNamed: moduleName [
+WBTObjectLibraryBuilder >> createTargetNamed: moduleName [
 	^ WBTObjectLibraryTarget new
 		name: moduleName;
 		yourself

@@ -8,11 +8,6 @@ Class {
 }
 
 { #category : #accessing }
-WBTPackageElementTarget >> buildEnvironment [
-	^ package buildEnvironment
-]
-
-{ #category : #accessing }
 WBTPackageElementTarget >> package [
 	^ package
 ]

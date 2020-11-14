@@ -5,29 +5,19 @@ Class {
 }
 
 { #category : #'as yet unclassified' }
-WBTBatchCompilationBasedLanguage >> createBuildActionForDynamicLibrary: staticLibrary [
-	^ staticLibrary
-		addCommandLineCommandBuildAction: self linkDynamicLibraryCommand
-			inputFiles: staticLibrary allObjectFiles outputFile: staticLibrary outputFileReference
+WBTBatchCompilationBasedLanguage >> createBuildActionForDynamicLibrary: dynamicLibrary [
+	^ dynamicLibrary platform toolchain addBuildActionsForLinkingDynamicLibrary: dynamicLibrary withLanguage: self
 ]
 
 { #category : #'as yet unclassified' }
 WBTBatchCompilationBasedLanguage >> createBuildActionForExecutableProgram: executableProgram [
-	| toolchain |
-	toolchain := executableProgram platform toolchain.
-	^ executableProgram
-		addCommandLineCommandBuildAction: self linkExecutableCommand
-			inputFiles: executableProgram allObjectFiles outputFile: executableProgram outputFileReference
-			variables: {
-				#WBT_LINK_LIBRARIES . [toolchain formatLinkerArgumentsForLibrariesDirectories: executableProgram allLinkLibrariesDirectories libraries: executableProgram allLinkLibraries extraArguments: executableProgram allLinkerArguments].
-			}
+	^ executableProgram platform toolchain addBuildActionsForLinkingExecutableProgram: executableProgram withLanguage: self
+
 ]
 
 { #category : #'as yet unclassified' }
 WBTBatchCompilationBasedLanguage >> createBuildActionForStaticLibrary: staticLibrary [
-	^ staticLibrary
-		addCommandLineCommandBuildAction: self linkStaticLibraryCommand
-			inputFiles: staticLibrary allObjectFiles outputFile: staticLibrary outputFileReference
+	^ staticLibrary platform toolchain addBuildActionsForLinkingStaticLibrary: staticLibrary withLanguage: self
 ]
 
 { #category : #'as yet unclassified' }

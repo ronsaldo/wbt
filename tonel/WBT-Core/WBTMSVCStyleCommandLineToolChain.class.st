@@ -80,8 +80,8 @@ WBTMSVCStyleCommandLineToolChain >> link: anObject [
 { #category : #initialization }
 WBTMSVCStyleCommandLineToolChain >> setForClangCL [
 	self setForWindowsCommon.
-	cl := 'clang-cl.exe'.
-	link := 'lld-link.exe'.
+	cl := self class clangCLProgram.
+	link := self class lldLinkProgram.
 ]
 
 { #category : #initialization }
@@ -106,25 +106,25 @@ WBTMSVCStyleCommandLineToolChain >> substitutionVariables [
 
 		#WBT_LINK_RUNTIME_LIBRARIES . '$(WBT_C_RUNTIME_LIBRARY)'.
 
-		#WBT_C_DEBUG_FLAGS . '/Zi'.
-		#WBT_C_MINSIZE_FLAGS . '/O1'.
-		#WBT_C_RELWITHDEBINFO_FLAGS . '/Zi /O2'.
-		#WBT_C_RELEASE_FLAGS . '/O2'.
-		#WBT_C_ACTIVE_FLAGS . '$(WBT_C_FLAGS) $(WBT_C_$(WBT_BUILD_TYPE)_FLAGS) $(WBT_C_RUNTIME_FLAGS)'.
-				
-		#WBT_C_COMPILER . [ self vcBuildEnvironmentSetupPrefix , self cl].
-		#WBT_C_COMPILE_OBJECT . '$(WBT_C_COMPILER) $(WBT_C_ACTIVE_FLAGS)  $(WBT_C_INCLUDE_DIRECTORIES_FLAGS) /Fo$(WBT_OUTPUT_FILE) /c $(WBT_INPUT_FILES) $(WBT_C_FLAGS)'.
-
+		#WBT_C_FLAGS . '/Zi'.
 		#WBT_CXX_FLAGS . '/EHsc'.
 
+		#WBT_C_DEBUG_FLAGS . '/Zi'.
 		#WBT_CXX_DEBUG_FLAGS . '/Zi'.
+		#WBT_C_MINSIZE_FLAGS . '/O1'.
 		#WBT_CXX_MINSIZE_FLAGS . '/O1'.
+		#WBT_C_RELWITHDEBINFO_FLAGS . '/Zi /O2'.
 		#WBT_CXX_RELWITHDEBINFO_FLAGS . '/Zi /O2'.
+		#WBT_C_RELEASE_FLAGS . '/O2'.
 		#WBT_CXX_RELEASE_FLAGS . '/O2'.
 
-		#WBT_CXX_ACTIVE_FLAGS . '$(WBT_CXX_FLAGS) $(WBT_CXX_$(WBT_BUILD_TYPE)_FLAGS) $(WBT_C_RUNTIME_FLAGS)'.
+		#WBT_C_ACTIVE_FLAGS . '$(WBT_C_FLAGS) $(WBT_C_$(WBT_BUILD_MODE)_FLAGS) $(WBT_C_RUNTIME_FLAGS)'.
+		#WBT_CXX_ACTIVE_FLAGS . '$(WBT_CXX_FLAGS) $(WBT_CXX_$(WBT_BUILD_MODE)_FLAGS) $(WBT_C_RUNTIME_FLAGS)'.
 
+		#WBT_C_COMPILER . [ self vcBuildEnvironmentSetupPrefix , self cl].
 		#WBT_CXX_COMPILER . [self vcBuildEnvironmentSetupPrefix , self cl].
+
+		#WBT_C_COMPILE_OBJECT . '$(WBT_C_COMPILER) $(WBT_C_ACTIVE_FLAGS)  $(WBT_C_INCLUDE_DIRECTORIES_FLAGS) /Fo$(WBT_OUTPUT_FILE) /c $(WBT_INPUT_FILES) $(WBT_C_FLAGS)'.
 		#WBT_CXX_COMPILE_OBJECT . '$(WBT_CXX_COMPILER) $(WBT_CXX_ACTIVE_FLAGS) $(WBT_C_INCLUDE_DIRECTORIES_FLAGS) /Fo$(WBT_OUTPUT_FILE) /c $(WBT_INPUT_FILES) $(WBT_CXX_FLAGS)'.
 
 		#WBT_STATIC_LINKER . [self vcBuildEnvironmentSetupPrefix , self lib ].

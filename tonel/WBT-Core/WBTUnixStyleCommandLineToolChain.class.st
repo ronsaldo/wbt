@@ -89,8 +89,9 @@ WBTUnixStyleCommandLineToolChain >> rpathLocalLinkerArgument: anObject [
 { #category : #initialization }
 WBTUnixStyleCommandLineToolChain >> setForClang [
 	self setForUnixCommon.
-	cc := 'clang'.
-	cxx := 'clang++'
+	cc := self class clangProgram.
+	cxx := self class clangppProgram.
+	ld := self class lldProgram.
 ]
 
 { #category : #initialization }
@@ -116,32 +117,41 @@ WBTUnixStyleCommandLineToolChain >> setForWindowsClang [
 { #category : #'as yet unclassified' }
 WBTUnixStyleCommandLineToolChain >> substitutionVariables [
 	^ super substitutionVariables , {
+		#WBT_C_FLAGS . '-Wall -Wextra -fdata-sections -ffunction-sections'.
+		#WBT_CXX_FLAGS . '-Wall -Wextra -fdata-sections -ffunction-sections'.
+
 		#WBT_C_DEBUG_FLAGS . '-g'.
+		#WBT_CXX_DEBUG_FLAGS . '-g'.
+		#WBT_C_ASSERT_FLAGS . '-g -O2'.
+		#WBT_CXX_ASSERT_FLAGS . '-g -O2'.
 		#WBT_C_MINSIZE_FLAGS . '-Os'.
+		#WBT_CXX_MINSIZE_FLAGS . '-Os'.
 		#WBT_C_RELWITHDEBINFO_FLAGS . '-g -O2'.
+		#WBT_CXX_RELWITHDEBINFO_FLAGS . '-g -O2'.
 		#WBT_C_RELEASE_FLAGS . '-O2'.
-		
+		#WBT_CXX_RELEASE_FLAGS . '-O2'.
+
 		#WBT_C_PIC_YES_FLAG . '-fPIC'.
 		#WBT_CXX_PIC_YES_FLAG . '-fPIC'.
 
 		#WBT_C_TARGET_PIC_FLAG . '$(WBT_C_PIC_$(WBT_POSITION_INDEPENDENT_CODE_ENABLED)_FLAG)'.
 		#WBT_CXX_TARGET_PIC_FLAG . '$(WBT_CXX_PIC_$(WBT_POSITION_INDEPENDENT_CODE_ENABLED)_FLAG)'.
+
+		#WBT_C_ACTIVE_FLAGS . '$(WBT_C_FLAGS) $(WBT_C_$(WBT_BUILD_MODE)_FLAGS) $(WBT_C_TARGET_PIC_FLAG)  $(WBT_C_INCLUDE_DIRECTORIES_FLAGS)'.
+		#WBT_CXX_ACTIVE_FLAGS . '$(WBT_CXX_FLAGS) $(WBT_CXX_$(WBT_BUILD_MODE)_FLAGS) $(WBT_CXX_TARGET_PIC_FLAG) $(WBT_CXX_INCLUDE_DIRECTORIES_FLAGS)'.
 	
 		#WBT_C_COMPILER . [self cc].
-		#WBT_C_COMPILE_OBJECT . '$(WBT_C_COMPILER) $(WBT_C_FLAGS) $(WBT_C_$(WBT_BUILD_TYPE)_FLAGS) $(WBT_C_TARGET_PIC_FLAG)  $(WBT_C_INCLUDE_DIRECTORIES_FLAGS) -c -o $(WBT_OUTPUT_FILE) $(WBT_INPUT_FILES)'.
+		#WBT_CXX_COMPILER . [self cxx].
+
+		#WBT_C_COMPILE_OBJECT . '$(WBT_C_COMPILER) $(WBT_C_ACTIVE_FLAGS) -c -o $(WBT_OUTPUT_FILE) $(WBT_INPUT_FILES)'.
+		#WBT_CXX_COMPILE_OBJECT . '$(WBT_CXX_COMPILER) $(WBT_CXX_ACTIVE_FLAGS) -c -o $(WBT_OUTPUT_FILE) $(WBT_INPUT_FILES)'.
 
 		#WBT_C_LINKER . [self ld].
-		#WBT_C_LINK_EXECUTABLE . '$(WBT_C_COMPILER) $(WBT_EXECUTABLE_LINKER_FLAGS) -o $(WBT_OUTPUT_FILE) $(WBT_INPUT_FILES) $(WBT_LINK_LIBRARIES)'.
-
-		#WBT_CXX_DEBUG_FLAGS . '-g'.
-		#WBT_CXX_MINSIZE_FLAGS . '-Os'.
-		#WBT_CXX_RELWITHDEBINFO_FLAGS . '-g -O2'.
-		#WBT_CXX_RELEASE_FLAGS . '-O2'.
-
-		#WBT_CXX_COMPILER . [self cxx].
-		#WBT_CXX_COMPILE_OBJECT . '$(WBT_CXX_COMPILER) $(WBT_CXX_FLAGS) $(WBT_CXX_$(WBT_BUILD_TYPE)_FLAGS) $(WBT_CXX_TARGET_PIC_FLAG) $(WBT_CXX_INCLUDE_DIRECTORIES_FLAGS) -c -o $(WBT_OUTPUT_FILE) $(WBT_INPUT_FILES)'.
-
 		#WBT_CXX_LINKER . [self ld].
+
+		#WBT_EXECUTABLE_LINKER_FLAGS . '-Wl,--gc-sections'.
+
+		#WBT_C_LINK_EXECUTABLE . '$(WBT_C_COMPILER) $(WBT_EXECUTABLE_LINKER_FLAGS) -o $(WBT_OUTPUT_FILE) $(WBT_INPUT_FILES) $(WBT_LINK_LIBRARIES)'.
 		#WBT_CXX_LINK_EXECUTABLE . '$(WBT_CXX_COMPILER) $(WBT_EXECUTABLE_LINKER_FLAGS) -o $(WBT_OUTPUT_FILE) $(WBT_INPUT_FILES) $(WBT_LINK_LIBRARIES)'.
 
 		#WBT_STATIC_LINKER . [self ar].
@@ -153,9 +163,5 @@ WBTUnixStyleCommandLineToolChain >> substitutionVariables [
 		#WBT_LINK_DYNAMIC_LIBRARY . '$(WBT_C_COMPILER) $(WBT_DYNAMIC_LIBRARY_LINKER_FLAGS) -shared -o $(WBT_OUTPUT_FILE) $(WBT_INPUT_FILES) $(WBT_LINK_LIBRARIES)'.
 		#WBT_C_LINK_DYNAMIC_LIBRARY . '$(WBT_LINK_DYNAMIC_LIBRARY)'.
 		#WBT_CXX_LINK_DYNAMIC_LIBRARY . '$(WBT_CXX_COMPILER) $(WBT_DYNAMIC_LIBRARY_LINKER_FLAGS) -shared -o $(WBT_OUTPUT_FILE) $(WBT_INPUT_FILES) $(WBT_LINK_LIBRARIES)'.
-
-		#WBT_C_FLAGS . '-Wall -Wextra -fdata-sections -ffunction-sections'.
-		#WBT_CXX_FLAGS . '-Wall -Wextra -fdata-sections -ffunction-sections'.
-		#WBT_EXECUTABLE_LINKER_FLAGS . '-Wl,--gc-sections'.
 	 }
 ]

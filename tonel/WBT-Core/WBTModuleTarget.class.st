@@ -1,8 +1,7 @@
 Class {
 	#name : #WBTModuleTarget,
-	#superclass : #WBTPackageElementTarget,
+	#superclass : #WBTMainElementTarget,
 	#instVars : [
-		'name',
 		'sources',
 		'intermediateObjectFiles',
 		'linkLibrariesFolders',
@@ -15,10 +14,18 @@ Class {
 		'indirectLinkerArguments',
 		'allLinkerArguments',
 		'allLinkLibraries',
-		'allObjectFiles'
+		'allObjectFiles',
+		'indirectResources',
+		'resources',
+		'allResources'
 	],
 	#category : #'WBT-Core-Targets'
 }
+
+{ #category : #adding }
+WBTModuleTarget >> addEnsureOutputDirectoryCreationBuildAction [
+	^ self addDirectoryCreationBuildAction: self outputFileReference parent
+]
 
 { #category : #adding }
 WBTModuleTarget >> addIndirectLinkLibraries: libraries [
@@ -41,6 +48,16 @@ WBTModuleTarget >> addIndirectLinkerArgument: argument [
 WBTModuleTarget >> addIndirectLinkerArguments: arguments [
 	self assert: allLinkerArguments isNil.
 	indirectLinkerArguments addAll: arguments
+]
+
+{ #category : #adding }
+WBTModuleTarget >> addIndirectResource: newResource [
+	indirectResources add: newResource
+]
+
+{ #category : #adding }
+WBTModuleTarget >> addIndirectResources: newResources [
+	newResources do: [ :each | self addIndirectResource: each ]
 ]
 
 { #category : #adding }
@@ -85,6 +102,16 @@ WBTModuleTarget >> addLinkerArguments: arguments [
 ]
 
 { #category : #adding }
+WBTModuleTarget >> addResource: newResource [
+	resources add: newResource
+]
+
+{ #category : #adding }
+WBTModuleTarget >> addResources: newResources [
+	resources do: [ :each | self addResource: each ]
+]
+
+{ #category : #adding }
 WBTModuleTarget >> addSource: aSourceFile [
 	self package addElement: aSourceFile.
 	sources add: aSourceFile.
@@ -116,6 +143,20 @@ WBTModuleTarget >> allObjectFiles [
 	^ allObjectFiles ifNil: [allObjectFiles := self buildTargetDependencies select: [ :each | each isObjectFile ] ]
 ]
 
+{ #category : #'as yet unclassified' }
+WBTModuleTarget >> allResources [
+	^ allResources ifNil: [allResources := resources , indirectResources ]
+]
+
+{ #category : #'as yet unclassified' }
+WBTModuleTarget >> allResourcesRecursively [
+	| result visited |
+	result := OrderedCollection new.
+	visited := Set new.
+	self gatherAllResourceRecursivelyInto: result visited: visited.
+	^ result
+]
+
 { #category : #converting }
 WBTModuleTarget >> asFileReference [
 	^ outputFileReference
@@ -131,7 +172,9 @@ WBTModuleTarget >> asWBTVarSubstitution [
 WBTModuleTarget >> buildTargetDependencies [
 	^ buildTargetDependencies ifNil: [
 		self computeIndirectExtraDependenciesForModuleTarget.
-		buildTargetDependencies := sources , intermediateObjectFiles , (self allLinkLibraries reject: [:each | each isImportedLibrary])
+		buildTargetDependencies := sources , intermediateObjectFiles ,
+		self allLinkLibraries ,
+		self allResources
 	]
 ]
 
@@ -141,16 +184,33 @@ WBTModuleTarget >> computeIndirectExtraDependenciesForModuleTarget [
 	intermediateObjectFiles do: [ :each | each computeIndirectExtraDependenciesForModuleTarget ].
 ]
 
+{ #category : #'as yet unclassified' }
+WBTModuleTarget >> gatherAllResourceRecursivelyInto: result visited: visited [
+	(visited includes: self) ifTrue: [ ^ self ].
+	self allResources do: [ :each |
+		(visited includes: each) ifFalse: [
+			result add: each.
+			visited add: each
+		]
+	].
+
+	self allLinkLibraries do: [ :each |
+		each gatherAllResourceRecursivelyInto: result visited: visited
+	]
+]
+
 { #category : #initialization }
 WBTModuleTarget >> initialize [
 	super initialize.
 	sources := OrderedCollection new.
 	intermediateObjectFiles := OrderedCollection new.
+	resources := OrderedCollection new.
 	linkLibrariesFolders := OrderedCollection new.
 	linkLibraries := OrderedCollection new.
 	linkerArguments := OrderedCollection new.
 	indirectLinkLibraries := OrderedCollection new.
 	indirectLinkerArguments := OrderedCollection new.
+	indirectResources := OrderedCollection new.
 
 ]
 
@@ -162,16 +222,6 @@ WBTModuleTarget >> intermediateObjectFiles [
 { #category : #testing }
 WBTModuleTarget >> isModuleTarget [
 	^ true
-]
-
-{ #category : #accessing }
-WBTModuleTarget >> name [
-	^ name
-]
-
-{ #category : #accessing }
-WBTModuleTarget >> name: anObject [
-	name := anObject
 ]
 
 { #category : #'as yet unclassified' }
@@ -228,4 +278,9 @@ WBTModuleTarget >> validLinkerLanguage [
 	].
 
 	^ linkerLanguage
+]
+
+{ #category : #'as yet unclassified' }
+WBTModuleTarget >> wbtSolveMainElementInPackage: targetPackage [
+	^ self
 ]

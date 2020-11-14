@@ -27,7 +27,7 @@ WBTPackage >> addElement: anElement [
 	self assert: anElement package isNil.
 	anElement package: self.
 	elements add: anElement.
-	anElement isModuleTarget ifTrue: [
+	anElement isMainElementTarget ifTrue: [
 		mainElements add: anElement
 	].
 	^ anElement
@@ -80,6 +80,16 @@ WBTPackage >> exportedLibraries [
 { #category : #accessing }
 WBTPackage >> exportedLibrariesLinkerArguments [
 	^ buildEnvironment platform toolchain formatLinkerArgumentsForLinkingLibraries: self exportedLibraries
+]
+
+{ #category : #'as yet unclassified' }
+WBTPackage >> generateTargetFile: fileName inputFiles: inputFiles withCommand: compilationCommand [
+	^ self addElement: (self buildEnvironment generateTargetFile: fileName inputFiles: inputFiles withCommand: compilationCommand)
+]
+
+{ #category : #'as yet unclassified' }
+WBTPackage >> generateTargetFile: fileName inputFiles: inputFiles withCommand: compilationCommand variables: variables [
+	^ self addElement: (self buildEnvironment generateTargetFile: fileName inputFiles: inputFiles withCommand: compilationCommand  variables: variables)
 ]
 
 { #category : #'as yet unclassified' }
@@ -229,17 +239,9 @@ WBTPackage >> newCommandLineCommandBuildAction: command inputFiles: inputFiles o
 	^ self newCommandLineCommandBuildAction: command inputFiles: inputFiles outputFile: outputFile variables: #()
 ]
 
-{ #category : #'instance creation' }
-WBTPackage >> newCommandLineCommandBuildAction: command inputFiles: inputFiles outputFile: outputFile variables: variables [
-	^ WBTCommandLineCommandBuildAction new
-		command: command;
-		variableEnvironment: (WBTVariableSubstitutionEnvironment parent: self hostPlatformVariableEnvironment withVariables: variables , {
-			'WBT_INPUT_FILES' . inputFiles .
-			'WBT_OUTPUT_FILE' . outputFile .
-		});
-		inputFiles: inputFiles;
-		outputFiles: { outputFile };
-		yourself
+{ #category : #accessing }
+WBTPackage >> package [
+	^ self
 ]
 
 { #category : #'as yet unclassified' }

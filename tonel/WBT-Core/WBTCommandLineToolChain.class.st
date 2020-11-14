@@ -10,6 +10,36 @@ Class {
 	#category : #'WBT-Core-Environment'
 }
 
+{ #category : #adding }
+WBTCommandLineToolChain >> addBuildActionsForLinkingDynamicLibrary: dynamicLibrary withLanguage: language [
+	^ dynamicLibrary
+		addEnsureOutputDirectoryCreationBuildAction;
+		addCommandLineCommandBuildAction: language linkExecutableCommand
+			inputFiles: dynamicLibrary allObjectFiles outputFile: dynamicLibrary outputFileReference
+			variables: {
+				#WBT_LINK_LIBRARIES . [self formatLinkerArgumentsForLibrariesDirectories: dynamicLibrary allLinkLibrariesDirectories libraries: dynamicLibrary allLinkLibraries extraArguments: dynamicLibrary allLinkerArguments].
+			}
+]
+
+{ #category : #adding }
+WBTCommandLineToolChain >> addBuildActionsForLinkingExecutableProgram: executableProgram withLanguage: language [
+	^ executableProgram
+		addEnsureOutputDirectoryCreationBuildAction;
+		addCommandLineCommandBuildAction: language linkExecutableCommand
+			inputFiles: executableProgram allObjectFiles outputFile: executableProgram outputFileReference
+			variables: {
+				#WBT_LINK_LIBRARIES . [self formatLinkerArgumentsForLibrariesDirectories: executableProgram allLinkLibrariesDirectories libraries: executableProgram allLinkLibraries extraArguments: executableProgram allLinkerArguments].
+			}
+]
+
+{ #category : #adding }
+WBTCommandLineToolChain >> addBuildActionsForLinkingStaticLibrary: staticLibrary withLanguage: language [
+	^ staticLibrary
+		addEnsureOutputDirectoryCreationBuildAction;
+		addCommandLineCommandBuildAction: language linkStaticLibraryCommand
+			inputFiles: staticLibrary allObjectFiles outputFile: staticLibrary outputFileReference
+]
+
 { #category : #'as yet unclassified' }
 WBTCommandLineToolChain >> formatIncludeDirectoryArgument: includeDirectory [
 	^ includeDirectoryArgumentPrefix , includeDirectory asWBTVarSubstitution
@@ -126,19 +156,28 @@ WBTCommandLineToolChain >> isCommandLineToolChain [
 
 { #category : #'as yet unclassified' }
 WBTCommandLineToolChain >> llvmClangCompilationCommandsFor: aPlatform [
+	| targetFlags |
+	targetFlags := OrderedCollection new.
+	aPlatform triple ifNotNil: [ :triple | targetFlags add: '-target ' , triple ].
+	aPlatform cpu ifNotNil: [ :cpu | targetFlags add: '-mcpu=' , cpu ].
+	aPlatform fpu ifNotNil: [ :fpu | targetFlags add: '-mfpu=' , fpu ].
+	aPlatform floatAbiName ifNotNil: [ :floatAbiName | targetFlags add: '-mfloat-abi=' , floatAbiName ].
+	aPlatform floatingPointModel ifNotNil: [ :floatingPointModel | targetFlags add: '-ffp-model=' , floatingPointModel ].
+	
 	^ {
 		"TODO: Allow disabling these flags."
 		#WBT_LLVM_CLANG_FLAGS . '-fdata-sections -ffunction-sections'.
 
 		#WBT_LLVM_CLANG_DEBUG_FLAGS . ''.
 		#WBT_LLVM_CLANG_MINSIZE_FLAGS . '-Os'.
+		#WBT_LLVM_CLANG_ASSERT_FLAGS . '-O2'.
 		#WBT_LLVM_CLANG_RELWITHDEBINFO_FLAGS . '-O2'.
 		#WBT_LLVM_CLANG_RELEASE_FLAGS . '-O2'.
 
-		#WBT_LLVM_CLANG_TARGET_FLAGS . [#()].
+		#WBT_LLVM_CLANG_TARGET_FLAGS . targetFlags.
 
-		#WBT_LLVM_COMPILE_OBJECT . [self class clangProgram  , ' $(WBT_LLVM_CLANG_TARGET_FLAGS) $(WBT_LLVM_CLANG_FLAGS) $(WBT_LLVM_CLANG_$(WBT_BUILD_TYPE)_FLAGS) -Wno-override-module -c -o $(WBT_OUTPUT_FILE) $(WBT_INPUT_FILES) '].
-		#WBT_LLVM_COMPILE_ASSEMBLY . [self class clangProgram  , ' $(WBT_LLVM_CLANG_TARGET_FLAGS) $(WBT_LLVM_CLANG_FLAGS) $(WBT_LLVM_CLANG_$(WBT_BUILD_TYPE)_FLAGS) -Wno-override-module -S -o $(WBT_OUTPUT_FILE) $(WBT_INPUT_FILES) '].
+		#WBT_LLVM_COMPILE_OBJECT . [self class clangProgram  , ' $(WBT_LLVM_CLANG_TARGET_FLAGS) $(WBT_LLVM_CLANG_FLAGS) $(WBT_LLVM_CLANG_$(WBT_BUILD_MODE)_FLAGS) -Wno-override-module -c -o $(WBT_OUTPUT_FILE) $(WBT_INPUT_FILES) '].
+		#WBT_LLVM_COMPILE_ASSEMBLY . [self class clangProgram  , ' $(WBT_LLVM_CLANG_TARGET_FLAGS) $(WBT_LLVM_CLANG_FLAGS) $(WBT_LLVM_CLANG_$(WBT_BUILD_MODE)_FLAGS) -Wno-override-module -S -o $(WBT_OUTPUT_FILE) $(WBT_INPUT_FILES) '].
 	}
 ]
 
@@ -152,17 +191,26 @@ WBTCommandLineToolChain >> llvmCompilationCommandsFor: aPlatform [
 
 { #category : #'as yet unclassified' }
 WBTCommandLineToolChain >> llvmLLCCompilationCommandsFor: aPlatform [
+	| targetFlags |
+	targetFlags := OrderedCollection new.
+	aPlatform triple ifNotNil: [ :triple | targetFlags add: '-triple ' , triple ].
+	aPlatform cpu ifNotNil: [ :cpu | targetFlags add: '-mcpu=' , cpu ].
+	aPlatform fpu ifNotNil: [ :fpu | targetFlags add: '-mattr=' , fpu ].
+	aPlatform floatAbiName ifNotNil: [ :floatAbiName | targetFlags add: '-mfloat-abi==' , floatAbiName ].
+	aPlatform floatingPointModel ifNotNil: [ :floatingPointModel | self halt ].
+	
 	^ {
 		#WBT_LLVM_LLC_FLAGS . '--data-sections --function-sections'.
 
 		#WBT_LLVM_LLC_DEBUG_FLAGS . ''.
+		#WBT_LLVM_LLC_ASSERT_FLAGS . '-O=2'.
 		#WBT_LLVM_LLC_MINSIZE_FLAGS . '-O=1'.
 		#WBT_LLVM_LLC_RELWITHDEBINFO_FLAGS . '-O=2'.
 		#WBT_LLVM_LLC_RELEASE_FLAGS . '-O=2'.
 
-		#WBT_LLVM_LLC_TARGET_FLAGS . [#()].
+		#WBT_LLVM_LLC_TARGET_FLAGS . targetFlags.
 		
-		#WBT_LLVM_COMPILE_OBJECT . [self class llcProgram  , ' $(WBT_LLVM_LLC_TARGET_FLAGS) $(WBT_LLVM_LLC_FLAGS) $(WBT_LLVM_LLC_$(WBT_BUILD_TYPE)_FLAGS) -filetype=obj -o $(WBT_OUTPUT_FILE) $(WBT_INPUT_FILES) ']
+		#WBT_LLVM_COMPILE_OBJECT . [self class llcProgram  , ' $(WBT_LLVM_LLC_TARGET_FLAGS) $(WBT_LLVM_LLC_FLAGS) $(WBT_LLVM_LLC_$(WBT_BUILD_MODE)_FLAGS) -filetype=obj -o $(WBT_OUTPUT_FILE) $(WBT_INPUT_FILES) ']
 	}
 ]
 

@@ -5,7 +5,7 @@ Class {
 }
 
 { #category : #'as yet unclassified' }
-WBTProgramBuilder >> createModuleNamed: moduleName [
+WBTProgramBuilder >> createTargetNamed: moduleName [
 	^ WBTExecutableProgramTarget new
 		name: moduleName;
 		yourself

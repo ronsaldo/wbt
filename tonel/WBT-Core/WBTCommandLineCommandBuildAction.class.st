@@ -5,6 +5,7 @@ Class {
 		'inputFiles',
 		'outputFiles',
 		'command',
+		'workingDirectory',
 		'variableEnvironment'
 	],
 	#category : #'WBT-Core-Actions'
@@ -43,14 +44,14 @@ WBTCommandLineCommandBuildAction >> execute [
 	self ensureOutputDirectoryExists.
 	formattedCommand := self formattedCommand.
 	self assert: formattedCommand isNotEmpty.
-	^ (self buildEnvironment executeCommandLineCommand: formattedCommand) = 0
+	^ (self buildEnvironment executeCommandLineCommand: formattedCommand inDirectory: self workingDirectory) = 0
 ]
 
 { #category : #formatting }
 WBTCommandLineCommandBuildAction >> formattedCommand [
-	^ command wbtSubstituteVariablesWith: [ :varName |
+	^ (command wbtSubstituteVariablesWith: [ :varName |
 		self variableEnvironment substitutionForVariable: varName
-	]
+	]) withUnixLineEndings copyReplaceAll: String lf with: String space
 ]
 
 { #category : #accessing }
@@ -81,4 +82,18 @@ WBTCommandLineCommandBuildAction >> variableEnvironment [
 { #category : #accessing }
 WBTCommandLineCommandBuildAction >> variableEnvironment: anObject [
 	variableEnvironment := anObject
+]
+
+{ #category : #accessing }
+WBTCommandLineCommandBuildAction >> workingDirectory [
+	^ workingDirectory ifNil: [
+		inputFiles
+			ifEmpty: [ FileSystem workingDirectory ]
+			ifNotEmpty: [ inputFiles first asFileReference parent ]
+		]
+]
+
+{ #category : #accessing }
+WBTCommandLineCommandBuildAction >> workingDirectory: anObject [
+	workingDirectory := anObject
 ]

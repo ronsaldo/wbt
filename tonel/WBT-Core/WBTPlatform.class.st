@@ -25,7 +25,9 @@ Class {
 		'dynamicLibraryImportSuffix',
 		'pluginPrefix',
 		'pluginSuffix',
-		'systemVendor'
+		'systemVendor',
+		'isEmbeddedPAL',
+		'defaultBundleType'
 	],
 	#category : #'WBT-Core-Environment'
 }
@@ -202,6 +204,16 @@ WBTPlatform >> defaultAbiName [
 ]
 
 { #category : #accessing }
+WBTPlatform >> defaultBundleType [
+	^ defaultBundleType ifNil: [ defaultBundleType := WBTBundleTypeZip uniqueInstance ]
+]
+
+{ #category : #accessing }
+WBTPlatform >> defaultBundleType: anObject [
+	defaultBundleType := anObject
+]
+
+{ #category : #accessing }
 WBTPlatform >> defaultVendorName [
 	(architecture isX86 or: [ architecture isX64 ]) ifTrue: [
 		^ #pc
@@ -374,6 +386,21 @@ WBTPlatform >> isBSD [
 	^ name = #bsd
 ]
 
+{ #category : #accessing }
+WBTPlatform >> isEmbeddedPAL [
+	^ isEmbeddedPAL ifNil: [ isEmbeddedPAL := name = #epal ]
+]
+
+{ #category : #accessing }
+WBTPlatform >> isEmbeddedPAL: anObject [
+	isEmbeddedPAL := anObject
+]
+
+{ #category : #testing }
+WBTPlatform >> isFreeBSD [
+	^ name = #freebsd
+]
+
 { #category : #testing }
 WBTPlatform >> isIOS [
 	^ name = #ios
@@ -405,6 +432,16 @@ WBTPlatform >> isNintendoSwitch [
 ]
 
 { #category : #testing }
+WBTPlatform >> isNoOperatingSystem [
+	^ self name = #none
+]
+
+{ #category : #testing }
+WBTPlatform >> isNullOS [
+	^ name = #nullos
+]
+
+{ #category : #testing }
 WBTPlatform >> isOSX [
 	^ name = #osx
 ]
@@ -427,6 +464,11 @@ WBTPlatform >> isUniversalWindowsPlatform [
 { #category : #testing }
 WBTPlatform >> isUnixFamily [
 	^ #(linux bsd) includes: name
+]
+
+{ #category : #testing }
+WBTPlatform >> isWebAssembly [
+	^ name = #wasm
 ]
 
 { #category : #testing }

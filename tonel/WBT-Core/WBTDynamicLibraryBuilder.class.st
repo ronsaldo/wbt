@@ -5,7 +5,7 @@ Class {
 }
 
 { #category : #'as yet unclassified' }
-WBTDynamicLibraryBuilder >> createModuleNamed: moduleName [
+WBTDynamicLibraryBuilder >> createTargetNamed: moduleName [
 	^ WBTDynamicLibraryTarget new
 		name: moduleName;
 		yourself

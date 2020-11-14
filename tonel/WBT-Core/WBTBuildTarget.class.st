@@ -36,6 +36,16 @@ WBTBuildTarget >> addCommandLineCommandBuildAction: command inputFiles: inputFil
 	self addBuildAction: (self package newCommandLineCommandBuildAction: command inputFiles: inputFile outputFile: outputFile variables: variables)
 ]
 
+{ #category : #adding }
+WBTBuildTarget >> addDirectoryCreationBuildAction: directoryFileReference [
+	self addBuildAction: (WBTDirectoryCreationBuildAction new directory: directoryFileReference)
+]
+
+{ #category : #adding }
+WBTBuildTarget >> addLazyBuildActionsWith: aBlock [
+	^ self addBuildAction: (WBTLazyBuildActions new block: aBlock)
+]
+
 { #category : #converting }
 WBTBuildTarget >> asWBTVarSubstitution [
 	self error: 'Invalid target in variable substitution'
@@ -44,6 +54,11 @@ WBTBuildTarget >> asWBTVarSubstitution [
 { #category : #'as yet unclassified' }
 WBTBuildTarget >> buildActions [
 	^ buildActions ifNil: [ buildActions := #() ]
+]
+
+{ #category : #accessing }
+WBTBuildTarget >> buildEnvironment [
+	^ self package buildEnvironment
 ]
 
 { #category : #'as yet unclassified' }
@@ -77,7 +92,7 @@ WBTBuildTarget >> currentVersionTimestamp [
 
 { #category : #'as yet unclassified' }
 WBTBuildTarget >> ensureIsBuilt [
-	self runBuildActions
+	self runBuildActions ifFalse: [ self error: 'Failed to load module that is not completely built'. ]
 ]
 
 { #category : #accessing }
@@ -108,6 +123,11 @@ WBTBuildTarget >> isImportedLibrary [
 
 { #category : #testing }
 WBTBuildTarget >> isLibrary [
+	^ false
+]
+
+{ #category : #testing }
+WBTBuildTarget >> isMainElementTarget [
 	^ false
 ]
 
@@ -146,6 +166,16 @@ WBTBuildTarget >> name [
 	^ self subclassResponsibility
 ]
 
+{ #category : #adding }
+WBTBuildTarget >> newCommandLineCommandBuildAction: command inputFiles: inputFile outputFile: outputFile [
+	^ self package newCommandLineCommandBuildAction: command inputFiles: inputFile outputFile: outputFile
+]
+
+{ #category : #adding }
+WBTBuildTarget >> newCommandLineCommandBuildAction: command inputFiles: inputFile outputFile: outputFile variables: variables [
+	^ self buildEnvironment newCommandLineCommandBuildAction: command inputFiles: inputFile outputFile: outputFile variables: variables
+]
+
 { #category : #accessing }
 WBTBuildTarget >> newestBuildTargetDependenciesTimestamp [
 	^ newestBuildTargetDependenciesTimestamp ifNil: [
@@ -158,6 +188,11 @@ WBTBuildTarget >> newestBuildTargetDependenciesTimestamp [
 	].
 ]
 
+{ #category : #accessing }
+WBTBuildTarget >> package [
+	self subclassResponsibility
+]
+
 { #category : #'as yet unclassified' }
 WBTBuildTarget >> runBuildActions [
 	^ self withUnsatisfiedSortedDependencies allSatisfy: [ :each | each runTargetBuildActions]
@@ -166,8 +201,12 @@ WBTBuildTarget >> runBuildActions [
 { #category : #'as yet unclassified' }
 WBTBuildTarget >> runTargetBuildActions [
 	currentOutputVersionTimestamp := nil.
-	self buildActions do: [ :each | each execute ifFalse: [ ^ false ] ].
-	^ true
+	^ self buildActions allSatisfy: [ :each | each execute ]
+]
+
+{ #category : #'as yet unclassified' }
+WBTBuildTarget >> selectBuildAction [
+	""
 ]
 
 { #category : #accessing }

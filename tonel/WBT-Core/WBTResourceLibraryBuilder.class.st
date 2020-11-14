@@ -1,12 +1,12 @@
 Class {
-	#name : #WBTStaticLibraryBuilder,
+	#name : #WBTResourceLibraryBuilder,
 	#superclass : #WBTLibraryBuilder,
 	#category : #'WBT-Core-Builder'
 }
 
 { #category : #'as yet unclassified' }
-WBTStaticLibraryBuilder >> createTargetNamed: moduleName [
-	^ WBTStaticLibraryTarget new
+WBTResourceLibraryBuilder >> createTargetNamed: moduleName [
+	^ WBTResourceLibraryTarget new
 		name: moduleName;
 		yourself
 ]

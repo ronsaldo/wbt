@@ -25,6 +25,29 @@ WBTScriptEnvironment >> buildEnvironment: anObject [
 ]
 
 { #category : #adding }
+WBTScriptEnvironment >> bundle: bundleName with: aBlock [
+	| builder |
+	builder := WBTBundleBuilder for: self named: bundleName.
+	aBlock value: builder.
+	^ builder finish
+]
+
+{ #category : #adding }
+WBTScriptEnvironment >> bundleWithSource: sourceName [
+	^ self bundleWithSource: sourceName with: [:bundle | ]
+]
+
+{ #category : #adding }
+WBTScriptEnvironment >> bundleWithSource: sourceName with: aBlock [
+	| program |
+	program := self programWithSource: sourceName.
+	^ self bundle: sourceName asFileReference basenameWithoutExtension with: [ :bundle |
+		bundle program: program.
+		aBlock value: bundle
+	]
+]
+
+{ #category : #adding }
 WBTScriptEnvironment >> dynamicLibrary: programName with: aBlock [
 	| builder |
 	builder := WBTDynamicLibraryBuilder for: self named: programName.
@@ -160,6 +183,14 @@ WBTScriptEnvironment >> programWithSource: sourceName [
 	^ self program: sourceName asFileReference basenameWithoutExtension with: [ :prog |
 		prog source: sourceName
 	]
+]
+
+{ #category : #adding }
+WBTScriptEnvironment >> resourceLibrary: programName with: aBlock [
+	| builder |
+	builder := WBTResourceLibraryBuilder for: self named: programName.
+	aBlock value: builder.
+	^ builder finish
 ]
 
 { #category : #adding }
