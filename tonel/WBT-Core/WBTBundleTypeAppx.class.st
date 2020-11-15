@@ -221,7 +221,7 @@ WBTBundleTypeAppx >> generatePackageManifestContentFor: bundleTarget [
 { #category : #'as yet unclassified' }
 WBTBundleTypeAppx >> generatePackageManifestFor: bundleTarget [
 	| manifestFileReference manifestFile |
-	manifestFileReference := bundleTarget buildEnvironment validBuildBundleTempDirectory / bundleTarget name / 'AppxManifest.xml').
+	manifestFileReference := bundleTarget buildEnvironment validBuildBundleTempDirectory / bundleTarget name / 'AppxManifest.xml'.
 	manifestFile := bundleTarget buildEnvironment configurationFileTargetFor: manifestFileReference withContent: (self generatePackageManifestContentFor: bundleTarget) withInternetLineEndings.
 	bundleTarget addDependency: manifestFile.
 	^ manifestFile
