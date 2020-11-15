@@ -193,7 +193,6 @@ WBTCommandLineToolChain >> llvmCompilationCommandsFor: aPlatform [
 WBTCommandLineToolChain >> llvmLLCCompilationCommandsFor: aPlatform [
 	| targetFlags |
 	targetFlags := OrderedCollection new.
-	aPlatform triple ifNotNil: [ :triple | targetFlags add: '-triple ' , triple ].
 	aPlatform cpu ifNotNil: [ :cpu | targetFlags add: '-mcpu=' , cpu ].
 	aPlatform fpu ifNotNil: [ :fpu | targetFlags add: '-mattr=' , fpu ].
 	aPlatform floatAbiName ifNotNil: [ :floatAbiName | targetFlags add: '-mfloat-abi==' , floatAbiName ].
