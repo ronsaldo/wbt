@@ -234,11 +234,6 @@ WBTPackage >> name: anObject [
 	name := anObject
 ]
 
-{ #category : #'instance creation' }
-WBTPackage >> newCommandLineCommandBuildAction: command inputFiles: inputFiles outputFile: outputFile [
-	^ self newCommandLineCommandBuildAction: command inputFiles: inputFiles outputFile: outputFile variables: #()
-]
-
 { #category : #accessing }
 WBTPackage >> package [
 	^ self

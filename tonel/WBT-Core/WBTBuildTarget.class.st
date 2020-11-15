@@ -27,6 +27,16 @@ WBTBuildTarget >> addBuildAction: anAction [
 ]
 
 { #category : #adding }
+WBTBuildTarget >> addCommandLineCommandBuildAction: command [
+	self addCommandLineCommandBuildAction: command inputFiles: #() outputFile: self
+]
+
+{ #category : #adding }
+WBTBuildTarget >> addCommandLineCommandBuildAction: command inputFiles: inputFiles [
+	self addCommandLineCommandBuildAction: command inputFiles: inputFiles outputFile: self
+]
+
+{ #category : #adding }
 WBTBuildTarget >> addCommandLineCommandBuildAction: command inputFiles: inputFile outputFile: outputFile [
 	self addCommandLineCommandBuildAction: command inputFiles: inputFile outputFile: outputFile variables: #()
 ]
@@ -34,6 +44,41 @@ WBTBuildTarget >> addCommandLineCommandBuildAction: command inputFiles: inputFil
 { #category : #adding }
 WBTBuildTarget >> addCommandLineCommandBuildAction: command inputFiles: inputFile outputFile: outputFile variables: variables [
 	self addBuildAction: (self package newCommandLineCommandBuildAction: command inputFiles: inputFile outputFile: outputFile variables: variables)
+]
+
+{ #category : #adding }
+WBTBuildTarget >> addCommandLineCommandBuildAction: command inputFiles: inputFile outputFile: outputFile variables: variables workingDirectory: workingDirectory [
+	self addBuildAction: (self package newCommandLineCommandBuildAction: command inputFiles: inputFile outputFile: outputFile variables: variables workingDirectory: workingDirectory)
+]
+
+{ #category : #adding }
+WBTBuildTarget >> addCommandLineCommandBuildAction: command inputFiles: inputFile outputFile: outputFile workingDirectory: workingDirectory [
+	self addCommandLineCommandBuildAction: command inputFiles: inputFile outputFile: outputFile variables: #() workingDirectory: workingDirectory
+]
+
+{ #category : #adding }
+WBTBuildTarget >> addCommandLineCommandBuildAction: command inputFiles: inputFiles variables: variables [
+	self addCommandLineCommandBuildAction: command inputFiles: inputFiles outputFile: self variables: variables
+]
+
+{ #category : #adding }
+WBTBuildTarget >> addCommandLineCommandBuildAction: command inputFiles: inputFiles variables: variables workingDirectory: workingDirectory [
+	self addCommandLineCommandBuildAction: command inputFiles: inputFiles outputFile: self variables: variables  workingDirectory: workingDirectory
+]
+
+{ #category : #adding }
+WBTBuildTarget >> addCommandLineCommandBuildAction: command variables: variables [
+	self addCommandLineCommandBuildAction: command inputFiles: #() outputFile: self variables: variables
+]
+
+{ #category : #adding }
+WBTBuildTarget >> addCommandLineCommandBuildAction: command variables: variables workingDirectory: workingDirectory [
+	self addCommandLineCommandBuildAction: command inputFiles: #() outputFile: self variables: variables  workingDirectory: workingDirectory
+]
+
+{ #category : #adding }
+WBTBuildTarget >> addCommandLineCommandBuildAction: command workingDirectory: workingDirectory [
+	self addCommandLineCommandBuildAction: command inputFiles: #() outputFile: self workingDirectory: workingDirectory
 ]
 
 { #category : #adding }
@@ -171,14 +216,19 @@ WBTBuildTarget >> name [
 	^ self subclassResponsibility
 ]
 
-{ #category : #adding }
-WBTBuildTarget >> newCommandLineCommandBuildAction: command inputFiles: inputFile outputFile: outputFile [
-	^ self package newCommandLineCommandBuildAction: command inputFiles: inputFile outputFile: outputFile
+{ #category : #'instance creation' }
+WBTBuildTarget >> newCommandLineCommandBuildAction: command inputFiles: inputFiles outputFile: outputFile [
+	^ self newCommandLineCommandBuildAction: command inputFiles: inputFiles outputFile: outputFile variables: #()
 ]
 
 { #category : #adding }
 WBTBuildTarget >> newCommandLineCommandBuildAction: command inputFiles: inputFile outputFile: outputFile variables: variables [
 	^ self buildEnvironment newCommandLineCommandBuildAction: command inputFiles: inputFile outputFile: outputFile variables: variables parentEnvironment: self hostPlatformVariableEnvironment
+]
+
+{ #category : #adding }
+WBTBuildTarget >> newCommandLineCommandBuildAction: command inputFiles: inputFile outputFile: outputFile variables: variables workingDirectory: workingDirectory [
+	^ self buildEnvironment newCommandLineCommandBuildAction: command inputFiles: inputFile outputFile: outputFile variables: variables parentEnvironment: self hostPlatformVariableEnvironment workingDirectory: workingDirectory
 ]
 
 { #category : #accessing }

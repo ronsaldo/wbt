@@ -9,7 +9,11 @@ Class {
 		'vcvarsall',
 		'vcBuildEnvironmentSetupPrefix',
 		'compilerArch',
-		'targetArch'
+		'targetArch',
+		'vcvarsallPlatform',
+		'makepri',
+		'makeappx',
+		'signTool'
 	],
 	#category : #'WBT-Core-Environment'
 }
@@ -77,6 +81,26 @@ WBTMSVCStyleCommandLineToolChain >> link: anObject [
 	link := anObject
 ]
 
+{ #category : #accessing }
+WBTMSVCStyleCommandLineToolChain >> makeappx [
+	^ makeappx
+]
+
+{ #category : #accessing }
+WBTMSVCStyleCommandLineToolChain >> makeappx: anObject [
+	makeappx := anObject
+]
+
+{ #category : #accessing }
+WBTMSVCStyleCommandLineToolChain >> makepri [
+	^ makepri
+]
+
+{ #category : #accessing }
+WBTMSVCStyleCommandLineToolChain >> makepri: anObject [
+	makepri := anObject
+]
+
 { #category : #initialization }
 WBTMSVCStyleCommandLineToolChain >> setForClangCL [
 	self setForWindowsCommon.
@@ -94,19 +118,30 @@ WBTMSVCStyleCommandLineToolChain >> setForMSVC [
 { #category : #initialization }
 WBTMSVCStyleCommandLineToolChain >> setForWindowsCommon [
 	lib := 'lib.exe /nologo'.
+	makepri := 'makepri.exe'.
+	makeappx := 'makeappx.exe'.
+	signTool := 'signtool.exe'.
+]
+
+{ #category : #accessing }
+WBTMSVCStyleCommandLineToolChain >> signTool [
+	^ signTool
+]
+
+{ #category : #accessing }
+WBTMSVCStyleCommandLineToolChain >> signTool: anObject [
+	signTool := anObject
 ]
 
 { #category : #'as yet unclassified' }
 WBTMSVCStyleCommandLineToolChain >> substitutionVariables [
 	^ super substitutionVariables , { 
-		#WBT_C_RUNTIME_FLAGS . '/MD'.
-		#WBT_C_RUNTIME_LIBRARY . 'msvcrt.lib'.
 		#WBT_EXECUTABLE_LINKER_FLAGS . '/opt:ref'.
 		#WBT_DYNAMIC_LIBRARY_LINKER_FLAGS . '/opt:ref'.
 
-		#WBT_LINK_RUNTIME_LIBRARIES . '$(WBT_C_RUNTIME_LIBRARY)'.
+		#WBT_LINK_RUNTIME_LIBRARIES . '$(WBT_APP_CONTAINER_FLAG) $(WBT_C_RUNTIME_LIBRARY)'.
 
-		#WBT_C_FLAGS . '/Zi'.
+		#WBT_C_FLAGS . ''.
 		#WBT_CXX_FLAGS . '/EHsc'.
 
 		#WBT_C_DEBUG_FLAGS . '/Zi'.
@@ -142,19 +177,44 @@ WBTMSVCStyleCommandLineToolChain >> substitutionVariables [
 		#WBT_LINK_DYNAMIC_LIBRARY . '$(WBT_LINKER) /DLL /OUT:$(WBT_OUTPUT_FILE) /DEBUG $(WBT_DYNAMIC_LIBRARY_LINKER_FLAGS) $(WBT_INPUT_FILES) $(WBT_LINK_LIBRARIES) $(WBT_LINK_RUNTIME_LIBRARIES)'.
 		#WBT_C_LINK_DYNAMIC_LIBRARY . '$(WBT_LINK_DYNAMIC_LIBRARY)'.
 		#WBT_CXX_LINK_DYNAMIC_LIBRARY . '$(WBT_LINK_DYNAMIC_LIBRARY)'.
+		
+		#WBT_MAKE_PRI . [self vcBuildEnvironmentSetupPrefix , self makepri].
+		#WBT_MAKE_PRI_CONFIG . '$(WBT_MAKE_PRI) createconfig /o /cf priconfig.xml /dq en-US'.
+		#WBT_MAKE_RESOURCES_PRI . '$(WBT_MAKE_PRI) new /o /pr $(WBT_PACKAGE_FOLDER) /cf $(WBT_INPUT_FILES)' .
+		
+		#WBT_MAKE_APPX . [self vcBuildEnvironmentSetupPrefix , self makeappx].
+		#WBT_MAKE_APPX_PACKAGE . '$(WBT_MAKE_APPX) pack /m $(WBT_INPUT_FILES) /f $(WBT_MAPPINGS_FILE) /p $(WBT_OUTPUT_FILE)'.
+		
+		#WBT_SIGN_TOOL . [ self vcBuildEnvironmentSetupPrefix , self signTool ].
+		#WBT_SIGN_APPX . '$(WBT_SIGN_TOOL) sign /Fd SHA256 /a /f $(WBT_INPUT_FILES) /p "$(WBT_CERT_PASSWORD)" $(WBT_OUTPUT_FILE)'
 	 }
 ]
 
 { #category : #'as yet unclassified' }
 WBTMSVCStyleCommandLineToolChain >> substitutionVariablesForPlatform: aPlatform [
+	| runtimeLibs |
 	targetArch := aPlatform architecture name.
-	^ super substitutionVariablesForPlatform: aPlatform
+	runtimeLibs := { 
+		#WBT_C_RUNTIME_FLAGS . '/MD'.
+		#WBT_C_RUNTIME_LIBRARY . 'msvcrt.lib'.
+	}.
+	aPlatform name = #uwp ifTrue: [
+		runtimeLibs := { 
+			#WBT_C_RUNTIME_FLAGS . '/MD'.
+			#WBT_C_RUNTIME_LIBRARY . 'WindowsApp.lib'.
+			#WBT_APP_CONTAINER_FLAG . '/APPCONTAINER'.
+			#WBT_CXX_FLAGS . '/EHsc /ZW'.
+		}.
+
+		vcvarsallPlatform := 'uwp'.
+	].
+	^ (super substitutionVariablesForPlatform: aPlatform) , runtimeLibs
 ]
 
 { #category : #accessing }
 WBTMSVCStyleCommandLineToolChain >> vcBuildEnvironmentSetupPrefix [
 	^ vcBuildEnvironmentSetupPrefix ifNil: [vcBuildEnvironmentSetupPrefix
-		:= 'call "{1}" {2} > NUL &&' format:  {self vcvarsall . self vcvarsallArch }
+		:= 'call "{1}" {2} {3} > NUL && ' format:  {self vcvarsall . self vcvarsallArch . self vcvarsallPlatform }
 	]
 ]
 
@@ -168,6 +228,16 @@ WBTMSVCStyleCommandLineToolChain >> vcvarsallArch [
 	^ compilerArch = targetArch
 		ifTrue: [ compilerArch ]
 		ifFalse: [ compilerArch , '_' , targetArch ]
+]
+
+{ #category : #accessing }
+WBTMSVCStyleCommandLineToolChain >> vcvarsallPlatform [
+	^ vcvarsallPlatform ifNil: [ vcvarsallPlatform := '' ]
+]
+
+{ #category : #accessing }
+WBTMSVCStyleCommandLineToolChain >> vcvarsallPlatform: aPlatform [
+	vcvarsallPlatform := aPlatform
 ]
 
 { #category : #accessing }

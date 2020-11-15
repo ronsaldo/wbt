@@ -7,6 +7,24 @@ Class {
 	#category : #'WBT-Core-Targets'
 }
 
+{ #category : #converting }
+WBTPackageElementTarget >> asFileReference [
+	self subclassResponsibility
+]
+
+{ #category : #'as yet unclassified' }
+WBTPackageElementTarget >> makeInstallIntoTarget: destFileReference [
+	| destFileTarget |
+	destFileTarget := WBTFileTarget for: destFileReference.
+	destFileTarget
+		addDependency: self;
+		addBuildAction: (WBTInstallFileBuildAction new
+			sourceFileReference: self asFileReference;
+			destFileReference: destFileReference;
+			yourself).
+	^ destFileTarget
+]
+
 { #category : #accessing }
 WBTPackageElementTarget >> package [
 	^ package

@@ -58,7 +58,7 @@ WBTScriptEnvironment >> dynamicLibrary: programName with: aBlock [
 { #category : #'as yet unclassified' }
 WBTScriptEnvironment >> ensureSourceFileExists: sourceFile [
 	(workingDirectory resolve: sourceFile asFileReference) exists ifFalse: [
-		self error: ('Failed to find source file named: {1}' format: sourceFile)
+		self error: ('Failed to find source file named: {1}' format: {sourceFile})
 	]
 ]
 

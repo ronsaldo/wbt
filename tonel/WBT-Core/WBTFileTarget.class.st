@@ -99,19 +99,6 @@ WBTFileTarget >> language: anObject [
 	language := anObject
 ]
 
-{ #category : #'as yet unclassified' }
-WBTFileTarget >> makeInstallIntoTarget: destFileReference [
-	| destFileTarget |
-	destFileTarget := WBTFileTarget for: destFileReference.
-	destFileTarget
-		addDependency: self;
-		addBuildAction: (WBTInstallFileBuildAction new
-			sourceFileReference: fileReference;
-			destFileReference: destFileReference;
-			yourself).
-	^ destFileTarget
-]
-
 { #category : #accessing }
 WBTFileTarget >> name [
 	^ relativeFileReference fullPath fullName

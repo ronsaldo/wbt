@@ -78,6 +78,48 @@ WBTPlatform class >> osx [
 ]
 
 { #category : #'as yet unclassified' }
+WBTPlatform class >> uwpClangCLX64 [
+	^ self new
+		name: #uwp;
+		architecture: WBTArchitecture x64;
+		toolchain: WBTToolChain windowsClangCL;
+		setDefaultOperatingSystemConventions;
+		yourself
+]
+
+{ #category : #'as yet unclassified' }
+WBTPlatform class >> uwpClangCLX86 [
+	^ self new
+		name: #uwp;
+		architecture: WBTArchitecture x86;
+		toolchain: WBTToolChain windowsClangCL;
+		setDefaultOperatingSystemConventions;
+		yourself
+]
+
+{ #category : #'as yet unclassified' }
+WBTPlatform class >> uwpX64 [
+	^ self new
+		name: #uwp;
+		architecture: WBTArchitecture x64;
+		toolchain: WBTToolChain windowsMSVC;
+		setDefaultOperatingSystemConventions;
+		defaultBundleType: WBTBundleTypeAppx uniqueInstance;
+		yourself
+]
+
+{ #category : #'as yet unclassified' }
+WBTPlatform class >> uwpX86 [
+	^ self new
+		name: #uwp;
+		architecture: WBTArchitecture x86;
+		toolchain: WBTToolChain windowsMSVC;
+		setDefaultOperatingSystemConventions;
+		defaultBundleType: WBTBundleTypeAppx uniqueInstance;
+		yourself
+]
+
+{ #category : #'as yet unclassified' }
 WBTPlatform class >> win32 [
 	^ self windowsX86
 ]

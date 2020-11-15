@@ -71,6 +71,16 @@ WBTBuildEnvironment class >> forPlatform: platform [
 ]
 
 { #category : #'as yet unclassified' }
+WBTBuildEnvironment class >> forUWPX64 [
+	^ self forPlatform: WBTPlatform uwpX64
+]
+
+{ #category : #'as yet unclassified' }
+WBTBuildEnvironment class >> forUWPX86 [
+	^ self forPlatform: WBTPlatform uwpX86
+]
+
+{ #category : #'as yet unclassified' }
 WBTBuildEnvironment class >> forWindowsClangCLX64 [
 	^ self forPlatform: WBTPlatform windowsClangCLX64
 ]
@@ -249,6 +259,20 @@ WBTBuildEnvironment >> buildResourcesDirectory: aDirectory [
 ]
 
 { #category : #'as yet unclassified' }
+WBTBuildEnvironment >> configurationFileTargetFor: fileName withContent: content [
+	| fileReference |
+	fileReference := fileName asFileReference.
+	(fileReference exists not or: [ fileReference contents ~= content ]) ifTrue: [
+		fileReference parent ensureCreateDirectory.
+		fileReference writeStreamDo: [ :out |
+			out truncate; nextPutAll: content
+		]
+	].
+
+	^ self makeFileTargetFor: fileReference
+]
+
+{ #category : #'as yet unclassified' }
 WBTBuildEnvironment >> devNullRedirection [
 	^ Smalltalk os isWindows ifFalse: [ ' > /dev/null' ] ifTrue: [ ' > NUL' ]
 ]
@@ -413,6 +437,25 @@ WBTBuildEnvironment >> newCommandLineCommandBuildAction: command inputFiles: inp
 		inputFiles: inputFiles;
 		outputFiles: { outputFile };
 		yourself
+]
+
+{ #category : #'instance creation' }
+WBTBuildEnvironment >> newCommandLineCommandBuildAction: command inputFiles: inputFiles outputFile: outputFile variables: variables parentEnvironment: parentEnvironment workingDirectory: workingDirectory [
+	^ WBTCommandLineCommandBuildAction new
+		command: command;
+		variableEnvironment: (WBTVariableSubstitutionEnvironment parent: parentEnvironment withVariables: variables , {
+			'WBT_INPUT_FILES' . inputFiles .
+			'WBT_OUTPUT_FILE' . outputFile .
+		});
+		inputFiles: inputFiles;
+		outputFiles: { outputFile };
+		workingDirectory: workingDirectory;
+		yourself
+]
+
+{ #category : #'instance creation' }
+WBTBuildEnvironment >> newCommandLineCommandBuildAction: command inputFiles: inputFiles outputFile: outputFile variables: variables workingDirectory: workingDirectory [
+	^ self newCommandLineCommandBuildAction: command inputFiles: inputFiles outputFile: outputFile variables: variables parentEnvironment: self hostPlatformVariableEnvironment workingDirectory: workingDirectory
 ]
 
 { #category : #accessing }

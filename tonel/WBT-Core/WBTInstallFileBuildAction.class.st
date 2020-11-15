@@ -3,7 +3,8 @@ Class {
 	#superclass : #WBTBuildAction,
 	#instVars : [
 		'sourceFileReference',
-		'destFileReference'
+		'destFileReference',
+		'optional'
 	],
 	#category : #'WBT-Core-Actions'
 }
@@ -20,11 +21,21 @@ WBTInstallFileBuildAction >> destFileReference: anObject [
 
 { #category : #execution }
 WBTInstallFileBuildAction >> execute [
-	sourceFileReference exists ifFalse: [ ^ false ].
+	sourceFileReference exists ifFalse: [ ^ self optional ].
 	destFileReference parent ensureCreateDirectory.
 	destFileReference exists ifTrue: [ destFileReference delete ].
 	sourceFileReference copyTo: destFileReference.
 	^ true
+]
+
+{ #category : #accessing }
+WBTInstallFileBuildAction >> optional [
+	^ optional ifNil: [ optional := false ]
+]
+
+{ #category : #accessing }
+WBTInstallFileBuildAction >> optional: aBoolean [
+	optional := aBoolean
 ]
 
 { #category : #accessing }
