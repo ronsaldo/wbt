@@ -28,6 +28,7 @@ WBTCommandLineToolChain >> addBuildActionsForLinkingExecutableProgram: executabl
 		addCommandLineCommandBuildAction: language linkExecutableCommand
 			inputFiles: executableProgram allObjectFiles outputFile: executableProgram outputFileReference
 			variables: {
+				#WBT_WIN32_SUBSYSTEM . [executableProgram win32Subsystem].
 				#WBT_LINK_LIBRARIES . [self formatLinkerArgumentsForLibrariesDirectories: executableProgram allLinkLibrariesDirectories libraries: executableProgram allLinkLibraries extraArguments: executableProgram allLinkerArguments].
 			}
 ]

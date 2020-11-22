@@ -9,3 +9,8 @@ UnixPlatform >> wbtPlatform [
 UnixPlatform >> wbtPlatformWithClang [
 	^ WBTPlatform linuxClang
 ]
+
+{ #category : #'*WBT-Core' }
+UnixPlatform >> wbtPlatformWithLLD [
+	^ WBTPlatform linux
+]

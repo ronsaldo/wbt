@@ -12,7 +12,7 @@ Class {
 
 { #category : #execution }
 WBTNewWindowsSelfSignedCertificateBuildAction >> execute [
-	| script powershellScriptReference command |
+	| script powershellScriptReference command result |
 	script := ('
 $ErrorActionPreference = "Stop"
 
@@ -28,14 +28,16 @@ Export-Certificate -Cert $cert -FilePath $(EXPORTED)
 	#DEST . fileReference .
 	#EXPORTED . fileReference parent / (fileReference basenameWithoutExtension , '.cer')
 })) withInternetLineEndings.
+	fileReference parent ensureCreateDirectory.
 	powershellScriptReference := fileReference parent / (fileReference basename , '.ps1').
 	powershellScriptReference writeStreamDo: [ :out |
 		out truncate; nextPutAll: script
 	].
 
 	command := 'PowerShell.exe -ExecutionPolicy Bypass -File "' , powershellScriptReference asWBTVarSubstitution, '"'.
+	result := (self buildEnvironment executeCommandLineCommand: command) = 0.
 	powershellScriptReference ensureDelete.
-	^ (self buildEnvironment executeCommandLineCommand: command) = 0
+	^ result
 ]
 
 { #category : #accessing }

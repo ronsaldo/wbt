@@ -10,3 +10,23 @@ WBTProgramBuilder >> createTargetNamed: moduleName [
 		name: moduleName;
 		yourself
 ]
+
+{ #category : #initialization }
+WBTProgramBuilder >> setForConsole [
+	self setWin32ConsoleSubsystem
+]
+
+{ #category : #initialization }
+WBTProgramBuilder >> setForGUI [
+	self setWin32WindowsSubsystem
+]
+
+{ #category : #initialization }
+WBTProgramBuilder >> setWin32ConsoleSubsystem [
+	target win32Subsystem: #CONSOLE
+]
+
+{ #category : #initialization }
+WBTProgramBuilder >> setWin32WindowsSubsystem [
+	target win32Subsystem: #WINDOWS
+]

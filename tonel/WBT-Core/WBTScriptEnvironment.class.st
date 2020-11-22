@@ -68,6 +68,30 @@ WBTScriptEnvironment >> evaluateScript: scriptSource [
 ]
 
 { #category : #adding }
+WBTScriptEnvironment >> guiBundleWithSource: sourceName [
+	^ self guiBundleWithSource: sourceName with: [:bundle | ]
+]
+
+{ #category : #adding }
+WBTScriptEnvironment >> guiBundleWithSource: sourceName with: aBlock [
+	| program |
+	program := self guiProgramWithSource: sourceName.
+	^ self bundle: sourceName asFileReference basenameWithoutExtension with: [ :bundle |
+		bundle program: program.
+		aBlock value: bundle
+	]
+]
+
+{ #category : #adding }
+WBTScriptEnvironment >> guiProgramWithSource: sourceName [
+	^ self program: sourceName asFileReference basenameWithoutExtension with: [ :prog |
+		prog
+			source: sourceName;
+			setForGUI
+	]
+]
+
+{ #category : #adding }
 WBTScriptEnvironment >> importLibraries: names fromLibFolder: libraryFolderName [
 	names do: [ :each |
 		self importLibrary: each fromLibFolder: libraryFolderName

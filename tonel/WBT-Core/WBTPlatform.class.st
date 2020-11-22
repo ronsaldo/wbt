@@ -42,6 +42,11 @@ WBTPlatform class >> currentWithClang [
 	^ Smalltalk os current wbtPlatformWithClang
 ]
 
+{ #category : #accessing }
+WBTPlatform class >> currentWithLLD [
+	^ Smalltalk os current wbtPlatformWithLLD
+]
+
 { #category : #'as yet unclassified' }
 WBTPlatform class >> linux [
 	^ self linuxGCC
@@ -81,9 +86,11 @@ WBTPlatform class >> osx [
 WBTPlatform class >> uwpClangCLX64 [
 	^ self new
 		name: #uwp;
+		canonicalName: #windows;
 		architecture: WBTArchitecture x64;
 		toolchain: WBTToolChain windowsClangCL;
 		setDefaultOperatingSystemConventions;
+		defaultBundleType: WBTBundleTypeAppx uniqueInstance;
 		yourself
 ]
 
@@ -91,9 +98,35 @@ WBTPlatform class >> uwpClangCLX64 [
 WBTPlatform class >> uwpClangCLX86 [
 	^ self new
 		name: #uwp;
+		canonicalName: #windows;
 		architecture: WBTArchitecture x86;
 		toolchain: WBTToolChain windowsClangCL;
 		setDefaultOperatingSystemConventions;
+		defaultBundleType: WBTBundleTypeAppx uniqueInstance;
+		yourself
+]
+
+{ #category : #'as yet unclassified' }
+WBTPlatform class >> uwpLLDX64 [
+	^ self new
+		name: #uwp;
+		canonicalName: #windows;
+		architecture: WBTArchitecture x64;
+		toolchain: WBTToolChain windowsMSVC_LLD;
+		setDefaultOperatingSystemConventions;
+		defaultBundleType: WBTBundleTypeAppx uniqueInstance;
+		yourself
+]
+
+{ #category : #'as yet unclassified' }
+WBTPlatform class >> uwpLLDX86 [
+	^ self new
+		name: #uwp;
+		canonicalName: #windows;
+		architecture: WBTArchitecture x86;
+		toolchain: WBTToolChain windowsMSVC_LLD;
+		setDefaultOperatingSystemConventions;
+		defaultBundleType: WBTBundleTypeAppx uniqueInstance;
 		yourself
 ]
 
@@ -101,6 +134,7 @@ WBTPlatform class >> uwpClangCLX86 [
 WBTPlatform class >> uwpX64 [
 	^ self new
 		name: #uwp;
+		canonicalName: #windows;
 		architecture: WBTArchitecture x64;
 		toolchain: WBTToolChain windowsMSVC;
 		setDefaultOperatingSystemConventions;
@@ -112,6 +146,7 @@ WBTPlatform class >> uwpX64 [
 WBTPlatform class >> uwpX86 [
 	^ self new
 		name: #uwp;
+		canonicalName: #windows;
 		architecture: WBTArchitecture x86;
 		toolchain: WBTToolChain windowsMSVC;
 		setDefaultOperatingSystemConventions;
@@ -165,6 +200,26 @@ WBTPlatform class >> windowsClangX86 [
 		name: #windows;
 		architecture: WBTArchitecture x86;
 		toolchain: WBTToolChain windowsClang;
+		setDefaultOperatingSystemConventions;
+		yourself
+]
+
+{ #category : #'as yet unclassified' }
+WBTPlatform class >> windowsLLDX64 [
+	^ self new
+		name: #windows;
+		architecture: WBTArchitecture x64;
+		toolchain: WBTToolChain windowsMSVC_LLD;
+		setDefaultOperatingSystemConventions;
+		yourself
+]
+
+{ #category : #'as yet unclassified' }
+WBTPlatform class >> windowsLLDX86 [
+	^ self new
+		name: #windows;
+		architecture: WBTArchitecture x86;
+		toolchain: WBTToolChain windowsMSVC_LLD;
 		setDefaultOperatingSystemConventions;
 		yourself
 ]

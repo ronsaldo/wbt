@@ -133,6 +133,11 @@ WBTToolChain class >> windowsMSVC [
 	^ WBTMSVCStyleCommandLineToolChain new setForMSVC
 ]
 
+{ #category : #construction }
+WBTToolChain class >> windowsMSVC_LLD [
+	^ WBTMSVCStyleCommandLineToolChain new setForMSVC_LLD
+]
+
 { #category : #adding }
 WBTToolChain >> addBuildActionsForLinkingDynamicLibrary: dynamicLibrary withLanguage: language [
 	self subclassResponsibility

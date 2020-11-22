@@ -33,3 +33,13 @@ WBTExecutableProgramTarget >> programExecutionScript [
 WBTExecutableProgramTarget >> selectBuildAction [
 	self validLinkerLanguage createBuildActionForExecutableProgram: self
 ]
+
+{ #category : #'as yet unclassified' }
+WBTExecutableProgramTarget >> win32Subsystem [
+	^ self propertyAt: #win32Subsystem ifAbsentPut: [ #CONSOLE ]
+]
+
+{ #category : #'as yet unclassified' }
+WBTExecutableProgramTarget >> win32Subsystem: newSubsystemName [
+	^ self propertyAt: #win32Subsystem put: newSubsystemName
+]

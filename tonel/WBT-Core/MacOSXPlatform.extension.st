@@ -9,3 +9,8 @@ MacOSXPlatform >> wbtPlatform [
 MacOSXPlatform >> wbtPlatformWithClang [
 	^ WBTPlatform osx
 ]
+
+{ #category : #'*WBT-Core' }
+MacOSXPlatform >> wbtPlatformWithLLD [
+	^ WBTPlatform osx
+]

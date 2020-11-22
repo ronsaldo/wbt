@@ -13,3 +13,10 @@ WinPlatform >> wbtPlatformWithClang [
 		ifTrue: [ WBTPlatform windowsClangCLX86 ]
 		ifFalse: [ WBTPlatform windowsClangCLX64 ]
 ]
+
+{ #category : #'*WBT-Core' }
+WinPlatform >> wbtPlatformWithLLD [
+	^ Smalltalk wordSize = 4
+		ifTrue: [ WBTPlatform windowsLLDX86 ]
+		ifFalse: [ WBTPlatform windowsLLDX64 ]
+]

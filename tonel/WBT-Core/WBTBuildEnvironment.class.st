@@ -35,6 +35,11 @@ WBTBuildEnvironment class >> forCurrentPlatformWithClang [
 ]
 
 { #category : #'as yet unclassified' }
+WBTBuildEnvironment class >> forCurrentPlatformWithLLD [
+	^ self forPlatform: WBTPlatform currentWithLLD
+]
+
+{ #category : #'as yet unclassified' }
 WBTBuildEnvironment class >> forHostPlatform: hostPlatform [
 	| currentPlatform |
 	currentPlatform := WBTPlatform current.
@@ -68,6 +73,26 @@ WBTBuildEnvironment class >> forOSX [
 { #category : #'as yet unclassified' }
 WBTBuildEnvironment class >> forPlatform: platform [
 	^ self new platform: platform; yourself
+]
+
+{ #category : #'as yet unclassified' }
+WBTBuildEnvironment class >> forUWPClangX64 [
+	^ self forPlatform: WBTPlatform uwpClangCLX64
+]
+
+{ #category : #'as yet unclassified' }
+WBTBuildEnvironment class >> forUWPClangX86 [
+	^ self forPlatform: WBTPlatform uwpClangCLX86
+]
+
+{ #category : #'as yet unclassified' }
+WBTBuildEnvironment class >> forUWPLLDX64 [
+	^ self forPlatform: WBTPlatform uwpLLDX64
+]
+
+{ #category : #'as yet unclassified' }
+WBTBuildEnvironment class >> forUWPLLDX86 [
+	^ self forPlatform: WBTPlatform uwpLLDX86
 ]
 
 { #category : #'as yet unclassified' }

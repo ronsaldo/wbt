@@ -13,7 +13,8 @@ Class {
 		'vcvarsallPlatform',
 		'makepri',
 		'makeappx',
-		'signTool'
+		'signTool',
+		'isClang'
 	],
 	#category : #'WBT-Core-Environment'
 }
@@ -54,6 +55,11 @@ WBTMSVCStyleCommandLineToolChain >> initialize [
 	compilerArch := Smalltalk wordSize = 8
 		ifTrue: [ 'x64' ]
 		ifFalse: [ 'x86' ].
+]
+
+{ #category : #accessing }
+WBTMSVCStyleCommandLineToolChain >> isClang [
+	^ isClang
 ]
 
 { #category : #testing }
@@ -104,6 +110,7 @@ WBTMSVCStyleCommandLineToolChain >> makepri: anObject [
 { #category : #initialization }
 WBTMSVCStyleCommandLineToolChain >> setForClangCL [
 	self setForWindowsCommon.
+	isClang := true.
 	cl := self class clangCLProgram.
 	link := self class lldLinkProgram.
 ]
@@ -111,8 +118,17 @@ WBTMSVCStyleCommandLineToolChain >> setForClangCL [
 { #category : #initialization }
 WBTMSVCStyleCommandLineToolChain >> setForMSVC [
 	self setForWindowsCommon.
+	isClang := false.
 	cl := 'cl.exe /nologo'.
 	link := 'link.exe /nologo'.
+]
+
+{ #category : #initialization }
+WBTMSVCStyleCommandLineToolChain >> setForMSVC_LLD [
+	self setForWindowsCommon.
+	isClang := false.
+	cl := 'cl.exe /nologo'.
+	link := self class lldLinkProgram.
 ]
 
 { #category : #initialization }
@@ -166,7 +182,7 @@ WBTMSVCStyleCommandLineToolChain >> substitutionVariables [
 
 		#WBT_LINKER . [self vcBuildEnvironmentSetupPrefix , self link].
 
-		#WBT_LINK_EXECUTABLE . '$(WBT_LINKER) /OUT:$(WBT_OUTPUT_FILE) /DEBUG  $(WBT_EXECUTABLE_LINKER_FLAGS) $(WBT_INPUT_FILES) $(WBT_LINK_LIBRARIES) $(WBT_LINK_RUNTIME_LIBRARIES)'.
+		#WBT_LINK_EXECUTABLE . '$(WBT_LINKER) /OUT:$(WBT_OUTPUT_FILE) /SUBSYSTEM:$(WBT_WIN32_SUBSYSTEM) /DEBUG  $(WBT_EXECUTABLE_LINKER_FLAGS) $(WBT_INPUT_FILES) $(WBT_LINK_LIBRARIES) $(WBT_LINK_RUNTIME_LIBRARIES)'.
 		#WBT_C_LINK_EXECUTABLE . '$(WBT_LINK_EXECUTABLE)'.
 		#WBT_CXX_LINK_EXECUTABLE . '$(WBT_LINK_EXECUTABLE)'.
 
@@ -183,7 +199,7 @@ WBTMSVCStyleCommandLineToolChain >> substitutionVariables [
 		#WBT_MAKE_RESOURCES_PRI . '$(WBT_MAKE_PRI) new /o /pr $(WBT_PACKAGE_FOLDER) /cf $(WBT_INPUT_FILES)' .
 		
 		#WBT_MAKE_APPX . [self vcBuildEnvironmentSetupPrefix , self makeappx].
-		#WBT_MAKE_APPX_PACKAGE . '$(WBT_MAKE_APPX) pack /m $(WBT_INPUT_FILES) /f $(WBT_MAPPINGS_FILE) /p $(WBT_OUTPUT_FILE)'.
+		#WBT_MAKE_APPX_PACKAGE . '$(WBT_MAKE_APPX) pack /o /m $(WBT_INPUT_FILES) /f $(WBT_MAPPINGS_FILE) /p $(WBT_OUTPUT_FILE)'.
 		
 		#WBT_SIGN_TOOL . [ self vcBuildEnvironmentSetupPrefix , self signTool ].
 		#WBT_SIGN_APPX . '$(WBT_SIGN_TOOL) sign /Fd SHA256 /a /f $(WBT_INPUT_FILES) /p "$(WBT_CERT_PASSWORD)" $(WBT_OUTPUT_FILE)'
@@ -195,15 +211,18 @@ WBTMSVCStyleCommandLineToolChain >> substitutionVariablesForPlatform: aPlatform 
 	| runtimeLibs |
 	targetArch := aPlatform architecture name.
 	runtimeLibs := { 
-		#WBT_C_RUNTIME_FLAGS . '/MD'.
+		#WBT_C_RUNTIME_FLAGS . '/MD /DUNICODE /D_UNICODE'.
 		#WBT_C_RUNTIME_LIBRARY . 'msvcrt.lib'.
 	}.
 	aPlatform name = #uwp ifTrue: [
+		| compilerRequiredFlags |
+		compilerRequiredFlags := self isClang
+			ifTrue: ['-Xclang -std=c++17 -Xclang -Wno-delete-non-virtual-dtor -Xclang -fcoroutines-ts']
+			ifFalse: [ '/std:c++17' ].
 		runtimeLibs := { 
-			#WBT_C_RUNTIME_FLAGS . '/MD'.
-			#WBT_C_RUNTIME_LIBRARY . 'WindowsApp.lib'.
+			#WBT_C_RUNTIME_FLAGS . '/MD /DUNICODE /D_UNICODE /DWIN32_LEAN_AND_MEAN /DWINRT_LEAN_AND_MEAN ' , compilerRequiredFlags.
+			#WBT_C_RUNTIME_LIBRARY . 'WindowsApp.lib msvcrt.lib'.
 			#WBT_APP_CONTAINER_FLAG . '/APPCONTAINER'.
-			#WBT_CXX_FLAGS . '/EHsc /ZW'.
 		}.
 
 		vcvarsallPlatform := 'uwp'.
