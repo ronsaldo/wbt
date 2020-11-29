@@ -17,7 +17,8 @@ WBTBundleTypeAppx >> appxmanifestTemplate [
   <Identity
     Name="$(APP_NAME)"
     Publisher="$(APP_PUBLISHER)"
-    Version="$(APP_VERSION)" />
+    Version="$(APP_VERSION)"
+	ProcessorArchitecture="x64" />
 
   <mp:PhoneIdentity PhoneProductId="$(APP_UUID)" PhonePublisherId="$(APP_PUBLISHER_ID)"/>
 

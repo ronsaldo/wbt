@@ -21,6 +21,11 @@ WBTBundleBuilder >> program: program [
 	target program: program
 ]
 
+{ #category : #initialization }
+WBTBundleBuilder >> setForGUI [
+	target program win32Subsystem: #WINDOWS
+]
+
 { #category : #'as yet unclassified' }
 WBTBundleBuilder >> source: source [
 	^ self program: (script program: target name with: [:prog |
