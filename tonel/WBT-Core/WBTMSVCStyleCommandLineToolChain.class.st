@@ -14,7 +14,8 @@ Class {
 		'makepri',
 		'makeappx',
 		'signTool',
-		'isClang'
+		'isClang',
+		'cmakeSettings'
 	],
 	#category : #'WBT-Core-Environment'
 }
@@ -214,6 +215,10 @@ WBTMSVCStyleCommandLineToolChain >> substitutionVariablesForPlatform: aPlatform 
 		#WBT_C_RUNTIME_FLAGS . '/MD /DUNICODE /D_UNICODE'.
 		#WBT_C_RUNTIME_LIBRARY . 'msvcrt.lib'.
 	}.
+	cmakeSettings := { 
+		#WBT_CMAKE_PLATFORM_SETTINGS . '-G "Visual Studio 16 2019"'
+	}.
+	
 	aPlatform name = #uwp ifTrue: [
 		| compilerRequiredFlags |
 		compilerRequiredFlags := self isClang
@@ -226,8 +231,11 @@ WBTMSVCStyleCommandLineToolChain >> substitutionVariablesForPlatform: aPlatform 
 		}.
 
 		vcvarsallPlatform := 'uwp'.
+		cmakeSettings := { 
+			#WBT_CMAKE_PLATFORM_SETTINGS . '-G "Visual Studio 16 2019" -DCMAKE_SYSTEM_NAME=WindowsStore "-DCMAKE_SYSTEM_VERSION=10.0"'
+		}.
 	].
-	^ (super substitutionVariablesForPlatform: aPlatform) , runtimeLibs
+	^ (super substitutionVariablesForPlatform: aPlatform) , runtimeLibs , cmakeSettings
 ]
 
 { #category : #accessing }

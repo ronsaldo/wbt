@@ -68,6 +68,14 @@ WBTScriptEnvironment >> evaluateScript: scriptSource [
 ]
 
 { #category : #adding }
+WBTScriptEnvironment >> externalLibrary: libraryName buildWith: aBlock [
+	| builder |
+	builder := WBTExternalLibraryBuilder for: self named: libraryName.
+	aBlock value: builder.
+	^ builder module
+]
+
+{ #category : #adding }
 WBTScriptEnvironment >> guiBundleWithSource: sourceName [
 	^ self guiBundleWithSource: sourceName with: [:bundle | ]
 ]

@@ -5,7 +5,8 @@ Class {
 		'importLibraryFolderArgumentPrefix',
 		'importLibraryArgumentPrefix',
 		'importLibraryArgumentSuffix',
-		'includeDirectoryArgumentPrefix'
+		'includeDirectoryArgumentPrefix',
+		'cmake'
 	],
 	#category : #'WBT-Core-Environment'
 }
@@ -39,6 +40,16 @@ WBTCommandLineToolChain >> addBuildActionsForLinkingStaticLibrary: staticLibrary
 		addEnsureOutputDirectoryCreationBuildAction;
 		addCommandLineCommandBuildAction: language linkStaticLibraryCommand
 			inputFiles: staticLibrary allObjectFiles outputFile: staticLibrary outputFileReference
+]
+
+{ #category : #'as yet unclassified' }
+WBTCommandLineToolChain >> cmake [
+	^ cmake ifNil: [ cmake := self class cmakeProgram ]
+]
+
+{ #category : #accessing }
+WBTCommandLineToolChain >> cmake: aProgramName [
+	^ cmake := aProgramName
 ]
 
 { #category : #'as yet unclassified' }
@@ -227,7 +238,11 @@ WBTCommandLineToolChain >> substitutionVariables [
 			collect: [ :each | self formatIncludeDirectoryArgument: each ]
 	].
 
-	^ super substitutionVariables , { 
+	^ super substitutionVariables , {
+		#WBT_CMAKE . [self cmake].
+		#WBT_CMAKE_CONFIGURE . '$(WBT_CMAKE) $(WBT_SOURCE_DIRECTORY) $(WBT_CMAKE_PLATFORM_SETTINGS) -DCMAKE_BUILD_TYPE=$(WBT_CMAKE_BUILD_MODE)'.
+		#WBT_CMAKE_BUILD . '$(WBT_CMAKE) --build $(WBT_BUILD_DIRECTORY) --config $(WBT_CMAKE_BUILD_MODE)'.
+
 		#WBT_C_INCLUDE_DIRECTORIES_FLAGS . includeDirectoriesBlock. 
 		#WBT_CXX_INCLUDE_DIRECTORIES_FLAGS . includeDirectoriesBlock.
 	 }

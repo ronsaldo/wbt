@@ -27,7 +27,9 @@ Class {
 		'pluginSuffix',
 		'systemVendor',
 		'isEmbeddedPAL',
-		'defaultBundleType'
+		'defaultBundleType',
+		'dynamicLibraryDebugSuffix',
+		'dynamicLibraryDebugPrefix'
 	],
 	#category : #'WBT-Core-Environment'
 }
@@ -317,6 +319,28 @@ WBTPlatform >> defaultVendorName [
 	].
 
 	^ #unknown
+]
+
+{ #category : #accessing }
+WBTPlatform >> dynamicLibraryDebugPrefix [
+
+	^ dynamicLibraryDebugPrefix
+]
+
+{ #category : #accessing }
+WBTPlatform >> dynamicLibraryDebugPrefix: anObject [
+
+	dynamicLibraryDebugPrefix := anObject
+]
+
+{ #category : #accessing }
+WBTPlatform >> dynamicLibraryDebugSuffix [
+	^ dynamicLibraryDebugSuffix
+]
+
+{ #category : #accessing }
+WBTPlatform >> dynamicLibraryDebugSuffix: anObject [
+	dynamicLibraryDebugSuffix := anObject
 ]
 
 { #category : #accessing }
@@ -636,6 +660,8 @@ WBTPlatform >> setForOSXConventions [
 	staticLibrarySuffix := '.a'.	
 	dynamicLibraryPrefix := 'lib'.
 	dynamicLibrarySuffix := '.dylib'.
+	dynamicLibraryDebugPrefix := ''.
+	dynamicLibraryDebugSuffix := ''.
 	dynamicLibraryImportPrefix := 'lib'.
 	dynamicLibraryImportSuffix := '.dylib'.
 	pluginPrefix := 'lib'.
@@ -652,6 +678,8 @@ WBTPlatform >> setForUnixConventions [
 	staticLibrarySuffix := '.a'.	
 	dynamicLibraryPrefix := 'lib'.
 	dynamicLibrarySuffix := '.so'.
+	dynamicLibraryDebugPrefix := ''.
+	dynamicLibraryDebugSuffix := ''.
 	dynamicLibraryImportPrefix := 'lib'.
 	dynamicLibraryImportSuffix := '.so'.
 	pluginPrefix := 'lib'.
@@ -668,6 +696,8 @@ WBTPlatform >> setForWindowsConventions [
 	staticLibrarySuffix := '.lib'.	
 	dynamicLibraryPrefix := ''.
 	dynamicLibrarySuffix := '.dll'.
+	dynamicLibraryDebugPrefix := ''.
+	dynamicLibraryDebugSuffix := '.pdb'.
 	dynamicLibraryImportPrefix := ''.
 	dynamicLibraryImportSuffix := '.lib'.
 	pluginPrefix := ''.

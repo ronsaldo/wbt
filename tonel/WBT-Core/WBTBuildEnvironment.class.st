@@ -521,6 +521,26 @@ WBTBuildEnvironment >> setReleaseWithDebugInfoBuildMode [
 	self buildMode: #relWithDebInfo.
 ]
 
+{ #category : #'as yet unclassified' }
+WBTBuildEnvironment >> substitute: string variables: extraSubstitutionVariables [
+	| variableEnvironment |
+	variableEnvironment := (WBTVariableSubstitutionEnvironment parent: self hostPlatformVariableEnvironment)
+		setVariables: extraSubstitutionVariables;
+		yourself.
+
+	^ (string wbtSubstituteVariablesWith: [ :varName |
+		variableEnvironment substitutionForVariable: varName
+	]) withUnixLineEndings
+]
+
+{ #category : #'as yet unclassified' }
+WBTBuildEnvironment >> substituteAndExecuteCommandLineCommand: command inDirectory: workingDirectory variables: extraSubstitutionVariables [
+	| formattedCommand |
+	formattedCommand := (self substitute: command variables: extraSubstitutionVariables) copyReplaceAll: String lf with: String space.
+	self assert: formattedCommand isNotEmpty.
+	^ self executeCommandLineCommand: formattedCommand inDirectory: workingDirectory
+]
+
 { #category : #accessing }
 WBTBuildEnvironment >> targetPlatform [
 	^ targetPlatform

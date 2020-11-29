@@ -13,6 +13,11 @@ Class {
 }
 
 { #category : #accessing }
+WBTImportedLibraryTarget >> binaryInstallTargets [
+	^ binaryInstallTargets
+]
+
+{ #category : #accessing }
 WBTImportedLibraryTarget >> binaryLibFolder [
 	^ binaryLibFolder
 ]
@@ -40,12 +45,14 @@ WBTImportedLibraryTarget >> exportedDynamicLibraries [
 	dynamicLibrarySuffix ifEmpty: [ ^ #() ].
 	
 	binaryLibFolderFileReference := binaryLibFolder asFileReference.
-	^ binaryLibFolderFileReference allChildren select: [ :each | each isDirectory not and: [ each basename includesSubstring: dynamicLibrarySuffix ] ]
+	^ binaryLibFolderFileReference allChildren select: [ :each |
+		each isDirectory not and: [ each basename includesSubstring: dynamicLibrarySuffix ]
+	]
 ]
 
 { #category : #'as yet unclassified' }
 WBTImportedLibraryTarget >> generateBinaryInstallationTarget [
-	| dynamicLibraries outputDirectoryFileRef binaryLibFolderFileRef |
+	| dynamicLibraries outputDirectoryFileRef binaryLibFolderFileRef debugPrefix debugSuffix |
 	dynamicLibraries := self exportedDynamicLibraries.
 	dynamicLibraries ifEmpty: [ ^ self ].
 	
@@ -56,6 +63,28 @@ WBTImportedLibraryTarget >> generateBinaryInstallationTarget [
 		relativeName := each relativeTo: binaryLibFolderFileRef.
 		destFile := outputDirectoryFileRef resolve: relativeName.
 		self buildEnvironment makeOutputInstallFileTargetFrom: each into: destFile
+	].
+
+	debugPrefix := self platform dynamicLibraryDebugPrefix.
+	debugSuffix := self platform dynamicLibraryDebugSuffix.
+	(self buildEnvironment hasBuildModeWithDebugInformation
+	and: [ debugPrefix isNotEmpty or: [ debugSuffix isNotEmpty] ]) ifTrue: [
+		| debugSymbols |
+		debugSymbols := OrderedCollection new.
+		dynamicLibraries do: [ :each |
+			| cleanName debugName debugSymbolsReference|
+			cleanName := (each basename withoutPrefix: self platform dynamicLibraryPrefix) withoutSuffix: self platform dynamicLibrarySuffix.
+			debugName := debugPrefix , cleanName , debugSuffix.
+			debugSymbolsReference := each parent / debugName.
+			debugSymbolsReference exists ifTrue: [
+				| relativeName destFile |
+				relativeName := debugSymbolsReference relativeTo: binaryLibFolderFileRef.
+				destFile := outputDirectoryFileRef resolve: relativeName.
+				debugSymbols add: (self buildEnvironment makeOutputInstallFileTargetFrom: debugSymbolsReference into: destFile)
+			]
+		].
+	
+		binaryInstallTargets := binaryInstallTargets , debugSymbols asArray
 	].
 ]
 

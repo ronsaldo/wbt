@@ -38,6 +38,21 @@ WBTToolChain class >> clangppProgram [
 ]
 
 { #category : #utilities }
+WBTToolChain class >> cmakeProgram [
+	| program |
+	(Smalltalk os isWin32 or: [ Smalltalk os isWin64 ]) ifTrue: [
+		program := 'cmake.exe'.
+		('c:\Program Files\CMake\bin\' , program) asFileReference exists ifTrue: [ 
+			program := '"' , 'c:\Program Files\CMake\bin\' , program , '"'
+		]
+	].
+
+	program ifNil: [ program := 'cmake' ].
+	^ program
+
+]
+
+{ #category : #utilities }
 WBTToolChain class >> computeLLVMProgramNameFor: programName [
 	| program |
 	(Smalltalk os isWin32 or: [ Smalltalk os isWin64 ]) ifTrue: [
@@ -177,5 +192,6 @@ WBTToolChain >> substitutionVariables [
 WBTToolChain >> substitutionVariablesForPlatform: aPlatform [
 	^ self substitutionVariables , { 
 		#WBT_BUILD_MODE . [aPlatform environment buildMode asUppercase].
+		#WBT_CMAKE_BUILD_MODE . [ aPlatform environment buildMode first asUppercase asString, aPlatform environment buildMode allButFirst ]
 	}
 ]

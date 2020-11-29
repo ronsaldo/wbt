@@ -134,6 +134,15 @@ WBTModuleTarget >> allLinkLibrariesDirectories [
 ]
 
 { #category : #'as yet unclassified' }
+WBTModuleTarget >> allLinkLibrariesRecursively [
+	| result visited |
+	result := OrderedCollection new.
+	visited := Set new.
+	self gatherAllLinkLibrariesRecursivelyInto: result visited: visited.
+	^ result
+]
+
+{ #category : #'as yet unclassified' }
 WBTModuleTarget >> allLinkerArguments [
 	^ allLinkerArguments ifNil: [allLinkerArguments := linkerArguments , indirectLinkerArguments ]
 ]
@@ -182,6 +191,19 @@ WBTModuleTarget >> buildTargetDependencies [
 WBTModuleTarget >> computeIndirectExtraDependenciesForModuleTarget [
 	sources do: [ :each | each computeIndirectExtraDependenciesForModuleTarget ].
 	intermediateObjectFiles do: [ :each | each computeIndirectExtraDependenciesForModuleTarget ].
+]
+
+{ #category : #'as yet unclassified' }
+WBTModuleTarget >> gatherAllLinkLibrariesRecursivelyInto: result visited: visited [
+	(visited includes: self) ifTrue: [ ^ self ].
+	visited add: self.
+	self isLibrary ifTrue: [ 
+		result add: self
+	].
+
+	self allLinkLibraries do: [ :each |
+		each gatherAllLinkLibrariesRecursivelyInto: result visited: visited
+	]
 ]
 
 { #category : #'as yet unclassified' }

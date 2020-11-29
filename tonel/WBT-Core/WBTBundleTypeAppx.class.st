@@ -75,12 +75,27 @@ WBTBundleTypeAppx >> copiedResourcesDestinationFor: bundleTarget [
 
 { #category : #'as yet unclassified' }
 WBTBundleTypeAppx >> copyUsedResourcesFor: bundleTarget [
-	| resourcesDestination copiedProgram copiedProgramFiles |
+	| resourcesDestination copiedProgram copiedProgramFiles bundleProgramDirectory |
 	resourcesDestination := self copiedResourcesDestinationFor: bundleTarget.
-	bundleTarget program withSortedDependencies.
 	copiedProgramFiles := OrderedCollection new.
-	copiedProgram := bundleTarget program makeInstallIntoTarget: bundleTarget buildEnvironment validBuildBundleTempDirectory / bundleTarget program name / (bundleTarget program name , '.exe').
+
+	bundleProgramDirectory := bundleTarget buildEnvironment validBuildBundleTempDirectory / bundleTarget program name.
+	copiedProgram := bundleTarget program makeInstallIntoTarget: bundleProgramDirectory / (bundleTarget program name , '.exe').
 	copiedProgramFiles add: copiedProgram.
+	
+	bundleTarget program allLinkLibrariesRecursively do: [ :each |
+		each isDynamicLibrary ifTrue: [
+			self halt
+		].
+	
+		each isImportedLibrary ifTrue: [
+			each binaryInstallTargets do: [ :binaryInstallTarget |
+				| copiedLibrary |
+				copiedLibrary := binaryInstallTarget makeInstallIntoTarget: (bundleProgramDirectory resolve: binaryInstallTarget relativeFileReference).
+				copiedProgramFiles add: copiedLibrary.
+			]
+		]
+	].
 	
 	bundleTarget buildEnvironment hasBuildModeWithDebugInformation ifTrue: [ 
 		| targetPDB targetPDBFileReference |
