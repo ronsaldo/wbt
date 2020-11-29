@@ -77,8 +77,11 @@ WBTBundleTypeAppx >> copiedResourcesDestinationFor: bundleTarget [
 WBTBundleTypeAppx >> copyUsedResourcesFor: bundleTarget [
 	| resourcesDestination copiedProgram copiedProgramFiles bundleProgramDirectory |
 	resourcesDestination := self copiedResourcesDestinationFor: bundleTarget.
-	copiedProgramFiles := OrderedCollection new.
 
+	"Make sure the dependencies are already solved"
+	bundleTarget program withSortedDependencies.
+
+	copiedProgramFiles := OrderedCollection new.
 	bundleProgramDirectory := bundleTarget buildEnvironment validBuildBundleTempDirectory / bundleTarget program name.
 	copiedProgram := bundleTarget program makeInstallIntoTarget: bundleProgramDirectory / (bundleTarget program name , '.exe').
 	copiedProgramFiles add: copiedProgram.
