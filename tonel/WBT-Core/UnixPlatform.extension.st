@@ -12,5 +12,6 @@ UnixPlatform >> wbtPlatformWithClang [
 
 { #category : #'*WBT-Core' }
 UnixPlatform >> wbtPlatformWithLLD [
-	^ WBTPlatform linux
+	"HACK: we require linking with clang to avoid having to support -fPIE."
+	^ WBTPlatform linuxClang
 ]
