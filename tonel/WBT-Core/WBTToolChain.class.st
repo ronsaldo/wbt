@@ -100,7 +100,13 @@ WBTToolChain class >> linuxGCC [
 
 { #category : #utilities }
 WBTToolChain class >> llcProgram [
-	^ OSEnvironment current at: 'LLC' ifAbsent: [ self computeLLVMProgramNameFor: 'llc' ]
+	^ OSEnvironment current at: 'LLC' ifAbsent: [
+		Smalltalk os isLinux ifTrue: [ 
+			self computeLLVMProgramNameFor: 'llc-10'
+		] ifFalse: [
+			self computeLLVMProgramNameFor: 'llc'
+		]
+	]
 ]
 
 { #category : #utilities }
