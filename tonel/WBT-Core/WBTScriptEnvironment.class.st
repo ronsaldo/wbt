@@ -92,10 +92,16 @@ WBTScriptEnvironment >> guiBundleWithSource: sourceName with: aBlock [
 
 { #category : #adding }
 WBTScriptEnvironment >> guiProgramWithSource: sourceName [
+	^ self guiProgramWithSource: sourceName with: [:prog | ]
+]
+
+{ #category : #adding }
+WBTScriptEnvironment >> guiProgramWithSource: sourceName with: aBlock [
 	^ self program: sourceName asFileReference basenameWithoutExtension with: [ :prog |
 		prog
 			source: sourceName;
-			setForGUI
+			setForGUI.
+		aBlock value: prog
 	]
 ]
 
@@ -212,8 +218,14 @@ WBTScriptEnvironment >> program: programName with: aBlock [
 
 { #category : #adding }
 WBTScriptEnvironment >> programWithSource: sourceName [
+	^ self programWithSource: sourceName with: [:prog | ]
+]
+
+{ #category : #adding }
+WBTScriptEnvironment >> programWithSource: sourceName with: aBlock [
 	^ self program: sourceName asFileReference basenameWithoutExtension with: [ :prog |
-		prog source: sourceName
+		prog source: sourceName.
+		aBlock value: prog
 	]
 ]
 

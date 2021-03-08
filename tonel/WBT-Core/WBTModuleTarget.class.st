@@ -107,8 +107,34 @@ WBTModuleTarget >> addResource: newResource [
 ]
 
 { #category : #adding }
+WBTModuleTarget >> addResource: rawAbsolutePath withRelativePath: rawRelativePath [
+	| targetPath sourceFileTarget installTarget |
+	sourceFileTarget := self buildEnvironment makeFileTargetFor:rawAbsolutePath asFileReference asAbsolute canonicalize.
+	targetPath := self buildEnvironment validBuildResourcesDirectory resolve: rawRelativePath asFileReference.
+	installTarget := sourceFileTarget makeInstallIntoTarget: targetPath.
+	self addResource: installTarget
+]
+
+{ #category : #adding }
 WBTModuleTarget >> addResources: newResources [
 	resources do: [ :each | self addResource: each ]
+]
+
+{ #category : #adding }
+WBTModuleTarget >> addResourcesDirectory: rawResourcesDirectory [
+	self addResourcesDirectory: rawResourcesDirectory withPrefix: '.'
+]
+
+{ #category : #adding }
+WBTModuleTarget >> addResourcesDirectory: rawResourcesDirectory withPrefix: prefix [
+	| resourcesDirectory prefixRelativePath |
+	resourcesDirectory := rawResourcesDirectory asFileReference asAbsolute canonicalize.
+	prefixRelativePath := prefix asFileReference.
+	resourcesDirectory allChildren do: [ :each |
+		each isFile ifTrue: [ 
+			self addResource: each withRelativePath: (prefixRelativePath asFileReference resolve: (each relativeTo: resourcesDirectory))
+		]
+	].
 ]
 
 { #category : #adding }
