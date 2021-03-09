@@ -17,6 +17,11 @@ WBTBundleBuilder >> createTargetNamed: targetName [
 ]
 
 { #category : #'as yet unclassified' }
+WBTBundleBuilder >> program [
+	^ target program
+]
+
+{ #category : #'as yet unclassified' }
 WBTBundleBuilder >> program: program [
 	target program: program
 ]
