@@ -26,6 +26,12 @@ WBTBundleBuilder >> program: program [
 	target program: program
 ]
 
+{ #category : #resources }
+WBTBundleBuilder >> resourcesDirectory: rawResourceDirectory prefix: prefix [
+	self program addResourcesDirectory: (script workingDirectory resolve: rawResourceDirectory asFileReference) withPrefix: prefix
+
+]
+
 { #category : #initialization }
 WBTBundleBuilder >> setForGUI [
 	target program win32Subsystem: #WINDOWS
