@@ -103,7 +103,8 @@ WBTModuleTarget >> addLinkerArguments: arguments [
 
 { #category : #adding }
 WBTModuleTarget >> addResource: newResource [
-	resources add: newResource
+	resources add: newResource.
+	allResources := nil.
 ]
 
 { #category : #adding }
