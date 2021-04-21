@@ -14,6 +14,11 @@ WBTLibraryTarget >> importLibName [
 	^ name
 ]
 
+{ #category : #'as yet unclassified' }
+WBTLibraryTarget >> importLinkerFlags [
+	^ nil
+]
+
 { #category : #testing }
 WBTLibraryTarget >> isExportedLibrary [
 	^ true

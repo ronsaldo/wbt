@@ -67,6 +67,11 @@ WBTToolChain class >> computeLLVMProgramNameFor: programName [
 
 ]
 
+{ #category : #construction }
+WBTToolChain class >> emscripten [
+	^ WBTUnixStyleCommandLineToolChain new setForEmscripten
+]
+
 { #category : #utilities }
 WBTToolChain class >> hasClang [
 	self checkLLVMPresence.

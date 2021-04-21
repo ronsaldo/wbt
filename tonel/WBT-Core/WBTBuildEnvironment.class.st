@@ -40,6 +40,11 @@ WBTBuildEnvironment class >> forCurrentPlatformWithLLD [
 ]
 
 { #category : #'as yet unclassified' }
+WBTBuildEnvironment class >> forEmscripten [
+	^ self forPlatform: WBTPlatform emscripten
+]
+
+{ #category : #'as yet unclassified' }
 WBTBuildEnvironment class >> forHostPlatform: hostPlatform [
 	| currentPlatform |
 	currentPlatform := WBTPlatform current.
@@ -103,6 +108,11 @@ WBTBuildEnvironment class >> forUWPX64 [
 { #category : #'as yet unclassified' }
 WBTBuildEnvironment class >> forUWPX86 [
 	^ self forPlatform: WBTPlatform uwpX86
+]
+
+{ #category : #'as yet unclassified' }
+WBTBuildEnvironment class >> forWebAssembly32 [
+	^ self forPlatform: WBTPlatform webAssembly32
 ]
 
 { #category : #'as yet unclassified' }

@@ -95,6 +95,14 @@ WBTUnixStyleCommandLineToolChain >> setForClang [
 ]
 
 { #category : #initialization }
+WBTUnixStyleCommandLineToolChain >> setForEmscripten [
+	super setForEmscripten.
+	ar := 'emar'.
+	cc := 'emcc'.
+	cxx := 'em++'.
+]
+
+{ #category : #initialization }
 WBTUnixStyleCommandLineToolChain >> setForGCC [
 	self setForUnixCommon.
 	cc := 'gcc'.

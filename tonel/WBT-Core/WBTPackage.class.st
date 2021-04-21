@@ -144,6 +144,17 @@ WBTPackage >> importLibrary: libraryName with: aBlock [
 ]
 
 { #category : #adding }
+WBTPackage >> importLibrary: libraryName withFlags: flags [
+	| importedLibraryTarget |
+	importedLibraryTarget := self addElement: (WBTImportedLibraryTarget new
+		name: libraryName;
+		importLinkerFlags: flags;
+		yourself
+	).
+	^ importedLibraryTarget
+]
+
+{ #category : #adding }
 WBTPackage >> importPackage: packageName [
 	dependencies add: packageName
 ]

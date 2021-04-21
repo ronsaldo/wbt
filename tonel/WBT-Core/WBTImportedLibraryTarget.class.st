@@ -5,6 +5,7 @@ Class {
 	#name : #WBTImportedLibraryTarget,
 	#superclass : #WBTLibraryTarget,
 	#instVars : [
+		'importLinkerFlags',
 		'importLibFolder',
 		'binaryLibFolder',
 		'binaryInstallTargets'
@@ -96,6 +97,17 @@ WBTImportedLibraryTarget >> importLibFolder [
 { #category : #accessing }
 WBTImportedLibraryTarget >> importLibFolder: anObject [
 	importLibFolder := anObject
+]
+
+{ #category : #accessing }
+WBTImportedLibraryTarget >> importLinkerFlags [
+	^ importLinkerFlags
+]
+
+{ #category : #accessing }
+WBTImportedLibraryTarget >> importLinkerFlags: anObject [
+
+	importLinkerFlags := anObject
 ]
 
 { #category : #initialization }

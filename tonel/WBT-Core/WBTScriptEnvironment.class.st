@@ -140,6 +140,11 @@ WBTScriptEnvironment >> importLibrary: libraryName fromLibFolder: libFolder binF
 ]
 
 { #category : #adding }
+WBTScriptEnvironment >> importLibrary: libraryName withFlags: flags [
+	package importLibrary: libraryName withFlags: flags
+]
+
+{ #category : #adding }
 WBTScriptEnvironment >> importPackage: packageName [
 	^ package importPackage: packageName
 ]

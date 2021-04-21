@@ -102,14 +102,18 @@ WBTCommandLineToolChain >> formatLinkerArgumentsForLinkingLibrary: library into:
 	library isString ifTrue: [ out nextPut: library ].
 	library isObjectLibrary ifTrue: [
 		out addAll: library allObjectFiles
-	] ifFalse: [ 
-		library importLibFolder ifNotNil: [:folder |
-			out add: self importLibraryFolderArgumentPrefix , (folder asFileReference asAbsolute canonicalize fullName).
-		].
+	] ifFalse: [
+		library importLinkerFlags ifNotNil: [ :linkerFlags |
+			linkerFlags add: linkerFlags
+		] ifNil: [ 
+			library importLibFolder ifNotNil: [:folder |
+				out add: self importLibraryFolderArgumentPrefix , (folder asFileReference asAbsolute canonicalize fullName).
+			].
 
-		library importLibName ifNotNil: [ :lib |
-			out add: self importLibraryArgumentPrefix , ((lib endsWith: importLibraryArgumentSuffix)
-				ifTrue: [ lib ] ifFalse: [ lib , importLibraryArgumentSuffix ])
+			library importLibName ifNotNil: [ :lib |
+				out add: self importLibraryArgumentPrefix , ((lib endsWith: importLibraryArgumentSuffix)
+					ifTrue: [ lib ] ifFalse: [ lib , importLibraryArgumentSuffix ])
+			].
 		].
 	].
 
@@ -168,13 +172,18 @@ WBTCommandLineToolChain >> isCommandLineToolChain [
 
 { #category : #'as yet unclassified' }
 WBTCommandLineToolChain >> llvmClangCompilationCommandsFor: aPlatform [
-	| targetFlags |
+	| targetFlags clangProgramBlock |
 	targetFlags := OrderedCollection new.
 	aPlatform triple ifNotNil: [ :triple | targetFlags add: '-target ' , triple ].
 	aPlatform cpu ifNotNil: [ :cpu | targetFlags add: '-mcpu=' , cpu ].
 	aPlatform fpu ifNotNil: [ :fpu | targetFlags add: '-mfpu=' , fpu ].
 	aPlatform floatAbiName ifNotNil: [ :floatAbiName | targetFlags add: '-mfloat-abi=' , floatAbiName ].
 	aPlatform floatingPointModel ifNotNil: [ :floatingPointModel | targetFlags add: '-ffp-model=' , floatingPointModel ].
+	clangProgramBlock := [ self class clangProgram ].
+	aPlatform isEmscripten ifTrue: [
+		targetFlags := #().
+		clangProgramBlock := [ 'emcc' ]
+	].
 	
 	^ {
 		"TODO: Allow disabling these flags."
@@ -188,15 +197,16 @@ WBTCommandLineToolChain >> llvmClangCompilationCommandsFor: aPlatform [
 
 		#WBT_LLVM_CLANG_TARGET_FLAGS . targetFlags.
 
-		#WBT_LLVM_COMPILE_OBJECT . [self class clangProgram  , ' $(WBT_LLVM_CLANG_TARGET_FLAGS) $(WBT_LLVM_CLANG_FLAGS) $(WBT_LLVM_CLANG_$(WBT_BUILD_MODE)_FLAGS) -Wno-override-module -c -o $(WBT_OUTPUT_FILE) $(WBT_INPUT_FILES) '].
-		#WBT_LLVM_COMPILE_ASSEMBLY . [self class clangProgram  , ' $(WBT_LLVM_CLANG_TARGET_FLAGS) $(WBT_LLVM_CLANG_FLAGS) $(WBT_LLVM_CLANG_$(WBT_BUILD_MODE)_FLAGS) -Wno-override-module -S -o $(WBT_OUTPUT_FILE) $(WBT_INPUT_FILES) '].
+		#WBT_LLVM_COMPILE_OBJECT . [clangProgramBlock value  , ' $(WBT_LLVM_CLANG_TARGET_FLAGS) $(WBT_LLVM_CLANG_FLAGS) $(WBT_LLVM_CLANG_$(WBT_BUILD_MODE)_FLAGS) -Wno-override-module -c -o $(WBT_OUTPUT_FILE) $(WBT_INPUT_FILES) '].
+		#WBT_LLVM_COMPILE_ASSEMBLY . [clangProgramBlock value  , ' $(WBT_LLVM_CLANG_TARGET_FLAGS) $(WBT_LLVM_CLANG_FLAGS) $(WBT_LLVM_CLANG_$(WBT_BUILD_MODE)_FLAGS) -Wno-override-module -S -o $(WBT_OUTPUT_FILE) $(WBT_INPUT_FILES) '].
 	}
 ]
 
 { #category : #'as yet unclassified' }
 WBTCommandLineToolChain >> llvmCompilationCommandsFor: aPlatform [
+	aPlatform isEmscripten ifTrue: [ ^ self llvmClangCompilationCommandsFor: aPlatform ].
 	self class hasLLC ifTrue: [ ^ self llvmLLCCompilationCommandsFor: aPlatform].
-	self class hasClang ifTrue: [ ^ self llvmClangCompilationCommandsFor: aPlatform].
+	self class hasClang ifTrue: [ ^ self llvmClangCompilationCommandsFor: aPlatform ].
 	^ #()
 
 ]
@@ -228,6 +238,11 @@ WBTCommandLineToolChain >> llvmLLCCompilationCommandsFor: aPlatform [
 { #category : #'as yet unclassified' }
 WBTCommandLineToolChain >> rpathLocalLinkerArgument [
 	^ nil
+]
+
+{ #category : #initialization }
+WBTCommandLineToolChain >> setForEmscripten [
+	cmake := 'emcmake'
 ]
 
 { #category : #'as yet unclassified' }

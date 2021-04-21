@@ -50,6 +50,16 @@ WBTPlatform class >> currentWithLLD [
 ]
 
 { #category : #'as yet unclassified' }
+WBTPlatform class >> emscripten [
+	^ self new
+		name: #emscripten;
+		architecture: WBTArchitecture wasm32;
+		toolchain: WBTToolChain emscripten;
+		setDefaultOperatingSystemConventions;
+		yourself
+]
+
+{ #category : #'as yet unclassified' }
 WBTPlatform class >> linux [
 	^ self linuxGCC
 ]
@@ -153,6 +163,26 @@ WBTPlatform class >> uwpX86 [
 		toolchain: WBTToolChain windowsMSVC;
 		setDefaultOperatingSystemConventions;
 		defaultBundleType: WBTBundleTypeAppx uniqueInstance;
+		yourself
+]
+
+{ #category : #'as yet unclassified' }
+WBTPlatform class >> webAssembly32 [
+	^ self new
+		name: #wasm;
+		architecture: WBTArchitecture wasm32;
+		toolchain: WBTToolChain emscripten;
+		setDefaultOperatingSystemConventions;
+		yourself
+]
+
+{ #category : #'as yet unclassified' }
+WBTPlatform class >> webAssembly64 [
+	^ self new
+		name: #wasm;
+		architecture: WBTArchitecture wasm64;
+		toolchain: WBTToolChain emscripten;
+		setDefaultOperatingSystemConventions;
 		yourself
 ]
 
@@ -476,9 +506,7 @@ WBTPlatform >> formatTriple [
 
 		self abiName ifNotEmpty: [
 			out nextPut: $-; nextPutAll: abiName
-		] ifEmpty: [ 
-			out nextPutAll: '-unknown'
-		].
+		]
 	]
 ]
 
@@ -515,6 +543,11 @@ WBTPlatform >> isEmbeddedPAL [
 { #category : #accessing }
 WBTPlatform >> isEmbeddedPAL: anObject [
 	isEmbeddedPAL := anObject
+]
+
+{ #category : #testing }
+WBTPlatform >> isEmscripten [
+	^ name = #emscripten
 ]
 
 { #category : #testing }
@@ -589,7 +622,7 @@ WBTPlatform >> isUnixFamily [
 
 { #category : #testing }
 WBTPlatform >> isWebAssembly [
-	^ name = #wasm
+	^ architecture isWebAssembly
 ]
 
 { #category : #testing }
@@ -647,7 +680,26 @@ WBTPlatform >> pluginPrefix [
 WBTPlatform >> setDefaultOperatingSystemConventions [
 	self isWindowsFamily ifTrue: [ ^ self setForWindowsConventions ].
 	self isAppleFamily ifTrue: [ ^ self setForOSXConventions ].
+	self isEmscripten ifTrue: [ ^ self setForEmscriptenConventions ].
 	^ self setForUnixConventions
+]
+
+{ #category : #initialization }
+WBTPlatform >> setForEmscriptenConventions [
+	objectFilePrefix := ''.
+	objectFileSuffix := '.o'.
+	executablePrefix := ''.
+	executableSuffix := '.html'.
+	staticLibraryPrefix := 'lib'.
+	staticLibrarySuffix := '.a'.	
+	dynamicLibraryPrefix := 'lib'.
+	dynamicLibrarySuffix := '.so'.
+	dynamicLibraryDebugPrefix := ''.
+	dynamicLibraryDebugSuffix := ''.
+	dynamicLibraryImportPrefix := 'lib'.
+	dynamicLibraryImportSuffix := '.so'.
+	pluginPrefix := 'lib'.
+	pluginSuffix := '.so'.
 ]
 
 { #category : #initialization }
