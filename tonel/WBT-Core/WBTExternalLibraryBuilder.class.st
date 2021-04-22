@@ -45,12 +45,19 @@ WBTExternalLibraryBuilder >> configureWithCMake [
 
 { #category : #'as yet unclassified' }
 WBTExternalLibraryBuilder >> configureWithCMakeFlags: flags [
-	self configureWithCommand: '$(WBT_CMAKE_CONFIGURE) ' , flags
+	self configureWithCommand: '$(WBT_CMAKE_CONFIGURE)' variables: {
+		#CMAKE_CONFIGURE_FLAGS . flags 
+	}
 ]
 
 { #category : #'as yet unclassified' }
 WBTExternalLibraryBuilder >> configureWithCommand: command [
-	(self executeCommand: command) = 0 ifFalse: [
+	self configureWithCommand: command variables: #() 
+]
+
+{ #category : #'as yet unclassified' }
+WBTExternalLibraryBuilder >> configureWithCommand: command variables: variables [
+	(self executeCommand: command  variables: variables) = 0 ifFalse: [
 		self error: 'Failed to configure external library'
 	]
 ]
@@ -64,12 +71,17 @@ WBTExternalLibraryBuilder >> createTargetNamed: moduleName [
 
 { #category : #'as yet unclassified' }
 WBTExternalLibraryBuilder >> executeCommand: command [
+	^ self executeCommand: command variables: #()
+]
+
+{ #category : #'as yet unclassified' }
+WBTExternalLibraryBuilder >> executeCommand: command variables: variables [
 	self validBuildDirectory ensureCreateDirectory.
 	^ target buildEnvironment substituteAndExecuteCommandLineCommand: command inDirectory: self validBuildDirectory variables: extraVariables , {
 		#WBT_SOURCE_DIRECTORY . self validSourceDirectory.
 		#WBT_BUILD_DIRECTORY . self validBuildDirectory.
 		#WBT_INSTALL_DIRECTORY . self validInstallDirectory.
-	}
+	} , variables
 ]
 
 { #category : #'as yet unclassified' }
@@ -98,8 +110,8 @@ WBTExternalLibraryBuilder >> installPrefixDirectory: artifactDirectoryName [
 
 	artifactDirectory exists ifFalse: [ self error: 'Failed to find the artifact directory.' ].
 	target
-		importLibFolder: artifactDirectory / 'lib';
-		binaryLibFolder: artifactDirectory / 'bin';
+		importLibFolder: artifactDirectory / target buildEnvironment platform installImportLibFolderName;
+		binaryLibFolder: artifactDirectory / target buildEnvironment platform installBinaryLibFolderName;
 		generateBinaryInstallationTarget
 ]
 

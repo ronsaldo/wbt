@@ -88,6 +88,7 @@ WBTPlatform class >> linuxGCC [
 WBTPlatform class >> osx [
 	^ self new
 		name: #osx;
+		canonicalName: #macosx;
 		architecture: WBTArchitecture forCurrentPlatform;
 		toolchain: WBTToolChain osxClang;
 		setForOSXConventions;
@@ -320,7 +321,7 @@ WBTPlatform >> cpu: anObject [
 WBTPlatform >> defaultAbiName [
 	(architecture isX86 or: [ architecture isX64 ]) ifTrue: [ 
 		self isWindowsFamily ifTrue: [ ^ #msvc ].
-		self isAppleFamily ifTrue: [ ^ #macho ].
+		self isAppleFamily ifTrue: [ ^ #'' ].
 		self isUnixFamily ifTrue: [ ^ #gnu ].
 		^ #elf
 	].
@@ -345,6 +346,7 @@ WBTPlatform >> defaultBundleType: anObject [
 { #category : #accessing }
 WBTPlatform >> defaultVendorName [
 	(architecture isX86 or: [ architecture isX64 ]) ifTrue: [
+		self isAppleFamily ifTrue: [ ^ #apple ].
 		^ #pc
 	].
 
@@ -518,6 +520,17 @@ WBTPlatform >> fpu [
 { #category : #accessing }
 WBTPlatform >> fpu: anObject [
 	fpu := anObject
+]
+
+{ #category : #'as yet unclassified' }
+WBTPlatform >> installBinaryLibFolderName [
+	self isWindowsFamily ifTrue: [ ^ 'bin' ].
+	^ self installImportLibFolderName
+]
+
+{ #category : #'as yet unclassified' }
+WBTPlatform >> installImportLibFolderName [
+	^ 'lib'
 ]
 
 { #category : #testing }

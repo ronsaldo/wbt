@@ -127,6 +127,7 @@ WBTUnixStyleCommandLineToolChain >> substitutionVariables [
 	^ super substitutionVariables , {
 		#WBT_C_FLAGS . '-Wall -Wextra -fdata-sections -ffunction-sections'.
 		#WBT_CXX_FLAGS . '-Wall -Wextra -fdata-sections -ffunction-sections'.
+		#WBT_CXX_STANDARD_FLAGS . '-std=c++17'.
 
 		#WBT_C_DEBUG_FLAGS . '-g'.
 		#WBT_CXX_DEBUG_FLAGS . '-g'.
@@ -146,7 +147,7 @@ WBTUnixStyleCommandLineToolChain >> substitutionVariables [
 		#WBT_CXX_TARGET_PIC_FLAG . '$(WBT_CXX_PIC_$(WBT_POSITION_INDEPENDENT_CODE_ENABLED)_FLAG)'.
 
 		#WBT_C_ACTIVE_FLAGS . '$(WBT_C_FLAGS) $(WBT_C_$(WBT_BUILD_MODE)_FLAGS) $(WBT_C_TARGET_PIC_FLAG)  $(WBT_C_INCLUDE_DIRECTORIES_FLAGS)'.
-		#WBT_CXX_ACTIVE_FLAGS . '$(WBT_CXX_FLAGS) $(WBT_CXX_$(WBT_BUILD_MODE)_FLAGS) $(WBT_CXX_TARGET_PIC_FLAG) $(WBT_CXX_INCLUDE_DIRECTORIES_FLAGS)'.
+		#WBT_CXX_ACTIVE_FLAGS . '$(WBT_CXX_STANDARD_FLAGS) $(WBT_CXX_FLAGS) $(WBT_CXX_$(WBT_BUILD_MODE)_FLAGS) $(WBT_CXX_TARGET_PIC_FLAG) $(WBT_CXX_INCLUDE_DIRECTORIES_FLAGS)'.
 	
 		#WBT_C_COMPILER . [self cc].
 		#WBT_CXX_COMPILER . [self cxx].
@@ -157,7 +158,9 @@ WBTUnixStyleCommandLineToolChain >> substitutionVariables [
 		#WBT_C_LINKER . [self ld].
 		#WBT_CXX_LINKER . [self ld].
 
-		#WBT_EXECUTABLE_LINKER_FLAGS . '-Wl,--gc-sections'.
+		#WBT_EXECUTABLE_LINKER_FLAGS . Smalltalk platform isMacOSX
+			ifTrue: ['-Wl,-dead_strip']
+			ifFalse: ['-Wl,--gc-sections'].
 
 		#WBT_C_LINK_EXECUTABLE . '$(WBT_C_COMPILER) $(WBT_EXECUTABLE_LINKER_FLAGS) -o $(WBT_OUTPUT_FILE) $(WBT_INPUT_FILES) $(WBT_LINK_LIBRARIES)'.
 		#WBT_CXX_LINK_EXECUTABLE . '$(WBT_CXX_COMPILER) $(WBT_EXECUTABLE_LINKER_FLAGS) -o $(WBT_OUTPUT_FILE) $(WBT_INPUT_FILES) $(WBT_LINK_LIBRARIES)'.

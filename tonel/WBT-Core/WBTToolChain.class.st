@@ -132,6 +132,8 @@ WBTToolChain class >> llvmObjcopyProgram [
 { #category : #construction }
 WBTToolChain class >> osxClang [
 	^ self unixClang
+		rpathLocalLinkerArgument: '-Xlinker -rpath -Xlinker @executable_path';
+		yourself
 ]
 
 { #category : #construction }
