@@ -607,6 +607,11 @@ WBTBuildEnvironment >> validBuildResourcesDirectory [
 	^ buildResourcesDirectory ifNil: [ self validBuildOutputDirectory / 'resources' ]
 ]
 
+{ #category : #accessing }
+WBTBuildEnvironment >> validExternalDependencyCacheDirectory [
+	^ self validBuildCacheDirectory / 'external-deps'
+]
+
 { #category : #'as yet unclassified' }
 WBTBuildEnvironment >> validLanguageForFileExtension: extension [
 	^ (self languageForFileExtension: extension) ifNil: [ WBTNullLanguage uniqueInstance ].

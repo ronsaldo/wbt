@@ -270,6 +270,11 @@ WBTPackage >> validBuildOutputDirectory [
 	^ buildEnvironment validBuildOutputDirectory
 ]
 
+{ #category : #accessing }
+WBTPackage >> validExternalDependencyCacheDirectory [
+	^ self buildEnvironment validExternalDependencyCacheDirectory
+]
+
 { #category : #'as yet unclassified' }
 WBTPackage >> wbtSolveLinkLibrariesInPackage: targetPackage [
 	^ self exportedLibraries

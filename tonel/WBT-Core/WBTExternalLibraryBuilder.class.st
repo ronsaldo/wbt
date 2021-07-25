@@ -117,10 +117,6 @@ WBTExternalLibraryBuilder >> fetchParametersFromCacheOrBuildWith: aBlock [
 
 		buildCacheFileReference parent ensureCreateDirectory.
 		buildCacheFileReference writeStreamDo: [:out | out truncate; nextPutAll: cacheData ].
-		
-		"target importLibFolder: artifactDirectory / target buildEnvironment platform installImportLibFolderName;
-		binaryLibFolder: artifactDirectory / target buildEnvironment platform installBinaryLibFolderName;
-		generateBinaryInstallationTarget"
 	].
 
 ]
