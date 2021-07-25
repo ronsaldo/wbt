@@ -71,7 +71,7 @@ WBTScriptEnvironment >> evaluateScript: scriptSource [
 WBTScriptEnvironment >> externalLibrary: libraryName buildWith: aBlock [
 	| builder |
 	builder := WBTExternalLibraryBuilder for: self named: libraryName.
-	aBlock value: builder.
+	builder fetchParametersFromCacheOrBuildWith: aBlock.
 	^ builder module
 ]
 

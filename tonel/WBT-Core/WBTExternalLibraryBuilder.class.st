@@ -6,7 +6,8 @@ Class {
 		'buildDirectory',
 		'artifactDirectory',
 		'extraVariables',
-		'installDirectory'
+		'installDirectory',
+		'cacheDirectory'
 	],
 	#category : #'WBT-Core-Builder'
 }
@@ -95,6 +96,36 @@ WBTExternalLibraryBuilder >> extraVariables: theExtraVariables [
 ]
 
 { #category : #'as yet unclassified' }
+WBTExternalLibraryBuilder >> fetchParametersFromCacheOrBuildWith: aBlock [
+	| buildCacheFileReference |
+	buildCacheFileReference := self validExternalDependencyCacheDirectory / (target name , '-cache.json').
+	buildCacheFileReference exists ifTrue: [ 
+		| cacheData |
+		cacheData := NeoJSONReader fromString: buildCacheFileReference contents.
+		target
+			importLibFolder: (cacheData at: 'importLibFolder') asFileReference;
+			binaryLibFolder: (cacheData at: 'binaryLibFolder') asFileReference;
+			generateBinaryInstallationTarget
+	] ifFalse: [
+		| cacheData |
+		aBlock value: self.
+
+		cacheData := NeoJSONWriter toStringPretty: (Dictionary newFromPairs: { 
+			'importLibFolder' . target importLibFolder asFileReference fullName.
+			'binaryLibFolder' . target binaryLibFolder asFileReference fullName.
+		}).
+
+		buildCacheFileReference parent ensureCreateDirectory.
+		buildCacheFileReference writeStreamDo: [:out | out truncate; nextPutAll: cacheData ].
+		
+		"target importLibFolder: artifactDirectory / target buildEnvironment platform installImportLibFolderName;
+		binaryLibFolder: artifactDirectory / target buildEnvironment platform installBinaryLibFolderName;
+		generateBinaryInstallationTarget"
+	].
+
+]
+
+{ #category : #'as yet unclassified' }
 WBTExternalLibraryBuilder >> initialize [
 	super initialize.
 	extraVariables := #().
@@ -142,6 +173,11 @@ WBTExternalLibraryBuilder >> useSeparateBuildDirectory [
 { #category : #'as yet unclassified' }
 WBTExternalLibraryBuilder >> validBuildDirectory [
 	^ buildDirectory ifNil: [ buildDirectory := self validSourceDirectory ]
+]
+
+{ #category : #'as yet unclassified' }
+WBTExternalLibraryBuilder >> validExternalDependencyCacheDirectory [
+	^ cacheDirectory ifNil: [ cacheDirectory := target package validExternalDependencyCacheDirectory ]
 ]
 
 { #category : #'as yet unclassified' }
